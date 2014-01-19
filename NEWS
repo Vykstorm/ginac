@@ -1,5 +1,43 @@
 This file records noteworthy changes.
 
+
+1.6.3 (20 October 2014)
+* New expand_options::expand_transcendental. GiNaC will apply additional
+  rules when expanding expressions if this option is specified, i.e.
+  log(a*b) -> log(a) + log(b)
+  exp(a + b) -> exp(a)*exp(b)
+* Functions can define a custom expand() and info() now.
+* Automatically rewrite (x^{-1})^c -> x^{-c} for positive c.
+* Transform abs(x)^n -> x^n if x is real and n is even.
+* improve power::info(): power with a real base and even exponent
+  reports that it's non-negative.
+* Fixed spurious match failure due to expairseq::match() bug:
+  > match(sin(y)*exp(b)+sin(x)*exp(a), sin($0)*exp(a)+exp(b)*sin($1))
+  FAIL
+* fixed power::is_polynomial() and mul::is_polynomial() computation.
+* factor_univariate correctly handles polynomials over rationals (no
+  segfaults any more).
+* fixed an infinite loop in factor_multivariate due to incorrect handling
+  of polynomials having a leading coefficient being a sum with a non-trivial
+  integer content.
+* Fixed numeric evaluation of generalized multiple polylogarithms for real
+  and negative argument.
+* Avoid calling log(1-x) in numeric evaluation of classical polylogarithm.
+* Fixed numeric evaluation of multiple polylogarithms (correctly set
+  the signs of the imaginary parts in the intermediate expression).
+* Fixed numeric evaluation of Nielsen polylogs for arguments close to
+  the 6th root of unity or its conjugate.
+* Avoid infinite recursion in series expansion of logarithm.
+* numeric::info(info_flags::nonnegative) correctly handles complex numbers
+  with non-zero imaginary part.
+* power::is_polynomial(), mul::is_polynomial(): fix miscomputations.
+* Fixed several build issues:
+  - libreadline and dlopen() misdetection.
+  - multiple definition of symbol on MinGW.
+  - auto* tools and texinfo being unhappy in various ways.
+* GiNaC can be built with CMake now.
+
+
 1.6.2 (6 November 2011)
 * Fixed the parser to read GiNaC::lst again.
 * Fixed a compile warning (relevant to openSUSE build).

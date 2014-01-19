@@ -30,7 +30,7 @@
 #define GINACLIB_MINOR_VERSION 6
 
 /* Micro version of GiNaC */
-#define GINACLIB_MICRO_VERSION 2
+#define GINACLIB_MICRO_VERSION 3
 
 // GiNaC library version information. It has very little to do with GiNaC
 // version number. In particular, library version is OS dependent. 
