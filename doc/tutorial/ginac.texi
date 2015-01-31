@@ -5858,6 +5858,9 @@ GiNaC contains the following predefined mathematical functions:
 @item @code{log(x)}
 @tab natural logarithm
 @cindex @code{log()}
+@item @code{eta(x,y)}
+@tab Eta function: @code{eta(x,y) = log(x*y) - log(x) - log(y)}
+@cindex @code{eta()}
 @item @code{Li2(x)}
 @tab dilogarithm
 @cindex @code{Li2()}
