@@ -7103,6 +7103,25 @@ specifies which parameter to differentiate in a partial derivative in
 case the function has more than one parameter, and its main application
 is for correct handling of the chain rule.
 
+Derivatives of some functions, for example @code{abs()} and
+@code{Order()}, could not be evaluated through the chain rule. In such
+cases the full derivative may be specified as shown for @code{Order()}:
+
+@example
+static ex Order_expl_derivative(const ex & arg, const symbol & s)
+@{
+	return Order(arg.diff(s));
+@}
+@end example
+
+That is, we need to supply a procedure, which returns the expression of
+derivative with respect to the variable @code{s} for the argument
+@code{arg}. This procedure need to be registered with the function
+through the option @code{expl_derivative_func} (see the next
+Subsection). In contrast, a partial derivative, e.g. as was defined for
+@code{cos()} above, needs to be registered through the option
+@code{derivative_func}. 
+
 An implementation of the series expansion is not needed for @code{cos()} as
 it doesn't have any poles and GiNaC can do Taylor expansion by itself (as
 long as it knows what the derivative of @code{cos()} is). @code{tan()}, on
@@ -7138,14 +7157,15 @@ functions without any special options.
 eval_func(<C++ function>)
 evalf_func(<C++ function>)
 derivative_func(<C++ function>)
+expl_derivative_func(<C++ function>)
 series_func(<C++ function>)
 conjugate_func(<C++ function>)
 @end example
 
 These specify the C++ functions that implement symbolic evaluation,
-numeric evaluation, partial derivatives, and series expansion, respectively.
-They correspond to the GiNaC methods @code{eval()}, @code{evalf()},
-@code{diff()} and @code{series()}.
+numeric evaluation, partial derivatives, explicit derivative, and series
+expansion, respectively.  They correspond to the GiNaC methods
+@code{eval()}, @code{evalf()}, @code{diff()} and @code{series()}.
 
 The @code{eval_func()} function needs to use @code{.hold()} if no further
 automatic evaluation is desired or possible.

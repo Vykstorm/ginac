@@ -343,6 +343,71 @@ static unsigned inifcns_consist_various()
 	return result;
 }
 
+/* Several tests for derivetives */
+static unsigned inifcns_consist_derivatives()
+{
+	unsigned result = 0;
+	symbol z, w;
+	realsymbol x;
+	ex e, e1;
+
+	e=pow(x,z).conjugate().diff(x);
+	e1=pow(x,z).conjugate()*z.conjugate()/x;
+	if (! (e-e1).normal().is_zero() ) {
+		clog << "ERROR: pow(x,z).conjugate().diff(x) " << e << " != " << e1 << endl;
+		++result;
+	}
+
+	e=pow(w,z).conjugate().diff(w);
+	e1=pow(w,z).conjugate()*z.conjugate()/w;
+	if ( (e-e1).normal().is_zero() ) {
+		clog << "ERROR: pow(w,z).conjugate().diff(w) " << e << " = " << e1 << endl;
+		++result;
+	}
+
+	e=atanh(x).imag_part().diff(x);
+	if (! e.is_zero() ) {
+		clog << "ERROR: atanh(x).imag_part().diff(x) " << e << " != 0" << endl;
+		++result;
+	}
+
+	e=atanh(w).imag_part().diff(w);
+	if ( e.is_zero() ) {
+		clog << "ERROR: atanh(w).imag_part().diff(w) " << e << " = 0" << endl;
+		++result;
+	}
+
+	e=atanh(x).real_part().diff(x);
+	e1=pow(1-x*x,-1);
+	if (! (e-e1).normal().is_zero() ) {
+		clog << "ERROR: atanh(x).real_part().diff(x) " << e << " != " << e1 << endl;
+		++result;
+	}
+
+	e=atanh(w).real_part().diff(w);
+	e1=pow(1-w*w,-1);
+	if ( (e-e1).normal().is_zero() ) {
+		clog << "ERROR: atanh(w).real_part().diff(w) " << e << " = " << e1 << endl;
+		++result;
+	}
+
+	e=abs(log(z)).diff(z);
+	e1=(conjugate(log(z))/z+log(z)/conjugate(z))/abs(log(z))/2;
+	if (! (e-e1).normal().is_zero() ) {
+		clog << "ERROR: abs(log(z)).diff(z) " << e << " != " << e1 << endl;
+		++result;
+	}
+
+	e=Order(pow(x,4)).diff(x);
+	e1=Order(pow(x,3));
+	if (! (e-e1).normal().is_zero() ) {
+		clog << "ERROR: Order(pow(x,4)).diff(x) " << e << " != " << e1 << endl;
+		++result;
+	}
+
+	return result;
+}
+
 unsigned exam_inifcns()
 {
 	unsigned result = 0;
@@ -357,6 +422,7 @@ unsigned exam_inifcns()
 	result += inifcns_consist_exp();  cout << '.' << flush;
 	result += inifcns_consist_log();  cout << '.' << flush;
 	result += inifcns_consist_various();  cout << '.' << flush;
+	result += inifcns_consist_derivatives();  cout << '.' << flush;
 	
 	return result;
 }

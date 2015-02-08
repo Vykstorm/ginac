@@ -59,6 +59,7 @@ typedef ex (* real_part_funcp)();
 typedef ex (* imag_part_funcp)();
 typedef ex (* expand_funcp)();
 typedef ex (* derivative_funcp)();
+typedef ex (* expl_derivative_funcp)();
 typedef ex (* power_funcp)();
 typedef ex (* series_funcp)();
 typedef void (* print_funcp)();
@@ -73,6 +74,7 @@ typedef ex (* real_part_funcp_@N@)( @args@ );
 typedef ex (* imag_part_funcp_@N@)( @args@ );
 typedef ex (* expand_funcp_@N@)( @args@, unsigned );
 typedef ex (* derivative_funcp_@N@)( @args@, unsigned );
+typedef ex (* expl_derivative_funcp_@N@)( @args@, const symbol & );
 typedef ex (* power_funcp_@N@)( @args@, const ex & );
 typedef ex (* series_funcp_@N@)( @args@, const relational &, int, unsigned );
 typedef void (* print_funcp_@N@)( @args@, const print_context & );
@@ -87,6 +89,7 @@ typedef ex (* @fp@_funcp_exvector)(const exvector &);
 ---
 typedef ex (* expand_funcp_exvector)(const exvector &, unsigned);
 typedef ex (* derivative_funcp_exvector)(const exvector &, unsigned);
+typedef ex (* expl_derivative_funcp_exvector)(const exvector &, const symbol &);
 typedef ex (* power_funcp_exvector)(const exvector &, const ex &);
 typedef ex (* series_funcp_exvector)(const exvector &, const relational &, int, unsigned);
 typedef void (* print_funcp_exvector)(const exvector &, const print_context &);
@@ -159,6 +162,7 @@ protected:
 	imag_part_funcp imag_part_f;
 	expand_funcp expand_f;
 	derivative_funcp derivative_f;
+	expl_derivative_funcp expl_derivative_f;
 	power_funcp power_f;
 	series_funcp series_f;
 	std::vector<print_funcp> print_dispatch_table;
@@ -182,6 +186,7 @@ protected:
 	bool imag_part_use_exvector_args;
 	bool expand_use_exvector_args;
 	bool derivative_use_exvector_args;
+	bool expl_derivative_use_exvector_args;
 	bool power_use_exvector_args;
 	bool series_use_exvector_args;
 	bool print_use_exvector_args;
@@ -251,6 +256,7 @@ protected:
 	// non-virtual functions in this class
 protected:
 	ex pderivative(unsigned diff_param) const; // partial differentiation
+	ex expl_derivative(const symbol & s) const; // partial differentiation
 	static std::vector<function_options> & registered_functions();
 	bool lookup_remember_table(ex & result) const;
 	void store_remember_table(ex const & result) const;
