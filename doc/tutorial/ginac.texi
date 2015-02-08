@@ -3334,7 +3334,7 @@ Clifford algebras, which will commute with each other.
 Note that the call @code{clifford_unit(mu, minkmetric())} creates
 something very close to @code{dirac_gamma(mu)}, although
 @code{dirac_gamma} have more efficient simplification mechanism. 
-@cindex @code{clifford::get_metric()}
+@cindex @code{get_metric()}
 The method @code{clifford::get_metric()} returns a metric defining this
 Clifford number.
 
