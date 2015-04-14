@@ -43,6 +43,9 @@ int main()
 
 	// Our function pointer that points to the compiled ex
 	FUNCP_CUBA fp;
+
+	// Optionally, compile with custom compiler flags:
+	// setenv("CXXFLAGS", "-O3 -fomit-frame-pointer -ffast-math", 1);
 	compile_ex(lst(expr), lst(x,y), fp);
 
 	// Starting VEGAS

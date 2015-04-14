@@ -3,3 +3,4 @@
 #cmakedefine HAVE_LIBREADLINE
 #cmakedefine HAVE_READLINE_READLINE_H
 #cmakedefine HAVE_READLINE_HISTORY_H
+#cmakedefine HAVE_LIBDL

@@ -159,6 +159,11 @@ if (READLINE_FOUND)
 	set(HAVE_READLINE_HISTORY_H 1)
 endif()
 
+find_package(LibDL)
+if (LIBDL_FOUND)
+	set(HAVE_LIBDL 1)
+endif()
+
 find_program(MAKEINFO makeinfo)
 find_program(FIG2DEV fig2dev)
 

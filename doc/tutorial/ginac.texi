@@ -6692,7 +6692,13 @@ ones supplied to @code{compile_ex} should appear in the expression.
 @code{compile_ex} uses the shell script @code{ginac-excompiler} to start the C
 compiler and produce the object files. This shell script comes with GiNaC and
 will be installed together with GiNaC in the configured @code{$PREFIX/bin}
-directory.
+directory. You can also export additional compiler flags via the $CXXFLAGS
+variable:
+
+@example
+setenv("CXXFLAGS", "-O3 -fomit-frame-pointer -ffast-math", 1);
+compile_ex(...);
+@end example
 
 @subsection Archiving
 @cindex @code{archive} (class)
