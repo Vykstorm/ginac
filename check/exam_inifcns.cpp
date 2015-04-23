@@ -232,6 +232,12 @@ static unsigned inifcns_consist_abs()
 	if (!abs(pow(p,a+I*b)).eval().is_equal(pow(p,a)))
 		++result;
 
+	if (!abs(sqrt(p)).eval().is_equal(sqrt(p)))
+		++result;
+
+	if (!abs(-sqrt(p)).eval().is_equal(sqrt(p)))
+		++result;
+
 	// also checks that abs(p)=p
 	if (!abs(pow(p,a+I*b)).eval().is_equal(pow(p,a)))
 		++result;
