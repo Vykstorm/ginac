@@ -544,6 +544,18 @@ static unsigned is_polynomial_false_positive()
 	return result;
 }
 
+// Bug in power::expand reported by Isuru Fernando (fixed 2015-05-07).
+static unsigned exam_paranoia21()
+{
+	symbol x("x");
+	ex e = pow(x + sqrt(ex(2))*x, 2).expand();
+	if (e.nops() != 2) {
+		clog << "(x+sqrt(2)*x)^2 was wrongly expanded to " << e << "\n";
+		return 1;
+	}
+	return 0;
+}
+
 unsigned exam_paranoia()
 {
 	unsigned result = 0;
@@ -571,6 +583,7 @@ unsigned exam_paranoia()
 	result += exam_paranoia19();  cout << '.' << flush;
 	result += exam_paranoia20();  cout << '.' << flush;
 	result += is_polynomial_false_positive(); cout << '.' << flush;
+	result += exam_paranoia21();  cout << '.' << flush;
 	
 	return result;
 }
