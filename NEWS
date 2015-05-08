@@ -1,5 +1,14 @@
 This file records noteworthy changes.
 
+1.6.4 (8 May 2015)
+* Fix pow(+(...),2).expand() where the sum contained roots of rationals.
+* Various improvements for info(info_flags::nonnegative).
+* Make power::expand() (x*p)^c -> x^c * p^c, if p>0.
+* Fix normal() where nested functions occur multiple times.
+* Add optional explicit derivatives to functions and use it in abs(),
+  imag_part(), real_part().
+* Evaluate abs(z)^(2n) -> z^n * conjugate(z)^n.
+
 1.6.3 (27 November 2014)
 * New expand_options::expand_transcendental. GiNaC will apply additional
   rules when expanding expressions if this option is specified, i.e.
