@@ -82,7 +82,6 @@ void timer::reset()
 
 double timer::read()
 {
-	double elapsed;
 #ifdef HAVE_RUSAGE
 	if (running())
 		getrusage(RUSAGE_SELF, &used2);

@@ -575,7 +575,7 @@ expair add::split_ex_to_pair(const ex & e) const
 }
 
 expair add::combine_ex_with_coeff_to_pair(const ex & e,
-										  const ex & c) const
+                                          const ex & c) const
 {
 	GINAC_ASSERT(is_exactly_a<numeric>(c));
 	if (is_exactly_a<mul>(e)) {
@@ -601,7 +601,7 @@ expair add::combine_ex_with_coeff_to_pair(const ex & e,
 }
 
 expair add::combine_pair_with_coeff_to_pair(const expair & p,
-											const ex & c) const
+                                            const ex & c) const
 {
 	GINAC_ASSERT(is_exactly_a<numeric>(p.coeff));
 	GINAC_ASSERT(is_exactly_a<numeric>(c));
