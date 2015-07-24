@@ -1249,7 +1249,7 @@ ex mLi_numeric(const lst& m, const lst& x)
 
 static ex G2_evalf(const ex& x_, const ex& y)
 {
-	if (!y.info(info_flags::positive)) {
+	if ((!y.info(info_flags::numeric)) || (!y.info(info_flags::positive))) {
 		return G(x_, y).hold();
 	}
 	lst x = is_a<lst>(x_) ? ex_to<lst>(x_) : lst(x_);
@@ -1292,7 +1292,7 @@ static ex G2_eval(const ex& x_, const ex& y)
 {
 	//TODO eval to MZV or H or S or Lin
 
-	if (!y.info(info_flags::positive)) {
+	if ((!y.info(info_flags::numeric)) || (!y.info(info_flags::positive))) {
 		return G(x_, y).hold();
 	}
 	lst x = is_a<lst>(x_) ? ex_to<lst>(x_) : lst(x_);
@@ -1341,10 +1341,10 @@ static ex G2_eval(const ex& x_, const ex& y)
 }
 
 
+// option do_not_evalf_params() removed.
 unsigned G2_SERIAL::serial = function::register_new(function_options("G", 2).
                                 evalf_func(G2_evalf).
                                 eval_func(G2_eval).
-                                do_not_evalf_params().
                                 overloaded(2));
 //TODO
 //                                derivative_func(G2_deriv).
@@ -1353,7 +1353,7 @@ unsigned G2_SERIAL::serial = function::register_new(function_options("G", 2).
 
 static ex G3_evalf(const ex& x_, const ex& s_, const ex& y)
 {
-	if (!y.info(info_flags::positive)) {
+	if ((!y.info(info_flags::numeric)) || (!y.info(info_flags::positive))) {
 		return G(x_, s_, y).hold();
 	}
 	lst x = is_a<lst>(x_) ? ex_to<lst>(x_) : lst(x_);
@@ -1417,7 +1417,7 @@ static ex G3_eval(const ex& x_, const ex& s_, const ex& y)
 {
 	//TODO eval to MZV or H or S or Lin
 
-	if (!y.info(info_flags::positive)) {
+	if ((!y.info(info_flags::numeric)) || (!y.info(info_flags::positive))) {
 		return G(x_, s_, y).hold();
 	}
 	lst x = is_a<lst>(x_) ? ex_to<lst>(x_) : lst(x_);
@@ -1487,10 +1487,12 @@ static ex G3_eval(const ex& x_, const ex& s_, const ex& y)
 }
 
 
+// option do_not_evalf_params() removed.
+// This is safe: in the code above it only matters if s_ > 0 or s_ < 0,
+// s_ is allowed to be of floating type.
 unsigned G3_SERIAL::serial = function::register_new(function_options("G", 3).
                                 evalf_func(G3_evalf).
                                 eval_func(G3_eval).
-                                do_not_evalf_params().
                                 overloaded(2));
 //TODO
 //                                derivative_func(G3_deriv).
