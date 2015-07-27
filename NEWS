@@ -1,5 +1,10 @@
 This file records noteworthy changes.
 
+1.6.5 (27 July 2015)
+* Fix pow(+(...),2).expand() where the sum contained roots of expressions.
+* Speed-up pow(+(...),n).expand() where n > 3.
+* Fix a crash in PolyLogs of rational numbers.
+
 1.6.4 (8 May 2015)
 * Fix pow(+(...),2).expand() where the sum contained roots of rationals.
 * Various improvements for info(info_flags::nonnegative).
