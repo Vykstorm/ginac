@@ -1,6 +1,6 @@
 /** @file exam_numeric.cpp
  *
- *  These exams creates some numbers and check the result of several boolean
+ *  These exams creates some numbers and check the result of several Boolean
  *  tests on these numbers like is_integer() etc... */
 
 /*

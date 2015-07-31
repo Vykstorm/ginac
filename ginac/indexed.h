@@ -255,7 +255,7 @@ protected:
 exvector get_all_dummy_indices(const ex & e);
 
 /** More reliable version of the form. The former assumes that e is an
-  * expanded epxression. */
+  * expanded expression. */
 exvector get_all_dummy_indices_safely(const ex & e);
 
 /** Returns b with all dummy indices, which are listed in va, renamed 
@@ -279,7 +279,7 @@ lst rename_dummy_indices_uniquely(const exvector & va, const exvector & vb);
  *  indices with the corresponding numeric values without variance.
  *
  *  @param e the given expression
- *  @param subs_idx indicates if variance of dummy indixes should be neglected
+ *  @param subs_idx indicates if variance of dummy indices should be neglected
  */
 ex expand_dummy_sum(const ex & e, bool subs_idx = false);
 

@@ -82,7 +82,7 @@ public:
 
 	// non-virtual functions in this class
 private:
-	// For conversions to boolean, as would be used in an if conditional,
+	// For conversions to Boolean, as would be used in an if conditional,
 	// implicit conversions from bool to int have a large number of
 	// undesirable side effects.  The following safe_bool type enables
 	// use of relational objects in conditionals without those side effects

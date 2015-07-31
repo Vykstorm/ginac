@@ -45,7 +45,7 @@ struct return_type_t
 	/// to distinguish between non-commutative objects of different type.
 	std::type_info const* tinfo; 
 	/// to distinguish between non-commutative objects of the same type.
-	/// Think of gamma matrices with different represenation labels.
+	/// Think of gamma matrices with different representation labels.
 	unsigned rl;
 
 	/// Strict weak ordering (so one can put return_type_t's into

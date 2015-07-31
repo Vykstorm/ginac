@@ -220,7 +220,7 @@ static unsigned exam_subs()
 	}
 
 	// And this used to fail in GiNaC 1.5.8 because it first substituted
-	// exp(x) -> exp(log(x)) -> x, and then substitued again x -> log(x)
+	// exp(x) -> exp(log(x)) -> x, and then substituted again x -> log(x)
 	e1 = exp(x);
 	e2 = e1.subs(x == log(x));
 	if (!e2.is_equal(x)) {

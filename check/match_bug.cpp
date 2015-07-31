@@ -30,7 +30,7 @@ using namespace GiNaC;
 /*
  * basic::match(lst&) used to have an obscure side effect: repl_lst
  * could be modified even if the match failed! Although this "feature"
- * was documented it happend to be very confusing *even for GiNaC
+ * was documented it happened to be very confusing *even for GiNaC
  * developers*, see 
  * http://www.ginac.de/pipermail/ginac-devel/2006-April/000942.html
  *

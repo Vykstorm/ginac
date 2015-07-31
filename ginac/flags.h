@@ -32,7 +32,7 @@ public:
 		expand_indexed = 0x0001,      ///< expands (a+b).i to a.i+b.i
 		expand_function_args = 0x0002, ///< expands the arguments of functions
 		expand_rename_idx = 0x0004, ///< used internally by mul::expand()
-		expand_transcendental = 0x0008 ///< expands trancendental functions like log and exp
+		expand_transcendental = 0x0008 ///< expands transcendental functions like log and exp
 	};
 };
 
@@ -55,7 +55,7 @@ public:
 		pattern_is_product = 0x0004,     ///< used internally by expairseq::subschildren()
 		pattern_is_not_product = 0x0008, ///< used internally by expairseq::subschildren()
 		no_index_renaming = 0x0010,
-		// To indicate that we want to substitue an index by something that is
+		// To indicate that we want to substitute an index by something that
 		// is not an index. Without this flag the index value would be
 		// substituted in that case.
 		really_subs_idx = 0x0020

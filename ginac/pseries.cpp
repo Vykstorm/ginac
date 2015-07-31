@@ -1229,7 +1229,7 @@ ex integral::series(const relational & r, int order, unsigned options) const
 	if (x.subs(r) != x)
 		throw std::logic_error("Cannot series expand wrt dummy variable");
 	
-	// Expanding integrant with r substituted taken in boundaries.
+	// Expanding integrand with r substituted taken in boundaries.
 	ex fseries = f.series(r, order, options);
 	epvector fexpansion;
 	fexpansion.reserve(fseries.nops());

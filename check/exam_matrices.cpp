@@ -143,9 +143,9 @@ static unsigned matrix_invert2()
 	ex det = m.determinant();
 	
 	if ((normal(m_i(0,0)*det) != d) ||
-		(normal(m_i(0,1)*det) != -b) ||
-		(normal(m_i(1,0)*det) != -c) ||
-		(normal(m_i(1,1)*det) != a)) {
+	    (normal(m_i(0,1)*det) != -b) ||
+	    (normal(m_i(1,0)*det) != -c) ||
+	    (normal(m_i(1,1)*det) != a)) {
 		clog << "inversion of 2x2 matrix " << m
 		     << " erroneously returned " << m_i << endl;
 		++result;

@@ -888,7 +888,7 @@ ex matrix::trace() const
 
 
 /** Characteristic Polynomial.  Following mathematica notation the
- *  characteristic polynomial of a matrix M is defined as the determiant of
+ *  characteristic polynomial of a matrix M is defined as the determinant of
  *  (M - lambda * 1) where 1 stands for the unit matrix of the same dimension
  *  as M.  Note that some CASs define it with a sign inside the determinant
  *  which gives rise to an overall sign if the dimension is odd.  This method
@@ -1118,7 +1118,7 @@ unsigned matrix::rank() const
  *  more than once.  According to W.M.Gentleman and S.C.Johnson this algorithm
  *  is better than elimination schemes for matrices of sparse multivariate
  *  polynomials and also for matrices of dense univariate polynomials if the
- *  matrix' dimesion is larger than 7.
+ *  matrix' dimension is larger than 7.
  *
  *  @return the determinant as a new expression (in expanded form)
  *  @see matrix::determinant() */
@@ -1496,7 +1496,7 @@ int matrix::fraction_free_elimination(const bool det)
  *  @param co is the column to be inspected
  *  @param symbolic signal if we want the first non-zero element to be pivoted
  *  (true) or the one with the largest absolute value (false).
- *  @return 0 if no interchange occured, -1 if all are zero (usually signaling
+ *  @return 0 if no interchange occurred, -1 if all are zero (usually signaling
  *  a degeneracy) and positive integer k means that rows ro and k were swapped.
  */
 int matrix::pivot(unsigned ro, unsigned co, bool symbolic)

@@ -247,7 +247,7 @@ static unsigned clifford_check3()
 	e = dirac_gamma(mu, 0) * dirac_gamma(mu.toggle_variance(), 1) * dirac_gamma(nu, 0) * dirac_gamma(nu.toggle_variance(), 1);
 	result += check_equal_simplify(dirac_trace(e, 0), 4 * dim * dirac_ONE(1));
 	result += check_equal_simplify(dirac_trace(e, 1), 4 * dim * dirac_ONE(0));
-	// Fails with new tinfo mechanism because the order of gamme matrices with different rl depends on luck. 
+	// Fails with new tinfo mechanism because the order of gamma matrices with different rl depends on luck.
 	// TODO: better check.
 	//result += check_equal_simplify(dirac_trace(e, 2), canonicalize_clifford(e)); // e will be canonicalized by the calculation of the trace
 	result += check_equal_simplify(dirac_trace(e, lst(0, 1)), 16 * dim);
@@ -576,34 +576,34 @@ unsigned exam_clifford()
 	result += clifford_check6<varidx>(ex_to<matrix>(diag_matrix(lst(-1, 1, s, t))))+clifford_check6<idx>(ex_to<matrix>(diag_matrix(lst(-1, 1, s, t))));; cout << '.' << flush;
 
 	matrix A(4, 4);
-	A = 1, 0, 0, 0, // anticommuting, not symmetric, Tr=0
-		0, -1, 0, 0,
-		0, 0, 0, -1,
-		0, 0, 1, 0; 
+	A = 1,  0,  0,  0, // anticommuting, not symmetric, Tr=0
+	    0, -1,  0,  0,
+	    0,  0,  0, -1,
+	    0,  0,  1,  0;
 	result += clifford_check6<varidx>(A)+clifford_check6<idx>(A);; cout << '.' << flush;
 
-	A = 1, 0, 0, 0, // anticommuting, not symmetric, Tr=2
-		0, 1, 0, 0,
-		0, 0, 0, -1,
-		0, 0, 1, 0; 
+	A = 1,  0,  0,  0, // anticommuting, not symmetric, Tr=2
+	    0,  1,  0,  0,
+	    0,  0,  0, -1,
+	    0,  0,  1,  0;
 	result += clifford_check6<varidx>(A)+clifford_check6<idx>(A);; cout << '.' << flush;
 
-	A = 1, 0, 0, 0, // not anticommuting, symmetric, Tr=0
-		0, -1, 0, 0,
-		0, 0, 0, -1,
-		0, 0, -1, 0; 
+	A = 1,  0,  0,  0, // not anticommuting, symmetric, Tr=0
+	    0, -1,  0,  0,
+	    0,  0,  0, -1,
+	    0,  0, -1,  0;
 	result += clifford_check6<varidx>(A)+clifford_check6<idx>(A);; cout << '.' << flush;
 
-	A = 1, 0, 0, 0, // not anticommuting, symmetric, Tr=2
-		0, 1, 0, 0,
-		0, 0, 0, -1,
-		0, 0, -1, 0; 
+	A = 1,  0,  0,  0, // not anticommuting, symmetric, Tr=2
+	    0,  1,  0,  0,
+	    0,  0,  0, -1,
+	    0,  0, -1,  0;
 	result += clifford_check6<varidx>(A)+clifford_check6<idx>(A);; cout << '.' << flush;
 
-	A = 1, 1, 0, 0, // not anticommuting, not symmetric, Tr=4
-		0, 1, 1, 0,
-		0, 0, 1, 1,
-		0, 0, 0, 1; 
+	A = 1,  1,  0,  0, // not anticommuting, not symmetric, Tr=4
+	    0,  1,  1,  0,
+	    0,  0,  1,  1,
+	    0,  0,  0,  1;
 	result += clifford_check6<varidx>(A)+clifford_check6<idx>(A);; cout << '.' << flush;
 
 	symbol dim("D");

@@ -167,7 +167,7 @@ inline ex antisymmetrize(const ex & e, const exvector & v)
 	return antisymmetrize(e, v.begin(), v.end());
 }
 
-/** Symmetrize expression by cyclic permuation over a set of objects
+/** Symmetrize expression by cyclic permutation over a set of objects
  *  (symbols, indices). */
 ex symmetrize_cyclic(const ex & e, exvector::const_iterator first, exvector::const_iterator last);
 

@@ -1883,7 +1883,7 @@ run_with_random_intputs(const unsigned d1, const unsigned d2)
 
 int main(int argc, char** argv)
 {
-	std::cout << "timing univarite GCD" << std::endl << std::flush;
+	std::cout << "timing univariate GCD" << std::endl << std::flush;
 	run_with_random_intputs(100, 50);
 	// run PRS gcd tests, both with upoly and ex
 	run_test(p1_srep, p2_srep, true, true);

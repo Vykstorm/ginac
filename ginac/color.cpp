@@ -195,7 +195,7 @@ ex color::thiscontainer(std::auto_ptr<exvector> vp) const
  *
  *  @param iv3 Vector of 3 indices
  *  @param iv2 Vector of 2 indices, must be a subset of iv3
- *  @param sig Returs sign introduced by index permutation
+ *  @param sig Returns sign introduced by index permutation
  *  @return the free index (the one that is in iv3 but not in iv2) */
 static ex permute_free_index_to_front(const exvector & iv3, const exvector & iv2, int & sig)
 {
@@ -314,7 +314,7 @@ bool su3t::contract_with(exvector::iterator self, exvector::iterator other, exve
 
 	if (is_exactly_a<su3t>(other->op(0))) {
 
-		// Contraction only makes sense if the represenation labels are equal
+		// Contraction only makes sense if the representation labels are equal
 		GINAC_ASSERT(is_a<color>(*other));
 		if (ex_to<color>(*other).get_representation_label() != rl)
 			return false;

@@ -648,7 +648,7 @@ bool reposition_dummy_indices(ex & e, exvector & variant_dummy_indices, exvector
 	}
 
 	// In the case where a dummy symbol occurs twice in the same indexed object
-	// we try all posibilities of raising/lowering and keep the least one in
+	// we try all possibilities of raising/lowering and keep the least one in
 	// the sense of ex_is_less.
 	ex optimal_e = e;
 	size_t numpossibs = 1 << local_var_dummies.size();
@@ -988,7 +988,7 @@ public:
 	terminfo(const ex & orig_, const ex & symm_) : orig(orig_), symm(symm_) {}
 
 	ex orig; /**< original term */
-	ex symm; /**< symmtrized term */
+	ex symm; /**< symmetrized term */
 };
 
 class terminfo_is_less {

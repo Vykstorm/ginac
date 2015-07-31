@@ -72,7 +72,7 @@ class excompiler
 	std::vector<filedesc> filelist; /**< List of all opened modules */
 public:
 	/**
-	 * Complete clean-up of opend modules is done on destruction.
+	 * Complete clean-up of opened modules is done on destruction.
 	 */
 	~excompiler()
 	{
@@ -181,7 +181,7 @@ public:
 };
 
 /**
- * This static object manages the modules opened by the complile_ex and link_ex
+ * This static object manages the modules opened by the compile_ex and link_ex
  * functions. On program termination its dtor is called and all open modules
  * are closed. The associated source and so-files are eventually deleted then
  * as well.

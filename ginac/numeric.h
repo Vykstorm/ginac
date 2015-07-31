@@ -50,7 +50,7 @@ typedef void (* digits_changed_callback)(long);
  *  than a dumber basic type since as a side-effect we let it change
  *  cl_default_float_format when it gets changed.  The only other
  *  meaningful thing to do with it is converting it to an unsigned,
- *  for temprary storing its value e.g.  The user must not create an
+ *  for temporarily storing its value e.g.  The user must not create an
  *  own working object of this class!  Since C++ forces us to make the
  *  class definition visible in order to use an object we put in a
  *  flag which prevents other objects of that class to be created. */

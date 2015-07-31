@@ -764,7 +764,7 @@ bool tryfactsubs(const ex & origfactor, const ex & patternfactor, int & nummatch
 	return true;
 }
 
-/** Checks wheter e matches to the pattern pat and the (possibly to be updated)
+/** Checks whether e matches to the pattern pat and the (possibly to be updated)
   * list of replacements repls. This matching is in the sense of algebraic
   * substitutions. Matching starts with pat.op(factor) of the pattern because
   * the factors before this one have already been matched. The (possibly
@@ -1293,7 +1293,7 @@ ex mul::expand(unsigned options) const
 
 /** Member-wise expand the expairs representing this sequence.  This must be
  *  overridden from expairseq::expandchildren() and done iteratively in order
- *  to allow for early cancallations and thus safe memory.
+ *  to allow for early cancellations and thus safe memory.
  *
  *  @see mul::expand()
  *  @return pointer to epvector containing expanded representation or zero

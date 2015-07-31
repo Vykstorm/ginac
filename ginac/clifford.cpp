@@ -349,7 +349,7 @@ bool diracgamma::contract_with(exvector::iterator self, exvector::iterator other
 
 	if (is_a<clifford>(*other)) {
 
-		// Contraction only makes sense if the represenation labels are equal
+		// Contraction only makes sense if the representation labels are equal
 		if (ex_to<clifford>(*other).get_representation_label() != rl)
 			return false;
 
@@ -456,7 +456,7 @@ bool cliffordunit::contract_with(exvector::iterator self, exvector::iterator oth
 	unsigned char rl = unit.get_representation_label();
 
 	if (is_a<clifford>(*other)) {
-		// Contraction only makes sense if the represenation labels are equal
+		// Contraction only makes sense if the representation labels are equal
 		// and the metrics are the same
 		if ((ex_to<clifford>(*other).get_representation_label() != rl) 
 		    && unit.same_metric(*other))

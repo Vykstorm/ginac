@@ -349,7 +349,7 @@ static unsigned inifcns_consist_various()
 	return result;
 }
 
-/* Several tests for derivetives */
+/* Several tests for derivatives */
 static unsigned inifcns_consist_derivatives()
 {
 	unsigned result = 0;

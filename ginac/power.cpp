@@ -913,7 +913,7 @@ ex power::expand(unsigned options) const
 namespace {  // anonymous namespace for power::expand_add() helpers
 
 /** Helper class to generate all bounded combinatorial partitions of an integer
- *  n with exactly m parts (including zero parts) in non-decreaing order.
+ *  n with exactly m parts (including zero parts) in non-decreasing order.
  */
 class partition_generator {
 private:

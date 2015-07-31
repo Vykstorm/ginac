@@ -1524,7 +1524,7 @@ bool expairseq::is_canonical() const
 		return 1;
 	
 #if EXPAIRSEQ_USE_HASHTAB
-	if (hashtabsize > 0) return 1; // not canoncalized
+	if (hashtabsize > 0) return 1; // not canonicalized
 #endif // EXPAIRSEQ_USE_HASHTAB
 	
 	epvector::const_iterator it = seq.begin(), itend = seq.end();

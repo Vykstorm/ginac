@@ -55,13 +55,13 @@ dense_bivariate_poly(const symbol & x1, const symbol & x2, unsigned degree)
 	return bipoly;
 }
 
-/* Chose a randum symbol or number from the argument list. */
+/* Chose a random symbol or number from the argument list. */
 const ex
 random_symbol(const symbol & x,
-			  const symbol & y,
-			  const symbol & z,
-			  bool rational = true,
-			  bool complex = false)
+              const symbol & y,
+              const symbol & z,
+              bool rational = true,
+              bool complex = false)
 {
 	ex e;
 	switch (abs(rand()) % 4) {
@@ -93,12 +93,12 @@ random_symbol(const symbol & x,
 /* Create a sparse random tree in three symbols. */
 const ex
 sparse_tree(const symbol & x,
-			const symbol & y,
-			const symbol & z,
-			int level,
-			bool trig = false,	// true includes trigonomatric functions
-			bool rational = true, // false excludes coefficients in Q
-			bool complex = false) // true includes complex numbers
+            const symbol & y,
+            const symbol & z,
+            int level,
+            bool trig = false,	// true includes trigonometric functions
+            bool rational = true, // false excludes coefficients in Q
+            bool complex = false) // true includes complex numbers
 {
 	if (level == 0)
 		return random_symbol(x,y,z,rational,complex);

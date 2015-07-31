@@ -1,6 +1,6 @@
 /** @file randomize_serials.cpp
  *
- *  Utilitiy function used by the benchmarks.
+ *  Utility function used by the benchmarks.
  */
 
 /*
@@ -28,7 +28,7 @@ using namespace GiNaC;
 #include <ctime>
 using namespace std;
 
-/** Generate a random amount of symbols and destroy them again immediatly.
+/** Generate a random amount of symbols and destroy them again immediately.
  *  This operation effectively makes the serial numbers of all subsequent
  *  symbols unpredictable.  If the serials are unpredictable, then so are
  *  their hash values.  If the hash values are unpredictable, then so are

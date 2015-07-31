@@ -320,7 +320,7 @@ archive_atom archive::atomize(const std::string &s) const
 const std::string &archive::unatomize(archive_atom id) const
 {
 	if (id >= atoms.size())
-		throw (std::range_error("archive::unatomizee(): atom ID out of range"));
+		throw (std::range_error("archive::unatomize(): atom ID out of range"));
 
 	return atoms[id];
 }

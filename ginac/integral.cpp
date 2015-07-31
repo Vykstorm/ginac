@@ -185,7 +185,7 @@ ex integral::evalf(int level) const
 	}
 
 	// 12.34 is just an arbitrary number used to check whether a number
-	// results after subsituting a number for the integration variable.
+	// results after substituting a number for the integration variable.
 	if (is_exactly_a<numeric>(ea) && is_exactly_a<numeric>(eb) 
 			&& is_exactly_a<numeric>(ef.subs(x==12.34).evalf())) {
 			return adaptivesimpson(x, ea, eb, ef);

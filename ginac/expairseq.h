@@ -175,9 +175,9 @@ protected:
 };
 
 /** Class to handle the renaming of dummy indices. It holds a vector of
- *  indices that are being used in the expression so-far. If the same
+ *  indices that are being used in the expression so far. If the same
  *  index occurs again as a dummy index in a factor, it is to be renamed.
- *  Unless dummy index renaming was swichted of, of course ;-) . */
+ *  Unless dummy index renaming was switched off, of course ;-) . */
 class make_flat_inserter
 {
 	public:

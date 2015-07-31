@@ -322,7 +322,7 @@ relational::safe_bool relational::make_safe_bool(bool cond) const
 	return cond? &safe_bool_helper::nonnull : 0;
 }
 
-/** Cast the relational into a boolean, mainly for evaluation within an
+/** Cast the relational into a Boolean, mainly for evaluation within an
  *  if-statement.  Note that (a<b) == false does not imply (a>=b) == true in
  *  the general symbolic case.  A false result means the comparison is either
  *  false or undecidable (except of course for !=, where true means either
