@@ -6505,7 +6505,7 @@ to map input (sub)strings to arbitrary expressions:
     table["x"] = x+log(y)+1;
     parser reader(table);
     ex e = reader("5*x^3 - x^2");
-    // e = 5*(x+log(y)+1)^3 + (x+log(y)+1)^2
+    // e = 5*(x+log(y)+1)^3 - (x+log(y)+1)^2
 @}
 @end example
 
@@ -6518,8 +6518,8 @@ with @code{get_syms()} method:
     parser reader;
     ex e = reader("2*x+sin(y)");
     symtab table = reader.get_syms();
-    symbol x = reader["x"];
-    symbol y = reader["y"];
+    symbol x = ex_to<symbol>(table["x"]);
+    symbol y = ex_to<symbol>(table["y"]);
 @}
 @end example
 
