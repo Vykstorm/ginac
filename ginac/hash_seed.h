@@ -7,11 +7,15 @@
 
 #include <typeinfo>
 #include <cstring>
-#include "crc32.h"
 #include "utils.h"
 #ifdef _WIN32
 #define GINAC_HASH_USE_MANGLED_NAME 1
 #endif
+
+#ifdef GINAC_HASH_USE_MANGLED_NAME
+#include "crc32.h"
+#endif
+
 namespace GiNaC
 {
 /**
@@ -24,7 +28,7 @@ namespace GiNaC
  * the pointer returned by type_info::name() might be different even for
  * objects of the same type! Hence we need to resort to comparing string
  * representation of the (mangled) type names. This is quite expensive,
- * so we compare crc32 hashes of those strings. We might got more hash
+ * so we compare crc32 hashes of those strings. We might get more hash
  * collisions (and slower evaluation as a result), but being a bit slower
  * is much better than being wrong.
  */
