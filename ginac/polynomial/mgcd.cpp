@@ -69,7 +69,6 @@ ex chinrem_gcd(const ex& A_, const ex& B_, const exvector& vars)
 	const cln::cl_I b_lc = integer_lcoeff(B, vars);
 	const cln::cl_I g_lc = cln::gcd(a_lc, b_lc);
 
-	const ex& x(vars.back());
 	exp_vector_t n = std::min(degree_vector(A, vars), degree_vector(B, vars));
 	const int nTot = std::accumulate(n.begin(), n.end(), 0);
 	const cln::cl_I A_max_coeff = to_cl_I(A.max_coefficient()); 
