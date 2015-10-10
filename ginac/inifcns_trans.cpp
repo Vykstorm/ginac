@@ -1530,22 +1530,22 @@ static ex atanh_series(const ex &arg,
 		return ((log(_ex1+arg)-log(_ex1-arg))*_ex1_2).series(rel, order, options);
 	// ...and the branch cuts (the discontinuity at the cut being just I*Pi)
 	if (!(options & series_options::suppress_branchcut)) {
- 		// method:
- 		// This is the branch cut: assemble the primitive series manually and
- 		// then add the corresponding complex step function.
- 		const symbol &s = ex_to<symbol>(rel.lhs());
- 		const ex &point = rel.rhs();
- 		const symbol foo;
- 		const ex replarg = series(atanh(arg), s==foo, order).subs(foo==point, subs_options::no_pattern);
+		// method:
+		// This is the branch cut: assemble the primitive series manually and
+		// then add the corresponding complex step function.
+		const symbol &s = ex_to<symbol>(rel.lhs());
+		const ex &point = rel.rhs();
+		const symbol foo;
+		const ex replarg = series(atanh(arg), s==foo, order).subs(foo==point, subs_options::no_pattern);
 		ex Order0correction = replarg.op(0)+csgn(I*arg)*Pi*I*_ex1_2;
 		if (arg_pt<_ex0)
 			Order0correction += log((arg_pt+_ex_1)/(arg_pt+_ex1))*_ex1_2;
 		else
 			Order0correction += log((arg_pt+_ex1)/(arg_pt+_ex_1))*_ex_1_2;
- 		epvector seq;
+		epvector seq;
 		seq.push_back(expair(Order0correction, _ex0));
- 		seq.push_back(expair(Order(_ex1), order));
- 		return series(replarg - pseries(rel, seq), rel, order);
+		seq.push_back(expair(Order(_ex1), order));
+		return series(replarg - pseries(rel, seq), rel, order);
 	}
 	throw do_taylor();
 }

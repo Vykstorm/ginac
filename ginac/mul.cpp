@@ -805,7 +805,7 @@ bool algebraic_match_mul_with_mul(const mul &e, const ex &pat, exmap& repls,
 
 bool mul::has(const ex & pattern, unsigned options) const
 {
-	if(!(options&has_options::algebraic))
+	if(!(options & has_options::algebraic))
 		return basic::has(pattern,options);
 	if(is_a<mul>(pattern)) {
 		exmap repls;

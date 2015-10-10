@@ -113,7 +113,7 @@ void remember_table_list::add_entry(function const & f, ex const & result)
 		}
 		default:
 			throw(std::logic_error("remember_table_list::add_entry(): invalid remember_strategy"));
-        }
+	}
 		GINAC_ASSERT(size()==max_assoc_size-1);
 	}
 	push_back(remember_table_entry(f,result));

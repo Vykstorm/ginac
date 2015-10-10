@@ -313,14 +313,14 @@ static unsigned inifcns_test_legacy()
 
 	ex x1 = exp(2*Pi*I/13).evalf();
 	ex x2 = exp(24*Pi*I/13).evalf();
-  	ex r2 = Li(lst(2),lst(x1)).hold().evalf();
+	ex r2 = Li(lst(2),lst(x1)).hold().evalf();
 	ex r3 = Li(lst(2),lst(x2)).hold().evalf();
 	if ( abs(r2-conjugate(r3)) > prec ) {
 		clog << "Legacy test 2 seems to be wrong." << endl;
 		result++;
 	}
 
-  	ex x3 = exp(5*Pi*I/3).evalf();
+	ex x3 = exp(5*Pi*I/3).evalf();
 	ex r4 = Li(lst(3),lst(x3)).hold().evalf();
 	if ( abs(r4 - numeric("0.40068563438653142847-0.95698384815740185713*I")) > prec ) {
 		clog << "Legacy test 3 seems to be wrong." << endl;

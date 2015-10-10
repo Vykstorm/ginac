@@ -661,7 +661,7 @@ ex expairseq::expand(unsigned options) const
  *  has (at least) two possible different semantics but we want to inherit
  *  methods thus avoiding code duplication.  Sometimes a method in expairseq
  *  has to create a new one of the same semantics, which cannot be done by a
- *  ctor because the name (add, mul,...) is unknown on the expaiseq level.  In
+ *  ctor because the name (add, mul,...) is unknown on the expairseq level.  In
  *  order for this trick to work a derived class must of course override this
  *  definition. */
 ex expairseq::thisexpairseq(const epvector &v, const ex &oc, bool do_index_renaming) const

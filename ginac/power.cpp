@@ -178,8 +178,8 @@ void power::do_print_csrc_cl_N(const print_csrc_cl_N& c, unsigned level) const
 void power::do_print_csrc(const print_csrc & c, unsigned level) const
 {
 	// Integer powers of symbols are printed in a special, optimized way
-	if (exponent.info(info_flags::integer)
-	 && (is_a<symbol>(basis) || is_a<constant>(basis))) {
+	if (exponent.info(info_flags::integer) &&
+	    (is_a<symbol>(basis) || is_a<constant>(basis))) {
 		int exp = ex_to<numeric>(exponent).to_int();
 		if (exp > 0)
 			c.s << '(';
@@ -495,8 +495,8 @@ ex power::eval(int level) const
 			if (is_exactly_a<numeric>(sub_exponent)) {
 				const numeric & num_sub_exponent = ex_to<numeric>(sub_exponent);
 				GINAC_ASSERT(num_sub_exponent!=numeric(1));
-				if (num_exponent->is_integer() || (abs(num_sub_exponent) - (*_num1_p)).is_negative() 
-						|| (num_sub_exponent == *_num_1_p && num_exponent->is_positive())) {
+				if (num_exponent->is_integer() || (abs(num_sub_exponent) - (*_num1_p)).is_negative() ||
+				    (num_sub_exponent == *_num_1_p && num_exponent->is_positive())) {
 					return power(sub_basis,num_sub_exponent.mul(*num_exponent));
 				}
 			}
@@ -622,18 +622,18 @@ bool power::has(const ex & other, unsigned options) const
 		return basic::has(other, options);
 	if (!is_a<power>(other))
 		return basic::has(other, options);
-	if (!exponent.info(info_flags::integer)
-			|| !other.op(1).info(info_flags::integer))
+	if (!exponent.info(info_flags::integer) ||
+	    !other.op(1).info(info_flags::integer))
 		return basic::has(other, options);
-	if (exponent.info(info_flags::posint)
-			&& other.op(1).info(info_flags::posint)
-			&& ex_to<numeric>(exponent) > ex_to<numeric>(other.op(1))
-			&& basis.match(other.op(0)))
+	if (exponent.info(info_flags::posint) &&
+	    other.op(1).info(info_flags::posint) &&
+	    ex_to<numeric>(exponent) > ex_to<numeric>(other.op(1)) &&
+	    basis.match(other.op(0)))
 		return true;
-	if (exponent.info(info_flags::negint)
-			&& other.op(1).info(info_flags::negint)
-			&& ex_to<numeric>(exponent) < ex_to<numeric>(other.op(1))
-			&& basis.match(other.op(0)))
+	if (exponent.info(info_flags::negint) &&
+	    other.op(1).info(info_flags::negint) &&
+	    ex_to<numeric>(exponent) < ex_to<numeric>(other.op(1)) &&
+	    basis.match(other.op(0)))
 		return true;
 	return basic::has(other, options);
 }
@@ -1308,12 +1308,12 @@ ex power::expand_mul(const mul & m, const numeric & n, unsigned options, bool fr
 	}
 
 	// do not bother to rename indices if there are no any.
-	if ((!(options & expand_options::expand_rename_idx)) 
-			&& m.info(info_flags::has_indices))
+	if (!(options & expand_options::expand_rename_idx) &&
+	    m.info(info_flags::has_indices))
 		options |= expand_options::expand_rename_idx;
 	// Leave it to multiplication since dummy indices have to be renamed
 	if ((options & expand_options::expand_rename_idx) &&
-		(get_all_dummy_indices(m).size() > 0) && n.is_positive()) {
+	    (get_all_dummy_indices(m).size() > 0) && n.is_positive()) {
 		ex result = m;
 		exvector va = get_all_dummy_indices(m);
 		sort(va.begin(), va.end(), ex_is_less());

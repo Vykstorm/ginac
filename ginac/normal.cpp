@@ -1535,7 +1535,7 @@ ex gcd(const ex &a, const ex &b, ex *ca, ex *cb, bool check_args, unsigned optio
 		if (ca)
 			*ca = ex_to<numeric>(aex)/g;
 		if (cb)
-	 		*cb = bex/g;
+			*cb = bex/g;
 		return g;
 	}
 

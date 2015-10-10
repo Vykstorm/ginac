@@ -208,7 +208,7 @@ ex & clifford::let_op(size_t i)
         GINAC_ASSERT(i<nops());
 
 	static ex rl = numeric(representation_label);
-        ensure_if_modifiable();
+	ensure_if_modifiable();
 	if (nops()-i == 1)
 		return rl;
 	else 
@@ -923,7 +923,7 @@ ex dirac_trace(const ex & e, const std::set<unsigned char> & rls, const ex & trO
 				return trONE * I * (lorentz_eps(ex_to<idx>(i1).replace_dim(_ex4), ex_to<idx>(i2).replace_dim(_ex4), ex_to<idx>(i3).replace_dim(_ex4), ex_to<idx>(i4).replace_dim(_ex4)) * b1 * b2 * b3 * b4).simplify_indexed();
 			}
 
-	   		// Tr gamma5 S_2k =
+			// Tr gamma5 S_2k =
 			//   I/4! * epsilon0123.mu1.mu2.mu3.mu4 * Tr gamma.mu1 gamma.mu2 gamma.mu3 gamma.mu4 S_2k
 			// (the epsilon is always 4-dimensional)
 			exvector ix(num-1), bv(num-1);
@@ -1195,7 +1195,7 @@ ex lst_to_clifford(const ex & v, const ex & e) {
 						return v.op(0) * dirac_ONE(ex_to<clifford>(e).get_representation_label()) + indexed(sub_matrix(ex_to<matrix>(v), 0, 1, 1, dim), mu_toggle) * e;
 					else 
 						return v.op(0) * dirac_ONE(ex_to<clifford>(e).get_representation_label()) + indexed(sub_matrix(ex_to<matrix>(v), 1, dim, 0, 1), mu_toggle) * e;
- 				} else
+				} else
 					throw(std::invalid_argument("lst_to_clifford(): dimensions of vector and clifford unit mismatch"));
 			} else
 				throw(std::invalid_argument("lst_to_clifford(): first argument should be a vector (nx1 or 1xn matrix)"));
@@ -1211,7 +1211,7 @@ ex lst_to_clifford(const ex & v, const ex & e) {
 	} else
 		throw(std::invalid_argument("lst_to_clifford(): the second argument should be a Clifford unit"));
 }
- 
+
 /** Auxiliary structure to define a function for striping one Clifford unit
  * from vectors. Used in  clifford_to_lst(). */
 static ex get_clifford_comp(const ex & e, const ex & c) 

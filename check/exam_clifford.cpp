@@ -67,7 +67,7 @@ static unsigned check_equal_simplify_term(const ex & e1, const ex & e2, idx & mu
 {
 	ex e = expand_dummy_sum(normal(simplify_indexed(e1) - e2), true);
 
- 	for (int j=0; j<4; j++) {
+	for (int j=0; j<4; j++) {
 		ex esub = e.subs(
 				is_a<varidx>(mu)
 					? lst (
@@ -87,7 +87,7 @@ static unsigned check_equal_simplify_term(const ex & e1, const ex & e2, idx & mu
 
 static unsigned check_equal_simplify_term2(const ex & e1, const ex & e2)
 {
- 	ex e = expand_dummy_sum(normal(simplify_indexed(e1) - e2), true);
+	ex e = expand_dummy_sum(normal(simplify_indexed(e1) - e2), true);
 	if (!(canonicalize_clifford(e).is_zero())) {
 		clog << "simplify_indexed(" << e1 << ") - (" << e2 << ") erroneously returned "
 			 << canonicalize_clifford(e) << " instead of 0" << endl;

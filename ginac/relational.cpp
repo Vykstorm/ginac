@@ -251,7 +251,7 @@ unsigned relational::return_type() const
 	GINAC_ASSERT(lh.return_type()==rh.return_type());
 	return lh.return_type();
 }
-   
+
 return_type_t relational::return_type_tinfo() const
 {
 	GINAC_ASSERT(lh.return_type_tinfo()==rh.return_type_tinfo());
@@ -281,7 +281,7 @@ unsigned relational::calchash() const
 			break;
 		case greater:
 		case greater_or_equal:
-	   		v ^= lhash;
+			v ^= lhash;
 			lhash = rhash;
 			break;
 	}

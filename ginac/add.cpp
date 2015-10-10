@@ -316,14 +316,14 @@ ex add::coeff(const ex & s, int n) const
 	epvector::const_iterator i = seq.begin(), end = seq.end();
 	while (i != end) {
 		ex restcoeff = i->rest.coeff(s, n);
- 		if (!restcoeff.is_zero()) {
- 			if (do_clifford) {
- 				if (clifford_max_label(restcoeff) == -1) {
- 					coeffseq_cliff->push_back(combine_ex_with_coeff_to_pair(ncmul(restcoeff, dirac_ONE(rl)), i->coeff));
+		if (!restcoeff.is_zero()) {
+			if (do_clifford) {
+				if (clifford_max_label(restcoeff) == -1) {
+					coeffseq_cliff->push_back(combine_ex_with_coeff_to_pair(ncmul(restcoeff, dirac_ONE(rl)), i->coeff));
 				} else {
- 					coeffseq_cliff->push_back(combine_ex_with_coeff_to_pair(restcoeff, i->coeff));
+					coeffseq_cliff->push_back(combine_ex_with_coeff_to_pair(restcoeff, i->coeff));
 					nonscalar = true;
- 				}
+				}
 			}
 			coeffseq->push_back(combine_ex_with_coeff_to_pair(restcoeff, i->coeff));
 		}

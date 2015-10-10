@@ -159,8 +159,8 @@ ex integral::eval(int level) const
 	if (ea==eb)
 		return _ex0;
 
-	if (are_ex_trivially_equal(eintvar,x) && are_ex_trivially_equal(ea,a)
-			&& are_ex_trivially_equal(eb,b) && are_ex_trivially_equal(ef,f))
+	if (are_ex_trivially_equal(eintvar,x) && are_ex_trivially_equal(ea,a) &&
+	    are_ex_trivially_equal(eb,b) && are_ex_trivially_equal(ef,f))
 		return this->hold();
 	return (new integral(eintvar, ea, eb, ef))
 		->setflag(status_flags::dynallocated | status_flags::evaluated);
@@ -186,13 +186,13 @@ ex integral::evalf(int level) const
 
 	// 12.34 is just an arbitrary number used to check whether a number
 	// results after substituting a number for the integration variable.
-	if (is_exactly_a<numeric>(ea) && is_exactly_a<numeric>(eb) 
-			&& is_exactly_a<numeric>(ef.subs(x==12.34).evalf())) {
+	if (is_exactly_a<numeric>(ea) && is_exactly_a<numeric>(eb) &&
+	    is_exactly_a<numeric>(ef.subs(x==12.34).evalf())) {
 			return adaptivesimpson(x, ea, eb, ef);
 	}
 
-	if (are_ex_trivially_equal(a, ea) && are_ex_trivially_equal(b, eb)
-				&& are_ex_trivially_equal(f, ef))
+	if (are_ex_trivially_equal(a, ea) && are_ex_trivially_equal(b, eb) &&
+	    are_ex_trivially_equal(f, ef))
 			return *this;
 		else
 			return (new integral(x, ea, eb, ef))
@@ -407,8 +407,8 @@ ex integral::expand(unsigned options) const
 			return (prefactor*integral(x, newa, newb, rest)).expand(options);
 	}
 
-	if (are_ex_trivially_equal(a, newa) && are_ex_trivially_equal(b, newb)
-			&& are_ex_trivially_equal(f, newf)) {
+	if (are_ex_trivially_equal(a, newa) && are_ex_trivially_equal(b, newb) &&
+	    are_ex_trivially_equal(f, newf)) {
 		if (options==0)
 			this->setflag(status_flags::expanded);
 		return *this;
@@ -444,8 +444,8 @@ ex integral::conjugate() const
 	ex conjb = b.conjugate();
 	ex conjf = f.conjugate().subs(x.conjugate()==x);
 
-	if (are_ex_trivially_equal(a, conja) && are_ex_trivially_equal(b, conjb)
-			&& are_ex_trivially_equal(f, conjf))
+	if (are_ex_trivially_equal(a, conja) && are_ex_trivially_equal(b, conjb) &&
+	    are_ex_trivially_equal(f, conjf))
 		return *this;
 
 	return (new integral(x, conja, conjb, conjf))

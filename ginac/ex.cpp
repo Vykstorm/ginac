@@ -203,7 +203,7 @@ void ex::traverse_postorder(visitor & v) const
 	accept(v);
 }
 
-/** Return modifyable operand/member at position i. */
+/** Return modifiable operand/member at position i. */
 ex & ex::let_op(size_t i)
 {
 	makewriteable();

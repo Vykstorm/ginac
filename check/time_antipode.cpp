@@ -151,7 +151,7 @@ class Gamma : public vertex {
 public:
 	Gamma(ijpair ij = ijpair(0,0)) : vertex(ij) { }
 	vertex* copy() const { return new Gamma(*this); }
-  	ijpair get_increment() const { return ijpair(indices.first+indices.second+1, 0); }
+	ijpair get_increment() const { return ijpair(indices.first+indices.second+1, 0); }
 	const ex evaluate(const symbol &x, const unsigned grad) const;
 private:
 };
@@ -450,7 +450,7 @@ static const node tree6(unsigned cuts=0)
 static unsigned test_tree(const node tree_generator(unsigned))
 {
 	const int edges = tree_generator(0).total_edges();
-   	const int vertices = edges+1;
+	const int vertices = edges+1;
 	
 	// fill a vector of all possible 2^edges combinations of cuts...
 	vector<node> counter;

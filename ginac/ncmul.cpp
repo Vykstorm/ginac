@@ -334,7 +334,7 @@ ex ncmul::eval(int level) const
 	
 	// ncmul(x) -> x
 	if (assocseq.size()==1) return *(seq.begin());
- 
+
 	// ncmul() -> 1
 	if (assocseq.empty()) return _ex1;
 
@@ -568,7 +568,7 @@ unsigned ncmul::return_type() const
 	GINAC_ASSERT(!all_commutative); // not all factors should commutate, because this is a ncmul();
 	return all_commutative ? return_types::commutative : return_types::noncommutative;
 }
-   
+
 return_type_t ncmul::return_type_tinfo() const
 {
 	if (seq.empty())

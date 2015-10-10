@@ -502,20 +502,20 @@ static void print_real_cl_N(const print_context & c, const cln::cl_R & x)
 {
 	if (cln::instanceof(x, cln::cl_I_ring)) {
 
-    int dst;
-    // fixnum 
-    if (coerce(dst, cln::the<cln::cl_I>(x))) {
-      // can be converted to native int
-      if (dst < 0)
-        c.s << "(-" << dst << ")";
-      else
-        c.s << dst;
-    } else {
-      // bignum
-      c.s << "cln::cl_I(\"";
-      print_real_number(c, x);
-      c.s << "\")";
-    }
+		int dst;
+		// fixnum 
+		if (coerce(dst, cln::the<cln::cl_I>(x))) {
+			// can be converted to native int
+			if (dst < 0)
+				c.s << "(-" << dst << ")";
+			else
+				c.s << dst;
+		} else {
+			// bignum
+			c.s << "cln::cl_I(\"";
+			print_real_number(c, x);
+			c.s << "\")";
+		}
 	} else if (cln::instanceof(x, cln::cl_RA_ring)) {
 
 		// Rational number
@@ -1376,7 +1376,7 @@ const numeric numeric::numer() const
 		if (cln::instanceof(r, cln::cl_RA_ring) && cln::instanceof(i, cln::cl_RA_ring)) {
 			const cln::cl_I s = cln::lcm(cln::denominator(r), cln::denominator(i));
 			return numeric(cln::complex(cln::numerator(r)*(cln::exquo(s,cln::denominator(r))),
-			   	   	                    cln::numerator(i)*(cln::exquo(s,cln::denominator(i)))));
+			                            cln::numerator(i)*(cln::exquo(s,cln::denominator(i)))));
 		}
 	}
 	// at least one float encountered
@@ -1531,7 +1531,7 @@ const numeric atan(const numeric &y, const numeric &x)
 		return *_num0_p;
 	if (x.is_real() && y.is_real())
 		return numeric(cln::atan(cln::the<cln::cl_R>(x.to_cl_N()),
-		                 cln::the<cln::cl_R>(y.to_cl_N())));
+		                         cln::the<cln::cl_R>(y.to_cl_N())));
 
 	// Compute -I*log((x+I*y)/sqrt(x^2+y^2))
 	//      == -I*log((x+I*y)/sqrt((x+I*y)*(x-I*y)))
@@ -1775,8 +1775,8 @@ cln::cl_N lanczos_coeffs::calc_lanczos_A(const cln::cl_N &x) const
 {
 	cln::cl_N A = (*current_vector)[0];
 	int size = current_vector->size();
-  	for (int i=1; i<size; ++i)
-     	A = A + (*current_vector)[i]/(x+cln::cl_I(-1+i));
+	for (int i=1; i<size; ++i)
+		A = A + (*current_vector)[i]/(x+cln::cl_I(-1+i));
 	return A;
 }
 
@@ -2050,11 +2050,11 @@ const cln::cl_N lgamma(const cln::cl_N &x)
 				- lgamma(1 - x);
 		cln::cl_N A = lc.calc_lanczos_A(x);
 		cln::cl_N temp = x + lc.get_order() - cln::cl_N(1)/2;
-   	cln::cl_N result = log(cln::cl_I(2)*pi_val)/2
-		              + (x-cln::cl_N(1)/2)*log(temp)
-		              - temp
-		              + log(A);
-   	return result;
+		cln::cl_N result = log(cln::cl_I(2)*pi_val)/2
+		                 + (x-cln::cl_N(1)/2)*log(temp)
+		                 - temp
+		                 + log(A);
+		return result;
 	}
 	else 
 		throw dunno();
@@ -2077,10 +2077,10 @@ const cln::cl_N tgamma(const cln::cl_N &x)
 			return pi_val/(cln::sin(pi_val*x))/tgamma(1 - x);
 		cln::cl_N A = lc.calc_lanczos_A(x);
 		cln::cl_N temp = x + lc.get_order() - cln::cl_N(1)/2;
-   	cln::cl_N result
-			= sqrt(cln::cl_I(2)*pi_val) * expt(temp, x - cln::cl_N(1)/2)
-			  * exp(-temp) * A;
-   	return result;
+		cln::cl_N result = sqrt(cln::cl_I(2)*pi_val)
+		                 * expt(temp, x - cln::cl_N(1)/2)
+		                 * exp(-temp) * A;
+		return result;
 	}
 	else
 		throw dunno();
@@ -2244,7 +2244,7 @@ const numeric bernoulli(const numeric &nn)
 				c = cln::exquo((c * (p+3-2*k)) * (p/2-k+1), cln::cl_I(2*k-1)*k);
 				b = b + c*results[k-1];
 			}
- 		}
+		}
 		results.push_back(-b/(p+1));
 	}
 	next_r = n+2;

@@ -240,7 +240,7 @@ ex basic::op(size_t i) const
 	throw(std::range_error(std::string("basic::op(): ") + class_name() + std::string(" has no operands")));
 }
 
-/** Return modifyable operand/member at position i. */
+/** Return modifiable operand/member at position i. */
 ex & basic::let_op(size_t i)
 {
 	ensure_if_modifiable();

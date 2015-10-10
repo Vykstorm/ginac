@@ -960,7 +960,7 @@ ex mul::series(const relational & r, int order, unsigned options) const
 				orderloop++;
 				real_ldegree = buf.series(r, orderloop, options).ldegree(sym);
 			} while ((real_ldegree == orderloop)
-					&& ( factor*real_ldegree < degbound));
+			      && (factor*real_ldegree < degbound));
 			ldegrees[j] = factor * real_ldegree;
 			degbound -= factor * real_ldegree;
 		}
