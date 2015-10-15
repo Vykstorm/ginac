@@ -293,6 +293,7 @@ static unsigned inifcns_consist_exp()
 
 static unsigned inifcns_consist_log()
 {
+	using GiNaC::log;
 	unsigned result = 0;
 	symbol z("a"), w("b");
 	realsymbol a("a"), b("b");
