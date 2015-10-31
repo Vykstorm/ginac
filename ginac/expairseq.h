@@ -34,17 +34,6 @@
 
 namespace GiNaC {
 
-/** Using hash tables can potentially enhance the asymptotic behaviour of
- *  combining n terms into one large sum (or n terms into one large product)
- *  from O(n*log(n)) to about O(n).  There are, however, several drawbacks.
- *  The constant in front of O(n) is quite large, when copying such an object
- *  one also has to copy the has table, comparison is quite expensive because
- *  there is no ordering any more, it doesn't help at all when combining two
- *  expairseqs because due to the presorted nature the behaviour would be
- *  O(n) anyways, the code is quite messy, etc, etc.  The code is here as
- *  an example for following generations to tinker with. */
-#define EXPAIRSEQ_USE_HASHTAB 0
-
 typedef std::vector<expair> epvector;       ///< expair-vector
 typedef epvector::iterator epp;             ///< expair-vector pointer
 typedef std::list<epp> epplist;             ///< list of expair-vector pointers
@@ -133,27 +122,6 @@ protected:
 	void make_flat(const epvector & v, bool do_index_renaming = false);
 	void canonicalize();
 	void combine_same_terms_sorted_seq();
-#if EXPAIRSEQ_USE_HASHTAB
-	void combine_same_terms();
-	unsigned calc_hashtabsize(unsigned sz) const;
-	unsigned calc_hashindex(const ex & e) const;
-	void shrink_hashtab();
-	void remove_hashtab_entry(epvector::const_iterator element);
-	void move_hashtab_entry(epvector::const_iterator oldpos,
-	                        epvector::iterator newpos);
-	void sorted_insert(epplist & eppl, epvector::const_iterator elem);
-	void build_hashtab_and_combine(epvector::iterator & first_numeric,
-	                               epvector::iterator & last_non_zero,
-	                               vector<bool> & touched,
-	                               unsigned & number_of_zeroes);
-	void drop_coeff_0_terms(epvector::iterator & first_numeric,
-	                        epvector::iterator & last_non_zero,
-	                        vector<bool> & touched,
-	                        unsigned & number_of_zeroes);
-	bool has_coeff_0() const;
-	void add_numerics_to_hashtab(epvector::iterator first_numeric,
-	                             epvector::const_iterator last_non_zero);
-#endif // EXPAIRSEQ_USE_HASHTAB
 	bool is_canonical() const;
 	std::auto_ptr<epvector> expandchildren(unsigned options) const;
 	std::auto_ptr<epvector> evalchildren(int level) const;
@@ -164,14 +132,6 @@ protected:
 protected:
 	epvector seq;
 	ex overall_coeff;
-#if EXPAIRSEQ_USE_HASHTAB
-	epplistvector hashtab;
-	unsigned hashtabsize;
-	unsigned hashmask;
-	static unsigned maxhashtabsize;
-	static unsigned minhashtabsize;
-	static unsigned hashtabfactor;
-#endif // EXPAIRSEQ_USE_HASHTAB
 };
 
 /** Class to handle the renaming of dummy indices. It holds a vector of

@@ -34,9 +34,6 @@
 #include "indexed.h"
 
 #include <algorithm>
-#if EXPAIRSEQ_USE_HASHTAB
-#include <cmath>
-#endif // EXPAIRSEQ_USE_HASHTAB
 #include <iostream>
 #include <iterator>
 #include <stdexcept>
@@ -70,39 +67,9 @@ public:
 // public
 
 expairseq::expairseq() 
-#if EXPAIRSEQ_USE_HASHTAB
-	: hashtabsize(0)
-#endif // EXPAIRSEQ_USE_HASHTAB
 {}
 
 // protected
-
-#if 0
-/** For use by copy ctor and assignment operator. */
-void expairseq::copy(const expairseq &other)
-{
-	seq = other.seq;
-	overall_coeff = other.overall_coeff;
-#if EXPAIRSEQ_USE_HASHTAB
-	// copy hashtab
-	hashtabsize = other.hashtabsize;
-	if (hashtabsize!=0) {
-		hashmask = other.hashmask;
-		hashtab.resize(hashtabsize);
-		epvector::const_iterator osb = other.seq.begin();
-		for (unsigned i=0; i<hashtabsize; ++i) {
-			hashtab[i].clear();
-			for (epplist::const_iterator cit=other.hashtab[i].begin();
-			     cit!=other.hashtab[i].end(); ++cit) {
-				hashtab[i].push_back(seq.begin()+((*cit)-osb));
-			}
-		}
-	} else {
-		hashtab.clear();
-	}
-#endif // EXPAIRSEQ_USE_HASHTAB
-}
-#endif
 
 //////////
 // other constructors
@@ -208,59 +175,6 @@ void expairseq::do_print_tree(const print_tree & c, unsigned level) const
 		overall_coeff.print(c, level + c.delta_indent);
 	}
 	c.s << std::string(level + c.delta_indent,' ') << "=====" << std::endl;
-#if EXPAIRSEQ_USE_HASHTAB
-	c.s << std::string(level + c.delta_indent,' ')
-	    << "hashtab size " << hashtabsize << std::endl;
-	if (hashtabsize == 0) return;
-#define MAXCOUNT 5
-	unsigned count[MAXCOUNT+1];
-	for (int i=0; i<MAXCOUNT+1; ++i)
-		count[i] = 0;
-	unsigned this_bin_fill;
-	unsigned cum_fill_sq = 0;
-	unsigned cum_fill = 0;
-	for (unsigned i=0; i<hashtabsize; ++i) {
-		this_bin_fill = 0;
-		if (hashtab[i].size() > 0) {
-			c.s << std::string(level + c.delta_indent, ' ')
-			    << "bin " << i << " with entries ";
-			for (epplist::const_iterator it=hashtab[i].begin();
-			     it!=hashtab[i].end(); ++it) {
-				c.s << *it-seq.begin() << " ";
-				++this_bin_fill;
-			}
-			c.s << std::endl;
-			cum_fill += this_bin_fill;
-			cum_fill_sq += this_bin_fill*this_bin_fill;
-		}
-		if (this_bin_fill<MAXCOUNT)
-			++count[this_bin_fill];
-		else
-			++count[MAXCOUNT];
-	}
-	unsigned fact = 1;
-	double cum_prob = 0;
-	double lambda = (1.0*seq.size()) / hashtabsize;
-	for (int k=0; k<MAXCOUNT; ++k) {
-		if (k>0)
-			fact *= k;
-		double prob = std::pow(lambda,k)/fact * std::exp(-lambda);
-		cum_prob += prob;
-		c.s << std::string(level + c.delta_indent, ' ') << "bins with " << k << " entries: "
-		    << int(1000.0*count[k]/hashtabsize)/10.0 << "% (expected: "
-		    << int(prob*1000)/10.0 << ")" << std::endl;
-	}
-	c.s << std::string(level + c.delta_indent, ' ') << "bins with more entries: "
-	    << int(1000.0*count[MAXCOUNT]/hashtabsize)/10.0 << "% (expected: "
-	    << int((1-cum_prob)*1000)/10.0 << ")" << std::endl;
-
-	c.s << std::string(level + c.delta_indent, ' ') << "variance: "
-	    << 1.0/hashtabsize*cum_fill_sq-(1.0/hashtabsize*cum_fill)*(1.0/hashtabsize*cum_fill)
-	    << std::endl;
-	c.s << std::string(level + c.delta_indent, ' ') << "average fill: "
-	    << (1.0*cum_fill)/hashtabsize
-	    << " (should be equal to " << (1.0*seq.size())/hashtabsize << ")" << std::endl;
-#endif // EXPAIRSEQ_USE_HASHTAB
 }
 
 bool expairseq::info(unsigned inf) const
@@ -494,54 +408,20 @@ int expairseq::compare_same_type(const basic &other) const
 	if (cmpval!=0)
 		return cmpval;
 	
-#if EXPAIRSEQ_USE_HASHTAB
-	GINAC_ASSERT(hashtabsize==o.hashtabsize);
-	if (hashtabsize==0) {
-#endif // EXPAIRSEQ_USE_HASHTAB
-		epvector::const_iterator cit1 = seq.begin();
-		epvector::const_iterator cit2 = o.seq.begin();
-		epvector::const_iterator last1 = seq.end();
-		epvector::const_iterator last2 = o.seq.end();
+	epvector::const_iterator cit1 = seq.begin();
+	epvector::const_iterator cit2 = o.seq.begin();
+	epvector::const_iterator last1 = seq.end();
+	epvector::const_iterator last2 = o.seq.end();
 		
-		for (; (cit1!=last1)&&(cit2!=last2); ++cit1, ++cit2) {
-			cmpval = (*cit1).compare(*cit2);
-			if (cmpval!=0) return cmpval;
-		}
+	for (; (cit1!=last1)&&(cit2!=last2); ++cit1, ++cit2) {
+		cmpval = (*cit1).compare(*cit2);
+		if (cmpval!=0) return cmpval;
+	}
 		
-		GINAC_ASSERT(cit1==last1);
-		GINAC_ASSERT(cit2==last2);
+	GINAC_ASSERT(cit1==last1);
+	GINAC_ASSERT(cit2==last2);
 		
-		return 0;
-#if EXPAIRSEQ_USE_HASHTAB
-	}
-	
-	// compare number of elements in each hashtab entry
-	for (unsigned i=0; i<hashtabsize; ++i) {
-		unsigned cursize=hashtab[i].size();
-		if (cursize != o.hashtab[i].size())
-			return (cursize < o.hashtab[i].size()) ? -1 : 1;
-	}
-	
-	// compare individual (sorted) hashtab entries
-	for (unsigned i=0; i<hashtabsize; ++i) {
-		unsigned sz = hashtab[i].size();
-		if (sz>0) {
-			const epplist &eppl1 = hashtab[i];
-			const epplist &eppl2 = o.hashtab[i];
-			epplist::const_iterator it1 = eppl1.begin();
-			epplist::const_iterator it2 = eppl2.begin();
-			while (it1!=eppl1.end()) {
-				cmpval = (*(*it1)).compare(*(*it2));
-				if (cmpval!=0)
-					return cmpval;
-				++it1;
-				++it2;
-			}
-		}
-	}
-	
-	return 0; // equal
-#endif // EXPAIRSEQ_USE_HASHTAB
+	return 0;
 }
 
 bool expairseq::is_equal_same_type(const basic &other) const
@@ -556,56 +436,17 @@ bool expairseq::is_equal_same_type(const basic &other) const
 	if (!overall_coeff.is_equal(o.overall_coeff))
 		return false;
 	
-#if EXPAIRSEQ_USE_HASHTAB
-	// compare number of elements in each hashtab entry
-	if (hashtabsize!=o.hashtabsize) {
-		std::cout << "this:" << std::endl;
-		print(print_tree(std::cout));
-		std::cout << "other:" << std::endl;
-		other.print(print_tree(std::cout));
-	}
+	epvector::const_iterator cit1 = seq.begin();
+	epvector::const_iterator cit2 = o.seq.begin();
+	epvector::const_iterator last1 = seq.end();
 		
-	GINAC_ASSERT(hashtabsize==o.hashtabsize);
-	
-	if (hashtabsize==0) {
-#endif // EXPAIRSEQ_USE_HASHTAB
-		epvector::const_iterator cit1 = seq.begin();
-		epvector::const_iterator cit2 = o.seq.begin();
-		epvector::const_iterator last1 = seq.end();
-		
-		while (cit1!=last1) {
-			if (!(*cit1).is_equal(*cit2)) return false;
-			++cit1;
-			++cit2;
-		}
-		
-		return true;
-#if EXPAIRSEQ_USE_HASHTAB
-	}
-	
-	for (unsigned i=0; i<hashtabsize; ++i) {
-		if (hashtab[i].size() != o.hashtab[i].size())
-			return false;
+	while (cit1!=last1) {
+		if (!(*cit1).is_equal(*cit2)) return false;
+		++cit1;
+		++cit2;
 	}
 
-	// compare individual sorted hashtab entries
-	for (unsigned i=0; i<hashtabsize; ++i) {
-		unsigned sz = hashtab[i].size();
-		if (sz>0) {
-			const epplist &eppl1 = hashtab[i];
-			const epplist &eppl2 = o.hashtab[i];
-			epplist::const_iterator it1 = eppl1.begin();
-			epplist::const_iterator it2 = eppl2.begin();
-			while (it1!=eppl1.end()) {
-				if (!(*(*it1)).is_equal(*(*it2))) return false;
-				++it1;
-				++it2;
-			}
-		}
-	}
-	
 	return true;
-#endif // EXPAIRSEQ_USE_HASHTAB
 }
 
 unsigned expairseq::return_type() const
@@ -620,11 +461,9 @@ unsigned expairseq::calchash() const
 	const epvector::const_iterator end = seq.end();
 	while (i != end) {
 		v ^= i->rest.gethash();
-#if !EXPAIRSEQ_USE_HASHTAB
 		// rotation spoils commutativity!
 		v = rotate_left(v);
 		v ^= i->coeff.gethash();
-#endif // !EXPAIRSEQ_USE_HASHTAB
 		++i;
 	}
 
@@ -741,9 +580,6 @@ ex expairseq::recombine_pair_to_ex(const expair &p) const
 
 bool expairseq::expair_needs_further_processing(epp it)
 {
-#if EXPAIRSEQ_USE_HASHTAB
-	//#  error "FIXME: expair_needs_further_processing not yet implemented for hashtabs, sorry. A.F."
-#endif // EXPAIRSEQ_USE_HASHTAB
 	return false;
 }
 
@@ -785,70 +621,30 @@ void expairseq::construct_from_2_ex_via_exvector(const ex &lh, const ex &rh)
 	v.push_back(lh);
 	v.push_back(rh);
 	construct_from_exvector(v);
-#if EXPAIRSEQ_USE_HASHTAB
-	GINAC_ASSERT((hashtabsize==0)||(hashtabsize>=minhashtabsize));
-	GINAC_ASSERT(hashtabsize==calc_hashtabsize(seq.size()));
-#endif // EXPAIRSEQ_USE_HASHTAB
 }
 
 void expairseq::construct_from_2_ex(const ex &lh, const ex &rh)
 {
 	if (typeid(ex_to<basic>(lh)) == typeid(*this)) {
 		if (typeid(ex_to<basic>(rh)) == typeid(*this)) {
-#if EXPAIRSEQ_USE_HASHTAB
-			unsigned totalsize = ex_to<expairseq>(lh).seq.size() +
-			                     ex_to<expairseq>(rh).seq.size();
-			if (calc_hashtabsize(totalsize)!=0) {
-				construct_from_2_ex_via_exvector(lh,rh);
-			} else {
-#endif // EXPAIRSEQ_USE_HASHTAB
-				if (is_a<mul>(lh) && lh.info(info_flags::has_indices) && 
-					rh.info(info_flags::has_indices)) {
-					ex newrh=rename_dummy_indices_uniquely(lh, rh);
-					construct_from_2_expairseq(ex_to<expairseq>(lh),
-					                           ex_to<expairseq>(newrh));
-				}
-				else
-					construct_from_2_expairseq(ex_to<expairseq>(lh),
-					                           ex_to<expairseq>(rh));
-#if EXPAIRSEQ_USE_HASHTAB
+			if (is_a<mul>(lh) && lh.info(info_flags::has_indices) && 
+				rh.info(info_flags::has_indices)) {
+				ex newrh=rename_dummy_indices_uniquely(lh, rh);
+				construct_from_2_expairseq(ex_to<expairseq>(lh),
+				                           ex_to<expairseq>(newrh));
 			}
-#endif // EXPAIRSEQ_USE_HASHTAB
+			else
+				construct_from_2_expairseq(ex_to<expairseq>(lh),
+				                           ex_to<expairseq>(rh));
 			return;
 		} else {
-#if EXPAIRSEQ_USE_HASHTAB
-			unsigned totalsize = ex_to<expairseq>(lh).seq.size()+1;
-			if (calc_hashtabsize(totalsize)!=0) {
-				construct_from_2_ex_via_exvector(lh, rh);
-			} else {
-#endif // EXPAIRSEQ_USE_HASHTAB
-				construct_from_expairseq_ex(ex_to<expairseq>(lh), rh);
-#if EXPAIRSEQ_USE_HASHTAB
-			}
-#endif // EXPAIRSEQ_USE_HASHTAB
+			construct_from_expairseq_ex(ex_to<expairseq>(lh), rh);
 			return;
 		}
 	} else if (typeid(ex_to<basic>(rh)) == typeid(*this)) {
-#if EXPAIRSEQ_USE_HASHTAB
-		unsigned totalsize=ex_to<expairseq>(rh).seq.size()+1;
-		if (calc_hashtabsize(totalsize)!=0) {
-			construct_from_2_ex_via_exvector(lh,rh);
-		} else {
-#endif // EXPAIRSEQ_USE_HASHTAB
-			construct_from_expairseq_ex(ex_to<expairseq>(rh),lh);
-#if EXPAIRSEQ_USE_HASHTAB
-		}
-#endif // EXPAIRSEQ_USE_HASHTAB
+		construct_from_expairseq_ex(ex_to<expairseq>(rh),lh);
 		return;
 	}
-	
-#if EXPAIRSEQ_USE_HASHTAB
-	if (calc_hashtabsize(2)!=0) {
-		construct_from_2_ex_via_exvector(lh,rh);
-		return;
-	}
-	hashtabsize = 0;
-#endif // EXPAIRSEQ_USE_HASHTAB
 	
 	if (is_exactly_a<numeric>(lh)) {
 		if (is_exactly_a<numeric>(rh)) {
@@ -1013,12 +809,8 @@ void expairseq::construct_from_exvector(const exvector &v)
 	//                  (same for (+,*) -> (*,^)
 
 	make_flat(v);
-#if EXPAIRSEQ_USE_HASHTAB
-	combine_same_terms();
-#else
 	canonicalize();
 	combine_same_terms_sorted_seq();
-#endif // EXPAIRSEQ_USE_HASHTAB
 }
 
 void expairseq::construct_from_epvector(const epvector &v, bool do_index_renaming)
@@ -1029,12 +821,8 @@ void expairseq::construct_from_epvector(const epvector &v, bool do_index_renamin
 	//                  same for (+,*) -> (*,^)
 
 	make_flat(v, do_index_renaming);
-#if EXPAIRSEQ_USE_HASHTAB
-	combine_same_terms();
-#else
 	canonicalize();
 	combine_same_terms_sorted_seq();
-#endif // EXPAIRSEQ_USE_HASHTAB
 }
 
 /** Combine this expairseq with argument exvector.
@@ -1207,325 +995,12 @@ void expairseq::combine_same_terms_sorted_seq()
 	}
 }
 
-#if EXPAIRSEQ_USE_HASHTAB
-
-unsigned expairseq::calc_hashtabsize(unsigned sz) const
-{
-	unsigned size;
-	unsigned nearest_power_of_2 = 1 << log2(sz);
-	// if (nearest_power_of_2 < maxhashtabsize/hashtabfactor) {
-	//  size = nearest_power_of_2*hashtabfactor;
-	size = nearest_power_of_2/hashtabfactor;
-	if (size<minhashtabsize)
-		return 0;
-
-	// hashtabsize must be a power of 2
-	GINAC_ASSERT((1U << log2(size))==size);
-	return size;
-}
-
-unsigned expairseq::calc_hashindex(const ex &e) const
-{
-	// calculate hashindex
-	unsigned hashindex;
-	if (is_a<numeric>(e)) {
-		hashindex = hashmask;
-	} else {
-		hashindex = e.gethash() & hashmask;
-		// last hashtab entry is reserved for numerics
-		if (hashindex==hashmask) hashindex = 0;
-	}
-	GINAC_ASSERT((hashindex<hashtabsize)||(hashtabsize==0));
-	return hashindex;
-}
-
-void expairseq::shrink_hashtab()
-{
-	unsigned new_hashtabsize;
-	while (hashtabsize!=(new_hashtabsize=calc_hashtabsize(seq.size()))) {
-		GINAC_ASSERT(new_hashtabsize<hashtabsize);
-		if (new_hashtabsize==0) {
-			hashtab.clear();
-			hashtabsize = 0;
-			canonicalize();
-			return;
-		}
-		
-		// shrink by a factor of 2
-		unsigned half_hashtabsize = hashtabsize/2;
-		for (unsigned i=0; i<half_hashtabsize-1; ++i)
-			hashtab[i].merge(hashtab[i+half_hashtabsize],epp_is_less());
-		// special treatment for numeric hashes
-		hashtab[0].merge(hashtab[half_hashtabsize-1],epp_is_less());
-		hashtab[half_hashtabsize-1] = hashtab[hashtabsize-1];
-		hashtab.resize(half_hashtabsize);
-		hashtabsize = half_hashtabsize;
-		hashmask = hashtabsize-1;
-	}
-}
-
-void expairseq::remove_hashtab_entry(epvector::const_iterator element)
-{
-	if (hashtabsize==0)
-		return; // nothing to do
-	
-	// calculate hashindex of element to be deleted
-	unsigned hashindex = calc_hashindex((*element).rest);
-
-	// find it in hashtab and remove it
-	epplist &eppl = hashtab[hashindex];
-	epplist::iterator epplit = eppl.begin();
-	bool erased = false;
-	while (epplit!=eppl.end()) {
-		if (*epplit == element) {
-			eppl.erase(epplit);
-			erased = true;
-			break;
-		}
-		++epplit;
-	}
-	if (!erased) {
-		std::cout << "tried to erase " << element-seq.begin() << std::endl;
-		std::cout << "size " << seq.end()-seq.begin() << std::endl;
-
-		unsigned hashindex = calc_hashindex(element->rest);
-		epplist &eppl = hashtab[hashindex];
-		epplist::iterator epplit = eppl.begin();
-		bool erased = false;
-		while (epplit!=eppl.end()) {
-			if (*epplit == element) {
-				eppl.erase(epplit);
-				erased = true;
-				break;
-			}
-			++epplit;
-		}
-		GINAC_ASSERT(erased);
-	}
-	GINAC_ASSERT(erased);
-}
-
-void expairseq::move_hashtab_entry(epvector::const_iterator oldpos,
-                                   epvector::iterator newpos)
-{
-	GINAC_ASSERT(hashtabsize!=0);
-	
-	// calculate hashindex of element which was moved
-	unsigned hashindex=calc_hashindex((*newpos).rest);
-
-	// find it in hashtab and modify it
-	epplist &eppl = hashtab[hashindex];
-	epplist::iterator epplit = eppl.begin();
-	while (epplit!=eppl.end()) {
-		if (*epplit == oldpos) {
-			*epplit = newpos;
-			break;
-		}
-		++epplit;
-	}
-	GINAC_ASSERT(epplit!=eppl.end());
-}
-
-void expairseq::sorted_insert(epplist &eppl, epvector::const_iterator elem)
-{
-	epplist::const_iterator current = eppl.begin();
-	while ((current!=eppl.end()) && ((*current)->is_less(*elem))) {
-		++current;
-	}
-	eppl.insert(current,elem);
-}    
-
-void expairseq::build_hashtab_and_combine(epvector::iterator &first_numeric,
-                                          epvector::iterator &last_non_zero,
-                                          std::vector<bool> &touched,
-                                          unsigned &number_of_zeroes)
-{
-	epp current = seq.begin();
-
-	while (current!=first_numeric) {
-		if (is_exactly_a<numeric>(current->rest)) {
-			--first_numeric;
-			iter_swap(current,first_numeric);
-		} else {
-			// calculate hashindex
-			unsigned currenthashindex = calc_hashindex(current->rest);
-
-			// test if there is already a matching expair in the hashtab-list
-			epplist &eppl=hashtab[currenthashindex];
-			epplist::iterator epplit = eppl.begin();
-			while (epplit!=eppl.end()) {
-				if (current->rest.is_equal((*epplit)->rest))
-					break;
-				++epplit;
-			}
-			if (epplit==eppl.end()) {
-				// no matching expair found, append this to end of list
-				sorted_insert(eppl,current);
-				++current;
-			} else {
-				// epplit points to a matching expair, combine it with current
-				(*epplit)->coeff = ex_to<numeric>((*epplit)->coeff).
-				                   add_dyn(ex_to<numeric>(current->coeff));
-				
-				// move obsolete current expair to end by swapping with last_non_zero element
-				// if this was a numeric, it is swapped with the expair before first_numeric 
-				iter_swap(current,last_non_zero);
-				--first_numeric;
-				if (first_numeric!=last_non_zero) iter_swap(first_numeric,current);
-				--last_non_zero;
-				++number_of_zeroes;
-				// test if combined term has coeff 0 and can be removed is done later
-				touched[(*epplit)-seq.begin()] = true;
-			}
-		}
-	}
-}
-
-void expairseq::drop_coeff_0_terms(epvector::iterator &first_numeric,
-                                   epvector::iterator &last_non_zero,
-                                   std::vector<bool> &touched,
-                                   unsigned &number_of_zeroes)
-{
-	// move terms with coeff 0 to end and remove them from hashtab
-	// check only those elements which have been touched
-	epp current = seq.begin();
-	size_t i = 0;
-	while (current!=first_numeric) {
-		if (!touched[i]) {
-			++current;
-			++i;
-		} else if (!ex_to<numeric>((*current).coeff).is_zero()) {
-			++current;
-			++i;
-		} else {
-			remove_hashtab_entry(current);
-			
-			// move element to the end, unless it is already at the end
-			if (current!=last_non_zero) {
-				iter_swap(current,last_non_zero);
-				--first_numeric;
-				bool numeric_swapped = first_numeric!=last_non_zero;
-				if (numeric_swapped)
-					iter_swap(first_numeric,current);
-				epvector::iterator changed_entry;
-
-				if (numeric_swapped)
-					changed_entry = first_numeric;
-				else
-					changed_entry = last_non_zero;
-				
-				--last_non_zero;
-				++number_of_zeroes;
-
-				if (first_numeric!=current) {
-
-					// change entry in hashtab which referred to first_numeric or last_non_zero to current
-					move_hashtab_entry(changed_entry,current);
-					touched[current-seq.begin()] = touched[changed_entry-seq.begin()];
-				}
-			} else {
-				--first_numeric;
-				--last_non_zero;
-				++number_of_zeroes;
-			}
-		}
-	}
-	GINAC_ASSERT(i==current-seq.begin());
-}
-
-/** True if one of the coeffs vanishes, otherwise false.
- *  This would be an invariant violation, so this should only be used for
- *  debugging purposes. */
-bool expairseq::has_coeff_0() const
-{
-	epvector::const_iterator i = seq.begin(), end = seq.end();
-	while (i != end) {
-		if (i->coeff.is_zero())
-			return true;
-		++i;
-	}
-	return false;
-}
-
-void expairseq::add_numerics_to_hashtab(epvector::iterator first_numeric,
-                                        epvector::const_iterator last_non_zero)
-{
-	if (first_numeric == seq.end()) return; // no numerics
-	
-	epvector::const_iterator current = first_numeric, last = last_non_zero + 1;
-	while (current != last) {
-		sorted_insert(hashtab[hashmask], current);
-		++current;
-	}
-}
-
-void expairseq::combine_same_terms()
-{
-	// combine same terms, drop term with coeff 0, move numerics to end
-	
-	// calculate size of hashtab
-	hashtabsize = calc_hashtabsize(seq.size());
-	
-	// hashtabsize is a power of 2
-	hashmask = hashtabsize-1;
-	
-	// allocate hashtab
-	hashtab.clear();
-	hashtab.resize(hashtabsize);
-	
-	if (hashtabsize==0) {
-		canonicalize();
-		combine_same_terms_sorted_seq();
-		GINAC_ASSERT(!has_coeff_0());
-		return;
-	}
-	
-	// iterate through seq, move numerics to end,
-	// fill hashtab and combine same terms
-	epvector::iterator first_numeric = seq.end();
-	epvector::iterator last_non_zero = seq.end()-1;
-	
-	size_t num = seq.size();
-	std::vector<bool> touched(num);
-	
-	unsigned number_of_zeroes = 0;
-	
-	GINAC_ASSERT(!has_coeff_0());
-	build_hashtab_and_combine(first_numeric,last_non_zero,touched,number_of_zeroes);
-	
-	// there should not be any terms with coeff 0 from the beginning,
-	// so it should be safe to skip this step
-	if (number_of_zeroes!=0) {
-		drop_coeff_0_terms(first_numeric,last_non_zero,touched,number_of_zeroes);
-	}
-	
-	add_numerics_to_hashtab(first_numeric,last_non_zero);
-	
-	// pop zero elements
-	for (unsigned i=0; i<number_of_zeroes; ++i) {
-		seq.pop_back();
-	}
-	
-	// shrink hashtabsize to calculated value
-	GINAC_ASSERT(!has_coeff_0());
-	
-	shrink_hashtab();
-	
-	GINAC_ASSERT(!has_coeff_0());
-}
-
-#endif // EXPAIRSEQ_USE_HASHTAB
-
 /** Check if this expairseq is in sorted (canonical) form.  Useful mainly for
  *  debugging or in assertions since being sorted is an invariance. */
 bool expairseq::is_canonical() const
 {
 	if (seq.size() <= 1)
 		return 1;
-	
-#if EXPAIRSEQ_USE_HASHTAB
-	if (hashtabsize > 0) return 1; // not canonicalized
-#endif // EXPAIRSEQ_USE_HASHTAB
 	
 	epvector::const_iterator it = seq.begin(), itend = seq.end();
 	epvector::const_iterator it_last = it;
@@ -1747,11 +1222,5 @@ std::auto_ptr<epvector> expairseq::subschildren(const exmap & m, unsigned option
 //////////
 // static member variables
 //////////
-
-#if EXPAIRSEQ_USE_HASHTAB
-unsigned expairseq::maxhashtabsize = 0x4000000U;
-unsigned expairseq::minhashtabsize = 0x1000U;
-unsigned expairseq::hashtabfactor = 1;
-#endif // EXPAIRSEQ_USE_HASHTAB
 
 } // namespace GiNaC
