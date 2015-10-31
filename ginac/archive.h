@@ -83,7 +83,6 @@ public:
 	};
 	typedef std::vector<property>::const_iterator archive_node_cit;
 
-	archive_node() : a(*dummy_ar_creator()), has_expression(false) {} // hack for cint which always requires a default constructor
 	archive_node(archive &ar) : a(ar), has_expression(false) {}
 	archive_node(archive &ar, const ex &expr);
 
@@ -143,8 +142,6 @@ public:
 	void printraw(std::ostream &os) const;
 
 private:
-	static archive* dummy_ar_creator();
-
 	/** Reference to the archive to which this node belongs. */
 	archive &a;
 

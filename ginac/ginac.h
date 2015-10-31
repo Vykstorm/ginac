@@ -76,9 +76,4 @@
 #include "parser/parser.h"
 #endif
 
-#ifdef __MAKECINT__
-#pragma link C++ nestedclass;
-#pragma link C++ nestedtypedef;
-#endif
-
 #endif // ndef GINAC_H

@@ -8434,14 +8434,9 @@ fix bugs in a traditional system.
 multiple interfaces: Though real GiNaC programs have to be written in
 some editor, then be compiled, linked and executed, there are more ways
 to work with the GiNaC engine.  Many people want to play with
-expressions interactively, as in traditional CASs.  Currently, two such
-windows into GiNaC have been implemented and many more are possible: the
-tiny @command{ginsh} that is part of the distribution exposes GiNaC's
-types to a command line and second, as a more consistent approach, an
-interactive interface to the Cint C++ interpreter has been put together
-(called GiNaC-cint) that allows an interactive scripting interface
-consistent with the C++ language.  It is available from the usual GiNaC
-FTP-site.
+expressions interactively, as in traditional CASs: The tiny
+@command{ginsh} that comes with the distribution exposes many, but not
+all, of GiNaC's types to a command line.
 
 @item
 seamless integration: it is somewhere between difficult and impossible
