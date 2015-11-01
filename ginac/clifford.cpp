@@ -109,7 +109,7 @@ clifford::clifford(unsigned char rl, const ex & metr, int comm_sign, const exvec
 {
 }
 
-clifford::clifford(unsigned char rl, const ex & metr, int comm_sign, std::auto_ptr<exvector> vp) : inherited(not_symmetric(), vp), representation_label(rl), metric(metr), commutator_sign(comm_sign)
+clifford::clifford(unsigned char rl, const ex & metr, int comm_sign, exvector && v) : inherited(not_symmetric(), std::move(v)), representation_label(rl), metric(metr), commutator_sign(comm_sign)
 {
 }
 
@@ -685,9 +685,9 @@ ex clifford::thiscontainer(const exvector & v) const
 	return clifford(representation_label, metric, commutator_sign, v);
 }
 
-ex clifford::thiscontainer(std::auto_ptr<exvector> vp) const
+ex clifford::thiscontainer(exvector && v) const
 {
-	return clifford(representation_label, metric, commutator_sign, vp);
+	return clifford(representation_label, metric, commutator_sign, std::move(v));
 }
 
 ex diracgamma5::conjugate() const

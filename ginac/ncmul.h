@@ -50,7 +50,7 @@ public:
 	ncmul(const ex & f1, const ex & f2, const ex & f3,
 	      const ex & f4, const ex & f5, const ex & f6);
 	ncmul(const exvector & v, bool discardable=false);
-	ncmul(std::auto_ptr<exvector> vp);
+	ncmul(exvector && v);
 
 	// functions overriding virtual functions from base classes
 public:
@@ -64,7 +64,7 @@ public:
 	ex evalm() const;
 	exvector get_free_indices() const;
 	ex thiscontainer(const exvector & v) const;
-	ex thiscontainer(std::auto_ptr<exvector> vp) const;
+	ex thiscontainer(exvector && v) const;
 	ex conjugate() const;
 	ex real_part() const;
 	ex imag_part() const;
@@ -83,7 +83,7 @@ protected:
 	void do_print_csrc(const print_context & c, unsigned level) const;
 	size_t count_factors(const ex & e) const;
 	void append_factors(exvector & v, const ex & e) const;
-	std::auto_ptr<exvector> expandchildren(unsigned options) const;
+	exvector expandchildren(unsigned options) const;
 public:
 	const exvector & get_factors() const;
 };

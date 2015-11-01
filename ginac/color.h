@@ -47,7 +47,7 @@ public:
 
 	// internal constructors
 	color(unsigned char rl, const exvector & v, bool discardable = false);
-	color(unsigned char rl, std::auto_ptr<exvector> vp);
+	color(unsigned char rl, exvector && v);
 	void archive(archive_node& n) const;
 	void read_archive(const archive_node& n, lst& sym_lst);
 
@@ -56,7 +56,7 @@ protected:
 	ex eval_ncmul(const exvector & v) const;
 	bool match_same_type(const basic & other) const;
 	ex thiscontainer(const exvector & v) const;
-	ex thiscontainer(std::auto_ptr<exvector> vp) const;
+	ex thiscontainer(exvector && v) const;
 	unsigned return_type() const { return return_types::noncommutative; }
 	return_type_t return_type_tinfo() const;
 

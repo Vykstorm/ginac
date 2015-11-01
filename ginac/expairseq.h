@@ -61,7 +61,7 @@ public:
 	expairseq(const ex & lh, const ex & rh);
 	expairseq(const exvector & v);
 	expairseq(const epvector & v, const ex & oc, bool do_index_renaming = false);
-	expairseq(std::auto_ptr<epvector>, const ex & oc, bool do_index_renaming = false);
+	expairseq(epvector && vp, const ex & oc, bool do_index_renaming = false);
 	
 	// functions overriding virtual functions from base classes
 public:
@@ -88,7 +88,7 @@ protected:
 	// new virtual functions which can be overridden by derived classes
 protected:
 	virtual ex thisexpairseq(const epvector & v, const ex & oc, bool do_index_renaming = false) const;
-	virtual ex thisexpairseq(std::auto_ptr<epvector> vp, const ex & oc, bool do_index_renaming = false) const;
+	virtual ex thisexpairseq(epvector && vp, const ex & oc, bool do_index_renaming = false) const;
 	virtual void printseq(const print_context & c, char delim,
 	                      unsigned this_precedence,
 	                      unsigned upper_precedence) const;
@@ -118,14 +118,15 @@ protected:
 	                                 const ex & e);
 	void construct_from_exvector(const exvector & v);
 	void construct_from_epvector(const epvector & v, bool do_index_renaming = false);
+	void construct_from_epvector(epvector && v, bool do_index_renaming = false);
 	void make_flat(const exvector & v);
 	void make_flat(const epvector & v, bool do_index_renaming = false);
 	void canonicalize();
 	void combine_same_terms_sorted_seq();
 	bool is_canonical() const;
-	std::auto_ptr<epvector> expandchildren(unsigned options) const;
-	std::auto_ptr<epvector> evalchildren(int level) const;
-	std::auto_ptr<epvector> subschildren(const exmap & m, unsigned options = 0) const;
+	epvector expandchildren(unsigned options) const;
+	epvector evalchildren(int level) const;
+	epvector subschildren(const exmap & m, unsigned options = 0) const;
 	
 // member variables
 	

@@ -121,7 +121,7 @@ indexed::indexed(const symmetry & symm, const exvector & v, bool discardable) : 
 {
 }
 
-indexed::indexed(const symmetry & symm, std::auto_ptr<exvector> vp) : inherited(vp), symtree(symm)
+indexed::indexed(const symmetry & symm, exvector && v) : inherited(std::move(v)), symtree(symm)
 {
 }
 
@@ -324,9 +324,9 @@ ex indexed::thiscontainer(const exvector & v) const
 	return indexed(ex_to<symmetry>(symtree), v);
 }
 
-ex indexed::thiscontainer(std::auto_ptr<exvector> vp) const
+ex indexed::thiscontainer(exvector && v) const
 {
-	return indexed(ex_to<symmetry>(symtree), vp);
+	return indexed(ex_to<symmetry>(symtree), std::move(v));
 }
 
 unsigned indexed::return_type() const

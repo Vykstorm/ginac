@@ -84,7 +84,7 @@ ncmul::ncmul(const exvector & v, bool discardable) : inherited(v,discardable)
 {
 }
 
-ncmul::ncmul(std::auto_ptr<exvector> vp) : inherited(vp)
+ncmul::ncmul(exvector && v) : inherited(std::move(v))
 {
 }
 
@@ -120,8 +120,8 @@ typedef std::vector<std::size_t> uintvector;
 ex ncmul::expand(unsigned options) const
 {
 	// First, expand the children
-	std::auto_ptr<exvector> vp = expandchildren(options);
-	const exvector &expanded_seq = vp.get() ? *vp : this->seq;
+	exvector v = expandchildren(options);
+	const exvector &expanded_seq = v.empty() ? this->seq : v;
 	
 	// Now, look for all the factors that are sums and remember their
 	// position and number of terms.
@@ -146,8 +146,8 @@ ex ncmul::expand(unsigned options) const
 
 	// If there are no sums, we are done
 	if (number_of_adds == 0) {
-		if (vp.get())
-			return (new ncmul(vp))->
+		if (!v.empty())
+			return (new ncmul(std::move(v)))->
 			        setflag(status_flags::dynallocated | (options == 0 ? status_flags::expanded : 0));
 		else
 			return *this;
@@ -447,16 +447,16 @@ ex ncmul::eval(int level) const
 ex ncmul::evalm() const
 {
 	// Evaluate children first
-	std::auto_ptr<exvector> s(new exvector);
-	s->reserve(seq.size());
+	exvector s;
+	s.reserve(seq.size());
 	exvector::const_iterator it = seq.begin(), itend = seq.end();
 	while (it != itend) {
-		s->push_back(it->evalm());
+		s.push_back(it->evalm());
 		it++;
 	}
 
 	// If there are only matrices, simply multiply them
-	it = s->begin(); itend = s->end();
+	it = s.begin(); itend = s.end();
 	if (is_a<matrix>(*it)) {
 		matrix prod(ex_to<matrix>(*it));
 		it++;
@@ -470,7 +470,7 @@ ex ncmul::evalm() const
 	}
 
 no_matrix:
-	return (new ncmul(s))->setflag(status_flags::dynallocated);
+	return (new ncmul(std::move(s)))->setflag(status_flags::dynallocated);
 }
 
 ex ncmul::thiscontainer(const exvector & v) const
@@ -478,9 +478,9 @@ ex ncmul::thiscontainer(const exvector & v) const
 	return (new ncmul(v))->setflag(status_flags::dynallocated);
 }
 
-ex ncmul::thiscontainer(std::auto_ptr<exvector> vp) const
+ex ncmul::thiscontainer(exvector && v) const
 {
-	return (new ncmul(vp))->setflag(status_flags::dynallocated);
+	return (new ncmul(std::move(v)))->setflag(status_flags::dynallocated);
 }
 
 ex ncmul::conjugate() const
@@ -596,7 +596,7 @@ return_type_t ncmul::return_type_tinfo() const
 // non-virtual functions in this class
 //////////
 
-std::auto_ptr<exvector> ncmul::expandchildren(unsigned options) const
+exvector ncmul::expandchildren(unsigned options) const
 {
 	const_iterator cit = this->seq.begin(), end = this->seq.end();
 	while (cit != end) {
@@ -604,16 +604,16 @@ std::auto_ptr<exvector> ncmul::expandchildren(unsigned options) const
 		if (!are_ex_trivially_equal(*cit, expanded_ex)) {
 
 			// copy first part of seq which hasn't changed
-			std::auto_ptr<exvector> s(new exvector(this->seq.begin(), cit));
-			reserve(*s, this->seq.size());
+			exvector s(this->seq.begin(), cit);
+			s.reserve(this->seq.size());
 
 			// insert changed element
-			s->push_back(expanded_ex);
+			s.push_back(expanded_ex);
 			++cit;
 
 			// copy rest
 			while (cit != end) {
-				s->push_back(cit->expand(options));
+				s.push_back(cit->expand(options));
 				++cit;
 			}
 
@@ -623,7 +623,7 @@ std::auto_ptr<exvector> ncmul::expandchildren(unsigned options) const
 		++cit;
 	}
 
-	return std::auto_ptr<exvector>(0); // nothing has changed
+	return exvector(); // nothing has changed
 }
 
 const exvector & ncmul::get_factors() const

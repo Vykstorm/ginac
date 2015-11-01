@@ -152,10 +152,10 @@ public:
 			this->seq = s;
 	}
 
-	explicit container(std::auto_ptr<STLT> vp)
+	explicit container(STLT && v)
 	{
 		setflag(get_default_flags());
-		this->seq.swap(*vp);
+		this->seq.swap(v);
 	}
 
 	container(exvector::const_iterator b, exvector::const_iterator e)
@@ -450,8 +450,8 @@ protected:
 	virtual ex thiscontainer(const STLT & v) const { return container(v); }
 
 	/** Similar to duplicate(), but with a preset sequence (which gets
-	 *  deleted). Must be overridden by derived classes. */
-	virtual ex thiscontainer(std::auto_ptr<STLT> vp) const { return container(vp); }
+	 *  pilfered). Must be overridden by derived classes. */
+	virtual ex thiscontainer(STLT && v) const { return container(std::move(v)); }
 
 	virtual void printseq(const print_context & c, char openbracket, char delim,
 	                      char closebracket, unsigned this_precedence,
@@ -495,7 +495,7 @@ protected:
 	void do_print_python(const print_python & c, unsigned level) const;
 	void do_print_python_repr(const print_python_repr & c, unsigned level) const;
 	STLT evalchildren(int level) const;
-	std::auto_ptr<STLT> subschildren(const exmap & m, unsigned options = 0) const;
+	STLT subschildren(const exmap & m, unsigned options = 0) const;
 };
 
 /** Default constructor */
@@ -582,9 +582,9 @@ ex container<C>::subs(const exmap & m, unsigned options) const
 	// f(x).subs(x==f^-1(x))
 	//   -> f(f^-1(x))  [subschildren]
 	//   -> x           [eval]   /* must not subs(x==f^-1(x))! */
-	std::auto_ptr<STLT> vp = subschildren(m, options);
-	if (vp.get()) {
-		ex result(thiscontainer(vp));
+	STLT subsed = subschildren(m, options);
+	if (!subsed.empty()) {
+		ex result(thiscontainer(subsed));
 		if (is_a<container<C> >(result))
 			return ex_to<basic>(result).subs_one_level(m, options);
 		else
@@ -751,11 +751,10 @@ typename container<C>::STLT container<C>::evalchildren(int level) const
 }
 
 template <template <class T, class = std::allocator<T> > class C>
-std::auto_ptr<typename container<C>::STLT> container<C>::subschildren(const exmap & m, unsigned options) const
+typename container<C>::STLT container<C>::subschildren(const exmap & m, unsigned options) const
 {
-	// returns a NULL pointer if nothing had to be substituted
-	// returns a pointer to a newly created STLT otherwise
-	// (and relinquishes responsibility for the STLT)
+	// returns an empty container if nothing had to be substituted
+	// returns a STLT with substituted elements otherwise
 
 	const_iterator cit = this->seq.begin(), end = this->seq.end();
 	while (cit != end) {
@@ -763,16 +762,16 @@ std::auto_ptr<typename container<C>::STLT> container<C>::subschildren(const exma
 		if (!are_ex_trivially_equal(*cit, subsed_ex)) {
 
 			// copy first part of seq which hasn't changed
-			std::auto_ptr<STLT> s(new STLT(this->seq.begin(), cit));
-			this->reserve(*s, this->seq.size());
+			STLT s(this->seq.begin(), cit);
+			this->reserve(s, this->seq.size());
 
 			// insert changed element
-			s->push_back(subsed_ex);
+			s.push_back(subsed_ex);
 			++cit;
 
 			// copy rest
 			while (cit != end) {
-				s->push_back(cit->subs(m, options));
+				s.push_back(cit->subs(m, options));
 				++cit;
 			}
 
@@ -782,7 +781,7 @@ std::auto_ptr<typename container<C>::STLT> container<C>::subschildren(const exma
 		++cit;
 	}
 	
-	return std::auto_ptr<STLT>(0); // nothing has changed
+	return STLT(); // nothing has changed
 }
 
 } // namespace GiNaC

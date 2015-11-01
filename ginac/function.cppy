@@ -247,8 +247,8 @@ function::function(unsigned ser, const exvector & v, bool discardable)
 {
 }
 
-function::function(unsigned ser, std::auto_ptr<exvector> vp) 
-  : exprseq(vp), serial(ser)
+function::function(unsigned ser, exvector && v)
+  : exprseq(std::move(v)), serial(ser)
 {
 }
 
@@ -485,9 +485,9 @@ ex function::thiscontainer(const exvector & v) const
 	return function(serial, v);
 }
 
-ex function::thiscontainer(std::auto_ptr<exvector> vp) const
+ex function::thiscontainer(exvector && v) const
 {
-	return function(serial, vp);
+	return function(serial, std::move(v));
 }
 
 /** Implementation of ex::series for functions.

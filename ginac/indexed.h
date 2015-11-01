@@ -139,7 +139,7 @@ public:
 	// internal constructors
 	indexed(const symmetry & symm, const exprseq & es);
 	indexed(const symmetry & symm, const exvector & v, bool discardable = false);
-	indexed(const symmetry & symm, std::auto_ptr<exvector> vp);
+	indexed(const symmetry & symm, exvector && v);
 
 	// functions overriding virtual functions from base classes
 public:
@@ -157,7 +157,7 @@ public:
 protected:
 	ex derivative(const symbol & s) const;
 	ex thiscontainer(const exvector & v) const;
-	ex thiscontainer(std::auto_ptr<exvector> vp) const;
+	ex thiscontainer(exvector && v) const;
 	unsigned return_type() const;
 	return_type_t return_type_tinfo() const { return op(0).return_type_tinfo(); }
 	ex expand(unsigned options = 0) const;

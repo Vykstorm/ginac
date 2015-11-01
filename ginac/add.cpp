@@ -86,11 +86,10 @@ add::add(const epvector & v, const ex & oc)
 	GINAC_ASSERT(is_canonical());
 }
 
-add::add(std::auto_ptr<epvector> vp, const ex & oc)
+add::add(epvector && vp, const ex & oc)
 {
-	GINAC_ASSERT(vp.get()!=0);
 	overall_coeff = oc;
-	construct_from_epvector(*vp);
+	construct_from_epvector(std::move(vp));
 	GINAC_ASSERT(is_canonical());
 }
 
@@ -306,8 +305,8 @@ int add::ldegree(const ex & s) const
 
 ex add::coeff(const ex & s, int n) const
 {
-	std::auto_ptr<epvector> coeffseq(new epvector);
-	std::auto_ptr<epvector> coeffseq_cliff(new epvector);
+	epvector coeffseq;
+	epvector coeffseq_cliff;
 	int rl = clifford_max_label(s);
 	bool do_clifford = (rl != -1);
 	bool nonscalar = false;
@@ -319,18 +318,18 @@ ex add::coeff(const ex & s, int n) const
 		if (!restcoeff.is_zero()) {
 			if (do_clifford) {
 				if (clifford_max_label(restcoeff) == -1) {
-					coeffseq_cliff->push_back(combine_ex_with_coeff_to_pair(ncmul(restcoeff, dirac_ONE(rl)), i->coeff));
+					coeffseq_cliff.push_back(combine_ex_with_coeff_to_pair(ncmul(restcoeff, dirac_ONE(rl)), i->coeff));
 				} else {
-					coeffseq_cliff->push_back(combine_ex_with_coeff_to_pair(restcoeff, i->coeff));
+					coeffseq_cliff.push_back(combine_ex_with_coeff_to_pair(restcoeff, i->coeff));
 					nonscalar = true;
 				}
 			}
-			coeffseq->push_back(combine_ex_with_coeff_to_pair(restcoeff, i->coeff));
+			coeffseq.push_back(combine_ex_with_coeff_to_pair(restcoeff, i->coeff));
 		}
 		++i;
 	}
 
-	return (new add(nonscalar ? coeffseq_cliff : coeffseq,
+	return (new add(nonscalar ? std::move(coeffseq_cliff) : std::move(coeffseq),
 	                n==0 ? overall_coeff : _ex0))->setflag(status_flags::dynallocated);
 }
 
@@ -343,13 +342,13 @@ ex add::coeff(const ex & s, int n) const
  *  @param level cut-off in recursive evaluation */
 ex add::eval(int level) const
 {
-	std::auto_ptr<epvector> evaled_seqp = evalchildren(level);
-	if (evaled_seqp.get()) {
+	epvector evaled = evalchildren(level);
+	if (!evaled.empty()) {
 		// do more evaluation later
-		return (new add(evaled_seqp, overall_coeff))->
-		       setflag(status_flags::dynallocated);
+		return (new add(std::move(evaled), overall_coeff))->
+			setflag(status_flags::dynallocated);
 	}
-	
+
 #ifdef DO_GINAC_ASSERT
 	epvector::const_iterator i = seq.begin(), end = seq.end();
 	while (i != end) {
@@ -386,18 +385,18 @@ ex add::eval(int level) const
 		++j;
 	}
 	if (terms_to_collect) {
-		std::auto_ptr<epvector> s(new epvector);
-		s->reserve(seq_size - terms_to_collect);
+		epvector s;
+		s.reserve(seq_size - terms_to_collect);
 		numeric oc = *_num1_p;
 		j = seq.begin();
 		while (j != last) {
 			if (unlikely(is_a<numeric>(j->rest)))
 				oc = oc.mul(ex_to<numeric>(j->rest)).mul(ex_to<numeric>(j->coeff));
 			else
-				s->push_back(*j);
+				s.push_back(*j);
 			++j;
 		}
-		return (new add(s, ex_to<numeric>(overall_coeff).add_dyn(oc)))
+		return (new add(std::move(s), ex_to<numeric>(overall_coeff).add_dyn(oc)))
 		        ->setflag(status_flags::dynallocated);
 	}
 	
@@ -408,8 +407,8 @@ ex add::evalm() const
 {
 	// Evaluate children first and add up all matrices. Stop if there's one
 	// term that is not a matrix.
-	std::auto_ptr<epvector> s(new epvector);
-	s->reserve(seq.size());
+	epvector s;
+	s.reserve(seq.size());
 
 	bool all_matrices = true;
 	bool first_term = true;
@@ -418,7 +417,7 @@ ex add::evalm() const
 	epvector::const_iterator it = seq.begin(), itend = seq.end();
 	while (it != itend) {
 		const ex &m = recombine_pair_to_ex(*it).evalm();
-		s->push_back(split_ex_to_pair(m));
+		s.push_back(split_ex_to_pair(m));
 		if (is_a<matrix>(m)) {
 			if (first_term) {
 				sum = ex_to<matrix>(m);
@@ -433,7 +432,7 @@ ex add::evalm() const
 	if (all_matrices)
 		return sum + overall_coeff;
 	else
-		return (new add(s, overall_coeff))->setflag(status_flags::dynallocated);
+		return (new add(std::move(s), overall_coeff))->setflag(status_flags::dynallocated);
 }
 
 ex add::conjugate() const
@@ -512,18 +511,18 @@ ex add::eval_ncmul(const exvector & v) const
  *  @see ex::diff */
 ex add::derivative(const symbol & y) const
 {
-	std::auto_ptr<epvector> s(new epvector);
-	s->reserve(seq.size());
+	epvector s;
+	s.reserve(seq.size());
 	
 	// Only differentiate the "rest" parts of the expairs. This is faster
 	// than the default implementation in basic::derivative() although
 	// if performs the same function (differentiate each term).
 	epvector::const_iterator i = seq.begin(), end = seq.end();
 	while (i != end) {
-		s->push_back(combine_ex_with_coeff_to_pair(i->rest.diff(y), i->coeff));
+		s.push_back(combine_ex_with_coeff_to_pair(i->rest.diff(y), i->coeff));
 		++i;
 	}
-	return (new add(s, _ex0))->setflag(status_flags::dynallocated);
+	return (new add(std::move(s), _ex0))->setflag(status_flags::dynallocated);
 }
 
 int add::compare_same_type(const basic & other) const
@@ -554,9 +553,9 @@ ex add::thisexpairseq(const epvector & v, const ex & oc, bool do_index_renaming)
 }
 
 // Note: do_index_renaming is ignored because it makes no sense for an add.
-ex add::thisexpairseq(std::auto_ptr<epvector> vp, const ex & oc, bool do_index_renaming) const
+ex add::thisexpairseq(epvector && vp, const ex & oc, bool do_index_renaming) const
 {
-	return (new add(vp,oc))->setflag(status_flags::dynallocated);
+	return (new add(std::move(vp), oc))->setflag(status_flags::dynallocated);
 }
 
 expair add::split_ex_to_pair(const ex & e) const
@@ -624,13 +623,12 @@ ex add::recombine_pair_to_ex(const expair & p) const
 
 ex add::expand(unsigned options) const
 {
-	std::auto_ptr<epvector> vp = expandchildren(options);
-	if (vp.get() == 0) {
-		// the terms have not changed, so it is safe to declare this expanded
+	epvector expanded = expandchildren(options);
+	if (expanded.empty())
 		return (options == 0) ? setflag(status_flags::expanded) : *this;
-	}
 
-	return (new add(vp, overall_coeff))->setflag(status_flags::dynallocated | (options == 0 ? status_flags::expanded : 0));
+	return (new add(std::move(expanded), overall_coeff))->setflag(status_flags::dynallocated |
+	                                                              (options == 0 ? status_flags::expanded : 0));
 }
 
 } // namespace GiNaC
