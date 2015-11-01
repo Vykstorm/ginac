@@ -476,7 +476,7 @@ installation.
 
 In order to install GiNaC on your system, some prerequisites need to be
 met.  First of all, you need to have a C++-compiler adhering to the
-ANSI-standard @cite{ISO/IEC 14882:1998(E)}.  We used GCC for development
+ISO standard @cite{ISO/IEC 14882:2011(E)}.  We used GCC for development
 so if you have a different compiler you are on your own.  For the
 configuration to succeed you need a Posix compliant shell installed in
 @file{/bin/sh}, GNU @command{bash} is fine. The pkg-config utility is
@@ -8487,8 +8487,7 @@ really believe that you need to use a different compiler.  We have
 occasionally used other compilers and may be able to give you advice.}
 GiNaC uses recent language features like explicit constructors, mutable
 members, RTTI, @code{dynamic_cast}s and STL, so ANSI compliance is meant
-literally.  Recent GCC versions starting at 2.95.3, although itself not
-yet ANSI compliant, support all needed features.
+literally.
     
 @end itemize
 
@@ -8909,7 +8908,7 @@ $ make install
 @itemize @minus{}
 
 @item
-@cite{ISO/IEC 14882:1998: Programming Languages: C++}
+@cite{ISO/IEC 14882:2011: Programming Languages: C++}
 
 @item
 @cite{CLN: A Class Library for Numbers}, @email{haible@@ilog.fr, Bruno Haible}
