@@ -961,7 +961,7 @@ ex ex::content(const ex &x) const
 		return lcoeff * c / lcoeff.unit(x);
 	ex cont = _ex0;
 	for (int i=ldeg; i<=deg; i++)
-		cont = gcd(r.coeff(x, i), cont, NULL, NULL, false);
+		cont = gcd(r.coeff(x, i), cont, nullptr, nullptr, false);
 	return cont * c;
 }
 
@@ -1101,7 +1101,7 @@ static ex sr_gcd(const ex &a, const ex &b, sym_desc_vec::const_iterator var)
 	// Remove content from c and d, to be attached to GCD later
 	ex cont_c = c.content(x);
 	ex cont_d = d.content(x);
-	ex gamma = gcd(cont_c, cont_d, NULL, NULL, false);
+	ex gamma = gcd(cont_c, cont_d, nullptr, nullptr, false);
 	if (ddeg == 0)
 		return gamma;
 	c = c.primpart(x, cont_c);
@@ -1272,9 +1272,9 @@ class gcdheu_failed {};
  *
  *  @param a  first integer multivariate polynomial (expanded)
  *  @param b  second integer multivariate polynomial (expanded)
- *  @param ca  cofactor of polynomial a (returned), NULL to suppress
+ *  @param ca  cofactor of polynomial a (returned), nullptr to suppress
  *             calculation of cofactor
- *  @param cb  cofactor of polynomial b (returned), NULL to suppress
+ *  @param cb  cofactor of polynomial b (returned), nullptr to suppress
  *             calculation of cofactor
  *  @param var iterator to first element of vector of sym_desc structs
  *  @param res the GCD (returned)
@@ -1365,9 +1365,9 @@ static bool heur_gcd_z(ex& res, const ex &a, const ex &b, ex *ca, ex *cb,
  *
  *  @param a  first rational multivariate polynomial (expanded)
  *  @param b  second rational multivariate polynomial (expanded)
- *  @param ca  cofactor of polynomial a (returned), NULL to suppress
+ *  @param ca  cofactor of polynomial a (returned), nullptr to suppress
  *             calculation of cofactor
- *  @param cb  cofactor of polynomial b (returned), NULL to suppress
+ *  @param cb  cofactor of polynomial b (returned), nullptr to suppress
  *             calculation of cofactor
  *  @param var iterator to first element of vector of sym_desc structs
  *  @param res the GCD (returned)
@@ -1431,8 +1431,8 @@ static ex gcd_pf_mul(const ex& a, const ex& b, ex* ca, ex* cb);
  *
  *  @param a  first multivariate polynomial
  *  @param b  second multivariate polynomial
- *  @param ca pointer to expression that will receive the cofactor of a, or NULL
- *  @param cb pointer to expression that will receive the cofactor of b, or NULL
+ *  @param ca pointer to expression that will receive the cofactor of a, or nullptr
+ *  @param cb pointer to expression that will receive the cofactor of b, or nullptr
  *  @param check_args  check whether a and b are polynomials with rational
  *         coefficients (defaults to "true")
  *  @return the GCD as a new expression */

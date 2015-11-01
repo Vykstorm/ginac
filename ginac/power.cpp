@@ -384,8 +384,8 @@ ex power::eval(int level) const
 	const ex & ebasis    = level==1 ? basis    : basis.eval(level-1);
 	const ex & eexponent = level==1 ? exponent : exponent.eval(level-1);
 	
-	const numeric *num_basis = NULL;
-	const numeric *num_exponent = NULL;
+	const numeric *num_basis = nullptr;
+	const numeric *num_exponent = nullptr;
 	
 	if (is_exactly_a<numeric>(ebasis)) {
 		num_basis = &ex_to<numeric>(ebasis);
@@ -1007,7 +1007,7 @@ private:
 		// NB: Partition must be sorted in non-decreasing order.
 		explicit coolmulti(const std::vector<int>& partition)
 		{
-			head = NULL;
+			head = nullptr;
 			for (unsigned n = 0; n < partition.size(); ++n) {
 				head = new element(partition[n], head);
 				if (n <= 1)
@@ -1022,7 +1022,7 @@ private:
 		void next_permutation()
 		{
 			element *before_k;
-			if (after_i->next != NULL && i->value >= after_i->next->value)
+			if (after_i->next != nullptr && i->value >= after_i->next->value)
 				before_k = after_i;
 			else
 				before_k = i;
@@ -1036,7 +1036,7 @@ private:
 		}
 		bool finished() const
 		{
-			return after_i->next == NULL && after_i->value >= head->value;
+			return after_i->next == nullptr && after_i->value >= head->value;
 		}
 	} cmgen;
 	bool atend;  // needed for simplifying iteration over permutations
@@ -1053,7 +1053,7 @@ public:
 	{
 		coolmulti::element* it = cmgen.head;
 		size_t i = 0;
-		while (it != NULL) {
+		while (it != nullptr) {
 			composition[i] = it->value;
 			it = it->next;
 			++i;

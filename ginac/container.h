@@ -394,7 +394,7 @@ public:
 protected:
 	ex conjugate() const
 	{
-		STLT *newcont = NULL;
+		STLT *newcont = nullptr;
 		for (const_iterator i=this->seq.begin(); i!=this->seq.end(); ++i) {
 			if (newcont) {
 				newcont->push_back(i->conjugate());

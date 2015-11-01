@@ -304,7 +304,7 @@ void function::print(const print_context & c, unsigned level) const
 
 next_context:
 	unsigned id = pc_info->options.get_id();
-	if (id >= pdt.size() || pdt[id] == NULL) {
+	if (id >= pdt.size() || pdt[id] == nullptr) {
 
 		// Method not found, try parent print_context class
 		const print_context_class_info *parent_pc_info = pc_info->get_parent();
@@ -736,7 +736,7 @@ ex function::pderivative(unsigned diff_param) const // partial differentiation
 	const function_options &opt = registered_functions()[serial];
 	
 	// No derivative defined? Then return abstract derivative object
-	if (opt.derivative_f == NULL)
+	if (opt.derivative_f == nullptr)
 		return fderivative(serial, diff_param, seq);
 
 	current_serial = serial;
@@ -759,7 +759,7 @@ ex function::expl_derivative(const symbol & s) const // explicit differentiation
 	const function_options &opt = registered_functions()[serial];
 
 	// No explicit derivative defined? Then this function shall not be called!
-	if (opt.expl_derivative_f == NULL)
+	if (opt.expl_derivative_f == nullptr)
 		throw(std::logic_error("function::expl_derivative(): explicit derivation is called, but no such function defined"));
 
 	current_serial = serial;
@@ -780,7 +780,7 @@ ex function::power(const ex & power_param) const // power of function
 	GINAC_ASSERT(serial<registered_functions().size());
 	const function_options &opt = registered_functions()[serial];
 	
-	if (opt.power_f == NULL)
+	if (opt.power_f == nullptr)
 		return (new GiNaC::power(*this, power_param))->setflag(status_flags::dynallocated |
 		                                                       status_flags::evaluated);
 
@@ -804,7 +804,7 @@ ex function::expand(unsigned options) const
 	const function_options &opt = registered_functions()[serial];
 
 	// No expand defined? Then return the same function with expanded arguments (if required)
-	if (opt.expand_f == NULL) {
+	if (opt.expand_f == nullptr) {
 		// Only expand arguments when asked to do so
 		if (options & expand_options::expand_function_args)
 			return inherited::expand(options);

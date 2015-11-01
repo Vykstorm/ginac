@@ -45,7 +45,7 @@ using namespace std;
  */
 void randomify_symbol_serials()
 {
-	srand(time(NULL));
+	srand(time(nullptr));
 	const int m = rand() % 666;
 	for (int s=0; s<m; ++s ) {
 		symbol("dummy");
