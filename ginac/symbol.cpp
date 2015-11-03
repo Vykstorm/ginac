@@ -106,9 +106,9 @@ void symbol::read_archive(const archive_node &n, lst &sym_lst)
 	n.find_string("name", tmp_name);
 
 	// If symbol is in sym_lst, return the existing symbol
-	for (lst::const_iterator it = sym_lst.begin(); it != sym_lst.end(); ++it) {
-		if (is_a<symbol>(*it) && (ex_to<symbol>(*it).name == tmp_name)) {
-			*this = ex_to<symbol>(*it);
+	for (auto & s : sym_lst) {
+		if (is_a<symbol>(s) && (ex_to<symbol>(s).name == tmp_name)) {
+			*this = ex_to<symbol>(s);
 			// XXX: This method is responsible for reading realsymbol
 			// and possymbol objects too. But
 			// basic::operator=(const basic& other)

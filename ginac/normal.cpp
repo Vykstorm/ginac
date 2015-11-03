@@ -157,12 +157,10 @@ typedef std::vector<sym_desc> sym_desc_vec;
 // Add symbol the sym_desc_vec (used internally by get_symbol_stats())
 static void add_symbol(const ex &s, sym_desc_vec &v)
 {
-	sym_desc_vec::const_iterator it = v.begin(), itend = v.end();
-	while (it != itend) {
-		if (it->sym.is_equal(s))  // If it's already in there, don't add it a second time
+	for (auto & it : v)
+		if (it.sym.is_equal(s))  // If it's already in there, don't add it a second time
 			return;
-		++it;
-	}
+
 	sym_desc d;
 	d.sym = s;
 	v.push_back(d);
@@ -197,17 +195,15 @@ static void get_symbol_stats(const ex &a, const ex &b, sym_desc_vec &v)
 {
 	collect_symbols(a.eval(), v);   // eval() to expand assigned symbols
 	collect_symbols(b.eval(), v);
-	sym_desc_vec::iterator it = v.begin(), itend = v.end();
-	while (it != itend) {
-		int deg_a = a.degree(it->sym);
-		int deg_b = b.degree(it->sym);
-		it->deg_a = deg_a;
-		it->deg_b = deg_b;
-		it->max_deg = std::max(deg_a, deg_b);
-		it->max_lcnops = std::max(a.lcoeff(it->sym).nops(), b.lcoeff(it->sym).nops());
-		it->ldeg_a = a.ldegree(it->sym);
-		it->ldeg_b = b.ldegree(it->sym);
-		++it;
+	for (auto & it : v) {
+		int deg_a = a.degree(it.sym);
+		int deg_b = b.degree(it.sym);
+		it.deg_a = deg_a;
+		it.deg_b = deg_b;
+		it.max_deg = std::max(deg_a, deg_b);
+		it.max_lcnops = std::max(a.lcoeff(it.sym).nops(), b.lcoeff(it.sym).nops());
+		it.ldeg_a = a.ldegree(it.sym);
+		it.ldeg_b = b.ldegree(it.sym);
 	}
 	std::sort(v.begin(), v.end());
 
@@ -321,15 +317,12 @@ numeric numeric::integer_content() const
 
 numeric add::integer_content() const
 {
-	epvector::const_iterator it = seq.begin();
-	epvector::const_iterator itend = seq.end();
 	numeric c = *_num0_p, l = *_num1_p;
-	while (it != itend) {
-		GINAC_ASSERT(!is_exactly_a<numeric>(it->rest));
-		GINAC_ASSERT(is_exactly_a<numeric>(it->coeff));
-		c = gcd(ex_to<numeric>(it->coeff).numer(), c);
-		l = lcm(ex_to<numeric>(it->coeff).denom(), l);
-		it++;
+	for (auto & it : seq) {
+		GINAC_ASSERT(!is_exactly_a<numeric>(it.rest));
+		GINAC_ASSERT(is_exactly_a<numeric>(it.coeff));
+		c = gcd(ex_to<numeric>(it.coeff).numer(), c);
+		l = lcm(ex_to<numeric>(it.coeff).denom(), l);
 	}
 	GINAC_ASSERT(is_exactly_a<numeric>(overall_coeff));
 	c = gcd(ex_to<numeric>(overall_coeff).numer(), c);
@@ -340,11 +333,8 @@ numeric add::integer_content() const
 numeric mul::integer_content() const
 {
 #ifdef DO_GINAC_ASSERT
-	epvector::const_iterator it = seq.begin();
-	epvector::const_iterator itend = seq.end();
-	while (it != itend) {
-		GINAC_ASSERT(!is_exactly_a<numeric>(recombine_pair_to_ex(*it)));
-		++it;
+	for (auto & it : seq) {
+		GINAC_ASSERT(!is_exactly_a<numeric>(recombine_pair_to_ex(it)));
 	}
 #endif // def DO_GINAC_ASSERT
 	GINAC_ASSERT(is_exactly_a<numeric>(overall_coeff));
@@ -796,10 +786,10 @@ static bool divide_in_z(const ex &a, const ex &b, ex &q, sym_desc_vec::const_ite
 
 	if (is_exactly_a<mul>(b)) {
 		ex qbar = a;
-		for (const_iterator itrb = b.begin(); itrb != b.end(); ++itrb) {
+		for (const auto & it : b) {
 			sym_desc_vec sym_stats;
-			get_symbol_stats(a, *itrb, sym_stats);
-			if (!divide_in_z(qbar, *itrb, q, sym_stats.begin()))
+			get_symbol_stats(a, it, sym_stats);
+			if (!divide_in_z(qbar, it, q, sym_stats.begin()))
 				return false;
 
 			qbar = q;
@@ -1165,17 +1155,14 @@ numeric numeric::max_coefficient() const
 
 numeric add::max_coefficient() const
 {
-	epvector::const_iterator it = seq.begin();
-	epvector::const_iterator itend = seq.end();
 	GINAC_ASSERT(is_exactly_a<numeric>(overall_coeff));
 	numeric cur_max = abs(ex_to<numeric>(overall_coeff));
-	while (it != itend) {
+	for (auto & it : seq) {
 		numeric a;
-		GINAC_ASSERT(!is_exactly_a<numeric>(it->rest));
-		a = abs(ex_to<numeric>(it->coeff));
+		GINAC_ASSERT(!is_exactly_a<numeric>(it.rest));
+		a = abs(ex_to<numeric>(it.coeff));
 		if (a > cur_max)
 			cur_max = a;
-		it++;
 	}
 	return cur_max;
 }
@@ -1183,11 +1170,8 @@ numeric add::max_coefficient() const
 numeric mul::max_coefficient() const
 {
 #ifdef DO_GINAC_ASSERT
-	epvector::const_iterator it = seq.begin();
-	epvector::const_iterator itend = seq.end();
-	while (it != itend) {
-		GINAC_ASSERT(!is_exactly_a<numeric>(recombine_pair_to_ex(*it)));
-		it++;
+	for (auto & it : seq) {
+		GINAC_ASSERT(!is_exactly_a<numeric>(recombine_pair_to_ex(it)));
 	}
 #endif // def DO_GINAC_ASSERT
 	GINAC_ASSERT(is_exactly_a<numeric>(overall_coeff));
@@ -1215,14 +1199,11 @@ ex add::smod(const numeric &xi) const
 {
 	epvector newseq;
 	newseq.reserve(seq.size()+1);
-	epvector::const_iterator it = seq.begin();
-	epvector::const_iterator itend = seq.end();
-	while (it != itend) {
-		GINAC_ASSERT(!is_exactly_a<numeric>(it->rest));
-		numeric coeff = GiNaC::smod(ex_to<numeric>(it->coeff), xi);
+	for (auto & it : seq) {
+		GINAC_ASSERT(!is_exactly_a<numeric>(it.rest));
+		numeric coeff = GiNaC::smod(ex_to<numeric>(it.coeff), xi);
 		if (!coeff.is_zero())
-			newseq.push_back(expair(it->rest, coeff));
-		it++;
+			newseq.push_back(expair(it.rest, coeff));
 	}
 	GINAC_ASSERT(is_exactly_a<numeric>(overall_coeff));
 	numeric coeff = GiNaC::smod(ex_to<numeric>(overall_coeff), xi);
@@ -1232,11 +1213,8 @@ ex add::smod(const numeric &xi) const
 ex mul::smod(const numeric &xi) const
 {
 #ifdef DO_GINAC_ASSERT
-	epvector::const_iterator it = seq.begin();
-	epvector::const_iterator itend = seq.end();
-	while (it != itend) {
-		GINAC_ASSERT(!is_exactly_a<numeric>(recombine_pair_to_ex(*it)));
-		it++;
+	for (auto & it : seq) {
+		GINAC_ASSERT(!is_exactly_a<numeric>(recombine_pair_to_ex(it)));
 	}
 #endif // def DO_GINAC_ASSERT
 	mul * mulcopyp = new mul(*this);
@@ -1863,11 +1841,8 @@ ex sqrfree(const ex &a, const lst &l)
 	if (l.nops()==0) {
 		sym_desc_vec sdv;
 		get_symbol_stats(a, _ex0, sdv);
-		sym_desc_vec::const_iterator it = sdv.begin(), itend = sdv.end();
-		while (it != itend) {
-			args.append(it->sym);
-			++it;
-		}
+		for (auto & it : sdv)
+			args.append(it.sym);
 	} else {
 		args = l;
 	}
@@ -1890,18 +1865,15 @@ ex sqrfree(const ex &a, const lst &l)
 
 	// recurse down the factors in remaining variables
 	if (newargs.nops()>0) {
-		exvector::iterator i = factors.begin();
-		while (i != factors.end()) {
-			*i = sqrfree(*i, newargs);
-			++i;
-		}
+		for (auto & it : factors)
+			it = sqrfree(it, newargs);
 	}
 
 	// Done with recursion, now construct the final result
 	ex result = _ex1;
-	exvector::const_iterator it = factors.begin(), itend = factors.end();
-	for (int p = 1; it!=itend; ++it, ++p)
-		result *= power(*it, p);
+	int p = 1;
+	for (auto & it : factors)
+		result *= power(it, p++);
 
 	// Yun's algorithm does not account for constant factors.  (For univariate
 	// polynomials it works only in the monic case.)  We can correct this by
@@ -2010,7 +1982,7 @@ static ex replace_with_symbol(const ex & e, exmap & repl, exmap & rev_lookup)
 	ex e_replaced = e.subs(repl, subs_options::no_pattern);
 
 	// Expression already replaced? Then return the assigned symbol
-	exmap::const_iterator it = rev_lookup.find(e_replaced);
+	auto it = rev_lookup.find(e_replaced);
 	if (it != rev_lookup.end())
 		return it->second;
 
@@ -2034,9 +2006,9 @@ static ex replace_with_symbol(const ex & e, exmap & repl)
 	ex e_replaced = e.subs(repl, subs_options::no_pattern);
 
 	// Expression already replaced? Then return the assigned symbol
-	for (exmap::const_iterator it = repl.begin(); it != repl.end(); ++it)
-		if (it->second.is_equal(e_replaced))
-			return it->first;
+	for (auto & it : repl)
+		if (it.second.is_equal(e_replaced))
+			return it.first;
 
 	// Otherwise create new symbol and add to list, taking care that the
 	// replacement expression doesn't itself contain symbols from repl,
@@ -2181,12 +2153,10 @@ ex add::normal(exmap & repl, exmap & rev_lookup, int level) const
 	exvector nums, dens;
 	nums.reserve(seq.size()+1);
 	dens.reserve(seq.size()+1);
-	epvector::const_iterator it = seq.begin(), itend = seq.end();
-	while (it != itend) {
-		ex n = ex_to<basic>(recombine_pair_to_ex(*it)).normal(repl, rev_lookup, level-1);
+	for (auto & it : seq) {
+		ex n = ex_to<basic>(recombine_pair_to_ex(it)).normal(repl, rev_lookup, level-1);
 		nums.push_back(n.op(0));
 		dens.push_back(n.op(1));
-		it++;
 	}
 	ex n = ex_to<numeric>(overall_coeff).normal(repl, rev_lookup, level-1);
 	nums.push_back(n.op(0));
@@ -2198,8 +2168,8 @@ ex add::normal(exmap & repl, exmap & rev_lookup, int level) const
 //std::clog << "add::normal uses " << nums.size() << " summands:\n";
 
 	// Add fractions sequentially
-	exvector::const_iterator num_it = nums.begin(), num_itend = nums.end();
-	exvector::const_iterator den_it = dens.begin(), den_itend = dens.end();
+	auto num_it = nums.begin(), num_itend = nums.end();
+	auto den_it = dens.begin(), den_itend = dens.end();
 //std::clog << " num = " << *num_it << ", den = " << *den_it << std::endl;
 	ex num = *num_it++, den = *den_it++;
 	while (num_it != num_itend) {
@@ -2240,12 +2210,10 @@ ex mul::normal(exmap & repl, exmap & rev_lookup, int level) const
 	exvector num; num.reserve(seq.size());
 	exvector den; den.reserve(seq.size());
 	ex n;
-	epvector::const_iterator it = seq.begin(), itend = seq.end();
-	while (it != itend) {
-		n = ex_to<basic>(recombine_pair_to_ex(*it)).normal(repl, rev_lookup, level-1);
+	for (auto & it : seq) {
+		n = ex_to<basic>(recombine_pair_to_ex(it)).normal(repl, rev_lookup, level-1);
 		num.push_back(n.op(0));
 		den.push_back(n.op(1));
-		it++;
 	}
 	n = ex_to<numeric>(overall_coeff).normal(repl, rev_lookup, level-1);
 	num.push_back(n.op(0));
@@ -2319,14 +2287,12 @@ ex power::normal(exmap & repl, exmap & rev_lookup, int level) const
 ex pseries::normal(exmap & repl, exmap & rev_lookup, int level) const
 {
 	epvector newseq;
-	epvector::const_iterator i = seq.begin(), end = seq.end();
-	while (i != end) {
-		ex restexp = i->rest.normal();
+	for (auto & it : seq) {
+		ex restexp = it.rest.normal();
 		if (!restexp.is_zero())
-			newseq.push_back(expair(restexp, i->coeff));
-		++i;
+			newseq.push_back(expair(restexp, it.coeff));
 	}
-	ex n = pseries(relational(var,point), newseq);
+	ex n = pseries(relational(var,point), std::move(newseq));
 	return (new lst(replace_with_symbol(n, repl, rev_lookup), _ex1))->setflag(status_flags::dynallocated);
 }
 
@@ -2442,15 +2408,15 @@ ex ex::to_rational(lst & repl_lst) const
 {
 	// Convert lst to exmap
 	exmap m;
-	for (lst::const_iterator it = repl_lst.begin(); it != repl_lst.end(); ++it)
-		m.insert(std::make_pair(it->op(0), it->op(1)));
+	for (auto & it : repl_lst)
+		m.insert(std::make_pair(it.op(0), it.op(1)));
 
 	ex ret = bp->to_rational(m);
 
 	// Convert exmap back to lst
 	repl_lst.remove_all();
-	for (exmap::const_iterator it = m.begin(); it != m.end(); ++it)
-		repl_lst.append(it->first == it->second);
+	for (auto & it : m)
+		repl_lst.append(it.first == it.second);
 
 	return ret;
 }
@@ -2465,15 +2431,15 @@ ex ex::to_polynomial(lst & repl_lst) const
 {
 	// Convert lst to exmap
 	exmap m;
-	for (lst::const_iterator it = repl_lst.begin(); it != repl_lst.end(); ++it)
-		m.insert(std::make_pair(it->op(0), it->op(1)));
+	for (auto & it : repl_lst)
+		m.insert(std::make_pair(it.op(0), it.op(1)));
 
 	ex ret = bp->to_polynomial(m);
 
 	// Convert exmap back to lst
 	repl_lst.remove_all();
-	for (exmap::const_iterator it = m.begin(); it != m.end(); ++it)
-		repl_lst.append(it->first == it->second);
+	for (auto & it : m)
+		repl_lst.append(it.first == it.second);
 
 	return ret;
 }
@@ -2580,11 +2546,9 @@ ex expairseq::to_rational(exmap & repl) const
 {
 	epvector s;
 	s.reserve(seq.size());
-	epvector::const_iterator i = seq.begin(), end = seq.end();
-	while (i != end) {
-		s.push_back(split_ex_to_pair(recombine_pair_to_ex(*i).to_rational(repl)));
-		++i;
-	}
+	for (auto & it : seq)
+		s.push_back(split_ex_to_pair(recombine_pair_to_ex(it).to_rational(repl)));
+
 	ex oc = overall_coeff.to_rational(repl);
 	if (oc.info(info_flags::numeric))
 		return thisexpairseq(std::move(s), overall_coeff);
@@ -2598,11 +2562,9 @@ ex expairseq::to_polynomial(exmap & repl) const
 {
 	epvector s;
 	s.reserve(seq.size());
-	epvector::const_iterator i = seq.begin(), end = seq.end();
-	while (i != end) {
-		s.push_back(split_ex_to_pair(recombine_pair_to_ex(*i).to_polynomial(repl)));
-		++i;
-	}
+	for (auto & it : seq)
+		s.push_back(split_ex_to_pair(recombine_pair_to_ex(it).to_polynomial(repl)));
+
 	ex oc = overall_coeff.to_polynomial(repl);
 	if (oc.info(info_flags::numeric))
 		return thisexpairseq(std::move(s), overall_coeff);

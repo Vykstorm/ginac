@@ -120,9 +120,8 @@ void add::print_add(const print_context & c, const char *openbrace, const char *
 	}
 
 	// Then proceed with the remaining factors
-	epvector::const_iterator it = seq.begin(), itend = seq.end();
-	while (it != itend) {
-		coeff = ex_to<numeric>(it->coeff);
+	for (auto & it : seq) {
+		coeff = ex_to<numeric>(it.coeff);
 		if (!first) {
 			if (coeff.csgn() == -1) c.s << '-'; else c.s << '+';
 		} else {
@@ -144,8 +143,7 @@ void add::print_add(const print_context & c, const char *openbrace, const char *
 			}
 			c.s << mul_sym;
 		}
-		it->rest.print(c, precedence());
-		++it;
+		it.rest.print(c, precedence());
 	}
 
 	if (precedence() <= level)
@@ -168,30 +166,28 @@ void add::do_print_csrc(const print_csrc & c, unsigned level) const
 		c.s << "(";
 	
 	// Print arguments, separated by "+" or "-"
-	epvector::const_iterator it = seq.begin(), itend = seq.end();
 	char separator = ' ';
-	while (it != itend) {
+	for (auto & it : seq) {
 		
 		// If the coefficient is negative, separator is "-"
-		if (it->coeff.is_equal(_ex_1) || 
-			ex_to<numeric>(it->coeff).numer().is_equal(*_num_1_p))
+		if (it.coeff.is_equal(_ex_1) ||
+			ex_to<numeric>(it.coeff).numer().is_equal(*_num_1_p))
 			separator = '-';
 		c.s << separator;
-		if (it->coeff.is_equal(_ex1) || it->coeff.is_equal(_ex_1)) {
-			it->rest.print(c, precedence());
-		} else if (ex_to<numeric>(it->coeff).numer().is_equal(*_num1_p) ||
-				 ex_to<numeric>(it->coeff).numer().is_equal(*_num_1_p))
+		if (it.coeff.is_equal(_ex1) || it.coeff.is_equal(_ex_1)) {
+			it.rest.print(c, precedence());
+		} else if (ex_to<numeric>(it.coeff).numer().is_equal(*_num1_p) ||
+				 ex_to<numeric>(it.coeff).numer().is_equal(*_num_1_p))
 		{
-			it->rest.print(c, precedence());
+			it.rest.print(c, precedence());
 			c.s << '/';
-			ex_to<numeric>(it->coeff).denom().print(c, precedence());
+			ex_to<numeric>(it.coeff).denom().print(c, precedence());
 		} else {
-			it->coeff.print(c, precedence());
+			it.coeff.print(c, precedence());
 			c.s << '*';
-			it->rest.print(c, precedence());
+			it.rest.print(c, precedence());
 		}
 		
-		++it;
 		separator = '+';
 	}
 	
@@ -236,11 +232,9 @@ bool add::info(unsigned inf) const
 		case info_flags::even:
 		case info_flags::crational_polynomial:
 		case info_flags::rational_function: {
-			epvector::const_iterator i = seq.begin(), end = seq.end();
-			while (i != end) {
-				if (!(recombine_pair_to_ex(*i).info(inf)))
+			for (auto & i : seq) {
+				if (!(recombine_pair_to_ex(i).info(inf)))
 					return false;
-				++i;
 			}
 			if (overall_coeff.is_zero() && (inf == info_flags::positive || inf == info_flags::posint))
 				return true;
@@ -261,8 +255,8 @@ bool add::info(unsigned inf) const
 
 bool add::is_polynomial(const ex & var) const
 {
-	for (epvector::const_iterator i=seq.begin(); i!=seq.end(); ++i) {
-		if (!(i->rest).is_polynomial(var)) {
+	for (auto & i : seq) {
+		if (!i.rest.is_polynomial(var)) {
 			return false;
 		}
 	}
@@ -276,12 +270,10 @@ int add::degree(const ex & s) const
 		deg = 0;
 	
 	// Find maximum of degrees of individual terms
-	epvector::const_iterator i = seq.begin(), end = seq.end();
-	while (i != end) {
-		int cur_deg = i->rest.degree(s);
+	for (auto & i : seq) {
+		int cur_deg = i.rest.degree(s);
 		if (cur_deg > deg)
 			deg = cur_deg;
-		++i;
 	}
 	return deg;
 }
@@ -293,12 +285,10 @@ int add::ldegree(const ex & s) const
 		deg = 0;
 	
 	// Find minimum of degrees of individual terms
-	epvector::const_iterator i = seq.begin(), end = seq.end();
-	while (i != end) {
-		int cur_deg = i->rest.ldegree(s);
+	for (auto & i : seq) {
+		int cur_deg = i.rest.ldegree(s);
 		if (cur_deg < deg)
 			deg = cur_deg;
-		++i;
 	}
 	return deg;
 }
@@ -312,21 +302,19 @@ ex add::coeff(const ex & s, int n) const
 	bool nonscalar = false;
 
 	// Calculate sum of coefficients in each term
-	epvector::const_iterator i = seq.begin(), end = seq.end();
-	while (i != end) {
-		ex restcoeff = i->rest.coeff(s, n);
+	for (auto & i : seq) {
+		ex restcoeff = i.rest.coeff(s, n);
 		if (!restcoeff.is_zero()) {
 			if (do_clifford) {
 				if (clifford_max_label(restcoeff) == -1) {
-					coeffseq_cliff.push_back(combine_ex_with_coeff_to_pair(ncmul(restcoeff, dirac_ONE(rl)), i->coeff));
+					coeffseq_cliff.push_back(combine_ex_with_coeff_to_pair(ncmul(restcoeff, dirac_ONE(rl)), i.coeff));
 				} else {
-					coeffseq_cliff.push_back(combine_ex_with_coeff_to_pair(restcoeff, i->coeff));
+					coeffseq_cliff.push_back(combine_ex_with_coeff_to_pair(restcoeff, i.coeff));
 					nonscalar = true;
 				}
 			}
-			coeffseq.push_back(combine_ex_with_coeff_to_pair(restcoeff, i->coeff));
+			coeffseq.push_back(combine_ex_with_coeff_to_pair(restcoeff, i.coeff));
 		}
-		++i;
 	}
 
 	return (new add(nonscalar ? std::move(coeffseq_cliff) : std::move(coeffseq),
@@ -350,10 +338,8 @@ ex add::eval(int level) const
 	}
 
 #ifdef DO_GINAC_ASSERT
-	epvector::const_iterator i = seq.begin(), end = seq.end();
-	while (i != end) {
-		GINAC_ASSERT(!is_exactly_a<add>(i->rest));
-		++i;
+	for (auto & i : seq) {
+		GINAC_ASSERT(!is_exactly_a<add>(i.rest));
 	}
 #endif // def DO_GINAC_ASSERT
 	
@@ -376,25 +362,20 @@ ex add::eval(int level) const
 	
 	// if any terms in the sum still are purely numeric, then they are more
 	// appropriately collected into the overall coefficient
-	epvector::const_iterator last = seq.end();
-	epvector::const_iterator j = seq.begin();
 	int terms_to_collect = 0;
-	while (j != last) {
-		if (unlikely(is_a<numeric>(j->rest)))
+	for (auto & it : seq) {
+		if (unlikely(is_a<numeric>(it.rest)))
 			++terms_to_collect;
-		++j;
 	}
 	if (terms_to_collect) {
 		epvector s;
 		s.reserve(seq_size - terms_to_collect);
 		numeric oc = *_num1_p;
-		j = seq.begin();
-		while (j != last) {
-			if (unlikely(is_a<numeric>(j->rest)))
-				oc = oc.mul(ex_to<numeric>(j->rest)).mul(ex_to<numeric>(j->coeff));
+		for (auto & it : seq) {
+			if (unlikely(is_a<numeric>(it.rest)))
+				oc = oc.mul(ex_to<numeric>(it.rest)).mul(ex_to<numeric>(it.coeff));
 			else
-				s.push_back(*j);
-			++j;
+				s.push_back(it);
 		}
 		return (new add(std::move(s), ex_to<numeric>(overall_coeff).add_dyn(oc)))
 		        ->setflag(status_flags::dynallocated);
@@ -414,9 +395,8 @@ ex add::evalm() const
 	bool first_term = true;
 	matrix sum;
 
-	epvector::const_iterator it = seq.begin(), itend = seq.end();
-	while (it != itend) {
-		const ex &m = recombine_pair_to_ex(*it).evalm();
+	for (auto & it : seq) {
+		const ex &m = recombine_pair_to_ex(it).evalm();
 		s.push_back(split_ex_to_pair(m));
 		if (is_a<matrix>(m)) {
 			if (first_term) {
@@ -426,7 +406,6 @@ ex add::evalm() const
 				sum = sum.add(ex_to<matrix>(m));
 		} else
 			all_matrices = false;
-		++it;
 	}
 
 	if (all_matrices)
@@ -437,7 +416,7 @@ ex add::evalm() const
 
 ex add::conjugate() const
 {
-	exvector *v = 0;
+	std::unique_ptr<exvector> v(nullptr);
 	for (size_t i=0; i<nops(); ++i) {
 		if (v) {
 			v->push_back(op(i).conjugate());
@@ -447,16 +426,14 @@ ex add::conjugate() const
 		ex ccterm = term.conjugate();
 		if (are_ex_trivially_equal(term, ccterm))
 			continue;
-		v = new exvector;
+		v.reset(new exvector);
 		v->reserve(nops());
 		for (size_t j=0; j<i; ++j)
 			v->push_back(op(j));
 		v->push_back(ccterm);
 	}
 	if (v) {
-		ex result = add(*v);
-		delete v;
-		return result;
+		return add(std::move(*v));
 	}
 	return *this;
 }
@@ -465,17 +442,17 @@ ex add::real_part() const
 {
 	epvector v;
 	v.reserve(seq.size());
-	for (epvector::const_iterator i=seq.begin(); i!=seq.end(); ++i)
-		if ((i->coeff).info(info_flags::real)) {
-			ex rp = (i->rest).real_part();
+	for (auto & it : seq)
+		if (it.coeff.info(info_flags::real)) {
+			ex rp = it.rest.real_part();
 			if (!rp.is_zero())
-				v.push_back(expair(rp, i->coeff));
+				v.push_back(expair(rp, it.coeff));
 		} else {
-			ex rp=recombine_pair_to_ex(*i).real_part();
+			ex rp = recombine_pair_to_ex(it).real_part();
 			if (!rp.is_zero())
 				v.push_back(split_ex_to_pair(rp));
 		}
-	return (new add(v, overall_coeff.real_part()))
+	return (new add(std::move(v), overall_coeff.real_part()))
 		-> setflag(status_flags::dynallocated);
 }
 
@@ -483,17 +460,17 @@ ex add::imag_part() const
 {
 	epvector v;
 	v.reserve(seq.size());
-	for (epvector::const_iterator i=seq.begin(); i!=seq.end(); ++i)
-		if ((i->coeff).info(info_flags::real)) {
-			ex ip = (i->rest).imag_part();
+	for (auto & it : seq)
+		if (it.coeff.info(info_flags::real)) {
+			ex ip = it.rest.imag_part();
 			if (!ip.is_zero())
-				v.push_back(expair(ip, i->coeff));
+				v.push_back(expair(ip, it.coeff));
 		} else {
-			ex ip=recombine_pair_to_ex(*i).imag_part();
+			ex ip = recombine_pair_to_ex(it).imag_part();
 			if (!ip.is_zero())
 				v.push_back(split_ex_to_pair(ip));
 		}
-	return (new add(v, overall_coeff.imag_part()))
+	return (new add(std::move(v), overall_coeff.imag_part()))
 		-> setflag(status_flags::dynallocated);
 }
 
@@ -517,11 +494,9 @@ ex add::derivative(const symbol & y) const
 	// Only differentiate the "rest" parts of the expairs. This is faster
 	// than the default implementation in basic::derivative() although
 	// if performs the same function (differentiate each term).
-	epvector::const_iterator i = seq.begin(), end = seq.end();
-	while (i != end) {
-		s.push_back(combine_ex_with_coeff_to_pair(i->rest.diff(y), i->coeff));
-		++i;
-	}
+	for (auto & it : seq)
+		s.push_back(combine_ex_with_coeff_to_pair(it.rest.diff(y), it.coeff));
+
 	return (new add(std::move(s), _ex0))->setflag(status_flags::dynallocated);
 }
 

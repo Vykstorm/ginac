@@ -139,8 +139,8 @@ static void wipe_out_zeros(ex_collect_priv_t& m)
 	}
 }
 
-GiNaC::ex
-ex_collect_to_ex(const ex_collect_t& ec, const GiNaC::exvector& vars)
+ex
+ex_collect_to_ex(const ex_collect_t& ec, const exvector& vars)
 {
 	exvector ev;
 	ev.reserve(ec.size());

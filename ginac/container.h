@@ -384,10 +384,8 @@ public:
 	void archive(archive_node &n) const
 	{
 		inherited::archive(n);
-		const_iterator i = this->seq.begin(), end = this->seq.end();
-		while (i != end) {
-			n.add_ex("seq", *i);
-			++i;
+		for (auto & i : this->seq) {
+			n.add_ex("seq", i);
 		}
 	}
 

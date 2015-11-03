@@ -166,11 +166,9 @@ ex color::eval_ncmul(const exvector & v) const
 	s.reserve(v.size());
 
 	// Remove superfluous ONEs
-	exvector::const_iterator it = v.begin(), itend = v.end();
-	while (it != itend) {
-		if (!is_a<su3one>(it->op(0)))
-			s.push_back(*it);
-		it++;
+	for (auto & it : v) {
+		if (!is_a<su3one>(it.op(0)))
+			s.push_back(it);
 	}
 
 	if (s.empty())
@@ -625,9 +623,9 @@ ex color_trace(const ex & e, const lst & rll)
 {
 	// Convert list to set
 	std::set<unsigned char> rls;
-	for (lst::const_iterator i = rll.begin(); i != rll.end(); ++i) {
-		if (i->info(info_flags::nonnegint))
-			rls.insert(ex_to<numeric>(*i).to_int());
+	for (auto & it : rll) {
+		if (it.info(info_flags::nonnegint))
+			rls.insert(ex_to<numeric>(it).to_int());
 	}
 
 	return color_trace(e, rls);

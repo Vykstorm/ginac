@@ -83,11 +83,9 @@ typedef std::vector<sym_desc> sym_desc_vec;
 // Add symbol the sym_desc_vec (used internally by get_symbol_stats())
 static void add_symbol(const ex &s, sym_desc_vec &v)
 {
-	sym_desc_vec::const_iterator it = v.begin(), itend = v.end();
-	while (it != itend) {
-		if (it->sym.is_equal(s))  // If it's already in there, don't add it a second time
+	for (auto & it : v) {
+		if (it.sym.is_equal(s))  // If it's already in there, don't add it a second time
 			return;
-		++it;
 	}
 	sym_desc d;
 	d.sym = s;
@@ -123,17 +121,15 @@ static void get_symbol_stats(const ex &a, const ex &b, sym_desc_vec &v)
 {
 	collect_symbols(a, v);
 	collect_symbols(b, v);
-	sym_desc_vec::iterator it = v.begin(), itend = v.end();
-	while (it != itend) {
-		int deg_a = a.degree(it->sym);
-		int deg_b = b.degree(it->sym);
-		it->deg_a = deg_a;
-		it->deg_b = deg_b;
-		it->max_deg = std::max(deg_a, deg_b);
-		it->max_lcnops = std::max(a.lcoeff(it->sym).nops(), b.lcoeff(it->sym).nops());
-		it->ldeg_a = a.ldegree(it->sym);
-		it->ldeg_b = b.ldegree(it->sym);
-		++it;
+	for (auto & it : v) {
+		int deg_a = a.degree(it.sym);
+		int deg_b = b.degree(it.sym);
+		it.deg_a = deg_a;
+		it.deg_b = deg_b;
+		it.max_deg = std::max(deg_a, deg_b);
+		it.max_lcnops = std::max(a.lcoeff(it.sym).nops(), b.lcoeff(it.sym).nops());
+		it.ldeg_a = a.ldegree(it.sym);
+		it.ldeg_b = b.ldegree(it.sym);
 	}
 	std::sort(v.begin(), v.end());
 }

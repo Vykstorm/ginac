@@ -366,13 +366,13 @@ ex basic::collect(const ex & s, bool distributed) const
 
 			exmap cmap;
 			cmap[_ex1] = _ex0;
-			for (const_iterator xi=x.begin(); xi!=x.end(); ++xi) {
+			for (const auto & xi : x) {
 				ex key = _ex1;
-				ex pre_coeff = *xi;
-				for (lst::const_iterator li=l.begin(); li!=l.end(); ++li) {
-					int cexp = pre_coeff.degree(*li);
-					pre_coeff = pre_coeff.coeff(*li, cexp);
-					key *= pow(*li, cexp);
+				ex pre_coeff = xi;
+				for (auto & li : l) {
+					int cexp = pre_coeff.degree(li);
+					pre_coeff = pre_coeff.coeff(li, cexp);
+					key *= pow(li, cexp);
 				}
 				exmap::iterator ci = cmap.find(key);
 				if (ci != cmap.end())
@@ -382,8 +382,8 @@ ex basic::collect(const ex & s, bool distributed) const
 			}
 
 			exvector resv;
-			for (exmap::const_iterator mi=cmap.begin(); mi != cmap.end(); ++mi)
-				resv.push_back((mi->first)*(mi->second));
+			for (auto & mi : cmap)
+				resv.push_back((mi.first)*(mi.second));
 			return (new add(resv))->setflag(status_flags::dynallocated);
 
 		} else {
@@ -548,9 +548,9 @@ bool basic::match(const ex & pattern, exmap& repl_lst) const
 		// Wildcard matches anything, but check whether we already have found
 		// a match for that wildcard first (if so, the earlier match must be
 		// the same expression)
-		for (exmap::const_iterator it = repl_lst.begin(); it != repl_lst.end(); ++it) {
-			if (it->first.is_equal(pattern))
-				return is_equal(ex_to<basic>(it->second));
+		for (auto & it : repl_lst) {
+			if (it.first.is_equal(pattern))
+				return is_equal(ex_to<basic>(it.second));
 		}
 		repl_lst[pattern] = *this;
 		return true;
@@ -593,19 +593,16 @@ bool basic::match(const ex & pattern, exmap& repl_lst) const
 /** Helper function for subs(). Does not recurse into subexpressions. */
 ex basic::subs_one_level(const exmap & m, unsigned options) const
 {
-	exmap::const_iterator it;
-
 	if (options & subs_options::no_pattern) {
-		ex thisex = *this;
-		it = m.find(thisex);
+		auto it = m.find(*this);
 		if (it != m.end())
 			return it->second;
-		return thisex;
+		return *this;
 	} else {
-		for (it = m.begin(); it != m.end(); ++it) {
+		for (auto & it : m) {
 			exmap repl_lst;
-			if (match(ex_to<basic>(it->first), repl_lst))
-				return it->second.subs(repl_lst, options | subs_options::no_pattern);
+			if (match(ex_to<basic>(it.first), repl_lst))
+				return it.second.subs(repl_lst, options | subs_options::no_pattern);
 			// avoid infinite recursion when re-substituting the wildcards
 		}
 	}

@@ -132,11 +132,10 @@ ex ncmul::expand(unsigned options) const
 	size_t number_of_expanded_terms = 1;
 
 	size_t current_position = 0;
-	exvector::const_iterator last = expanded_seq.end();
-	for (exvector::const_iterator cit=expanded_seq.begin(); cit!=last; ++cit) {
-		if (is_exactly_a<add>(*cit)) {
+	for (auto & it : expanded_seq) {
+		if (is_exactly_a<add>(it)) {
 			positions_of_adds[number_of_adds] = current_position;
-			size_t num_ops = cit->nops();
+			size_t num_ops = it.nops();
 			number_of_add_operands[number_of_adds] = num_ops;
 			number_of_expanded_terms *= num_ops;
 			number_of_adds++;
@@ -204,11 +203,8 @@ int ncmul::degree(const ex & s) const
 
 	// Sum up degrees of factors
 	int deg_sum = 0;
-	exvector::const_iterator i = seq.begin(), end = seq.end();
-	while (i != end) {
-		deg_sum += i->degree(s);
-		++i;
-	}
+	for (auto & i : seq)
+		deg_sum += i.degree(s);
 	return deg_sum;
 }
 
@@ -219,11 +215,8 @@ int ncmul::ldegree(const ex & s) const
 
 	// Sum up degrees of factors
 	int deg_sum = 0;
-	exvector::const_iterator i = seq.begin(), end = seq.end();
-	while (i != end) {
-		deg_sum += i->degree(s);
-		++i;
-	}
+	for (auto & i : seq)
+		deg_sum += i.degree(s);
 	return deg_sum;
 }
 
@@ -238,28 +231,24 @@ ex ncmul::coeff(const ex & s, int n) const
 	if (n == 0) {
 		// product of individual coeffs
 		// if a non-zero power of s is found, the resulting product will be 0
-		exvector::const_iterator it=seq.begin();
-		while (it!=seq.end()) {
-			coeffseq.push_back((*it).coeff(s,n));
-			++it;
-		}
-		return (new ncmul(coeffseq,1))->setflag(status_flags::dynallocated);
+		for (auto & it : seq)
+			coeffseq.push_back(it.coeff(s,n));
+		return (new ncmul(std::move(coeffseq),1))->setflag(status_flags::dynallocated);
 	}
 		 
-	exvector::const_iterator i = seq.begin(), end = seq.end();
 	bool coeff_found = false;
-	while (i != end) {
-		ex c = i->coeff(s,n);
+	for (auto & i : seq) {
+		ex c = i.coeff(s,n);
 		if (c.is_zero()) {
-			coeffseq.push_back(*i);
+			coeffseq.push_back(i);
 		} else {
 			coeffseq.push_back(c);
 			coeff_found = true;
 		}
-		++i;
 	}
 
-	if (coeff_found) return (new ncmul(coeffseq,1))->setflag(status_flags::dynallocated);
+	if (coeff_found)
+		return (new ncmul(std::move(coeffseq), 1))->setflag(status_flags::dynallocated);
 	
 	return _ex0;
 }
@@ -319,16 +308,14 @@ ex ncmul::eval(int level) const
 	// ncmul(...,*(x1,x2),...,ncmul(x3,x4),...) ->
 	//     ncmul(...,x1,x2,...,x3,x4,...)  (associativity)
 	size_t factors = 0;
-	exvector::const_iterator cit = evaledseq.begin(), citend = evaledseq.end();
-	while (cit != citend)
-		factors += count_factors(*cit++);
+	for (auto & it : evaledseq)
+		factors += count_factors(it);
 	
 	exvector assocseq;
 	assocseq.reserve(factors);
-	cit = evaledseq.begin();
 	make_flat_inserter mf(evaledseq, true);
-	while (cit != citend)
-	{	ex factor = mf.handle_factor(*(cit++), 1);
+	for (auto & it : evaledseq) {
+		ex factor = mf.handle_factor(it, 1);
 		append_factors(assocseq, factor);
 	}
 	
@@ -344,9 +331,8 @@ ex ncmul::eval(int level) const
 	size_t count_commutative=0;
 	size_t count_noncommutative=0;
 	size_t count_noncommutative_composite=0;
-	cit = assocseq.begin(); citend = assocseq.end();
-	while (cit != citend) {
-		rettypes[i] = cit->return_type();
+	for (auto & it : assocseq) {
+		rettypes[i] = it.return_type();
 		switch (rettypes[i]) {
 		case return_types::commutative:
 			count_commutative++;
@@ -360,7 +346,7 @@ ex ncmul::eval(int level) const
 		default:
 			throw(std::logic_error("ncmul::eval(): invalid return type"));
 		}
-		++i; ++cit;
+		++i;
 	}
 	GINAC_ASSERT(count_commutative+count_noncommutative+count_noncommutative_composite==assocseq.size());
 
@@ -396,14 +382,13 @@ ex ncmul::eval(int level) const
 		evv.reserve(assoc_num);
 		rttinfos.reserve(assoc_num);
 
-		cit = assocseq.begin(), citend = assocseq.end();
-		while (cit != citend) {
-			return_type_t ti = cit->return_type_tinfo();
+		for (auto & it : assocseq) {
+			return_type_t ti = it.return_type_tinfo();
 			size_t rtt_num = rttinfos.size();
 			// search type in vector of known types
 			for (i=0; i<rtt_num; ++i) {
 				if(ti == rttinfos[i]) {
-					evv[i].push_back(*cit);
+					evv[i].push_back(it);
 					break;
 				}
 			}
@@ -412,9 +397,8 @@ ex ncmul::eval(int level) const
 				rttinfos.push_back(ti);
 				evv.push_back(exvector());
 				(evv.end()-1)->reserve(assoc_num);
-				(evv.end()-1)->push_back(*cit);
+				(evv.end()-1)->push_back(it);
 			}
-			++cit;
 		}
 
 		size_t evv_num = evv.size();
@@ -449,14 +433,11 @@ ex ncmul::evalm() const
 	// Evaluate children first
 	exvector s;
 	s.reserve(seq.size());
-	exvector::const_iterator it = seq.begin(), itend = seq.end();
-	while (it != itend) {
-		s.push_back(it->evalm());
-		it++;
-	}
+	for (auto & it : seq)
+		s.push_back(it.evalm());
 
 	// If there are only matrices, simply multiply them
-	it = s.begin(); itend = s.end();
+	auto it = s.begin(), itend = s.end();
 	if (is_a<matrix>(*it)) {
 		matrix prod(ex_to<matrix>(*it));
 		it++;
@@ -495,11 +476,11 @@ ex ncmul::conjugate() const
 
 	exvector ev;
 	ev.reserve(nops());
-	for (const_iterator i=end(); i!=begin();) {
+	for (auto i=end(); i!=begin();) {
 		--i;
 		ev.push_back(i->conjugate());
 	}
-	return (new ncmul(ev, true))->setflag(status_flags::dynallocated).eval();
+	return (new ncmul(std::move(ev), true))->setflag(status_flags::dynallocated).eval();
 }
 
 ex ncmul::real_part() const
@@ -575,12 +556,9 @@ return_type_t ncmul::return_type_tinfo() const
 		return make_return_type_t<ncmul>();
 
 	// return type_info of first noncommutative element
-	exvector::const_iterator i = seq.begin(), end = seq.end();
-	while (i != end) {
-		if (i->return_type() == return_types::noncommutative)
-			return i->return_type_tinfo();
-		++i;
-	}
+	for (auto & i : seq)
+		if (i.return_type() == return_types::noncommutative)
+			return i.return_type_tinfo();
 
 	// no noncommutative element found, should not happen
 	return make_return_type_t<ncmul>();
@@ -598,7 +576,7 @@ return_type_t ncmul::return_type_tinfo() const
 
 exvector ncmul::expandchildren(unsigned options) const
 {
-	const_iterator cit = this->seq.begin(), end = this->seq.end();
+	auto cit = this->seq.begin(), end = this->seq.end();
 	while (cit != end) {
 		const ex & expanded_ex = cit->expand(options);
 		if (!are_ex_trivially_equal(*cit, expanded_ex)) {

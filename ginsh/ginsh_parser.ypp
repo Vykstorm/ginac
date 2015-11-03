@@ -431,8 +431,8 @@ static ex f_find(const exprseq &e)
 	exset found;
 	e[0].find(e[1], found);
 	lst l;
-	for (exset::const_iterator i = found.begin(); i != found.end(); ++i)
-		l.append(*i);
+	for (auto & i : found)
+		l.append(i);
 	return l;
 }
 
@@ -486,8 +486,8 @@ static ex f_match(const exprseq &e)
 	exmap repls;
 	if (e[0].match(e[1], repls)) {
 		lst repl_lst;
-		for (exmap::const_iterator i = repls.begin(); i != repls.end(); ++i)
-			repl_lst.append(relational(i->first, i->second, relational::equal));
+		for (auto & i : repls)
+			repl_lst.append(relational(i.first, i.second, relational::equal));
 		return repl_lst;
 	}
 	throw std::runtime_error("FAIL");
@@ -736,12 +736,9 @@ static ex f_ginac_function(const exprseq &es, int serial)
 namespace GiNaC {
 static void ginsh_get_ginac_functions(void)
 {
-	vector<function_options> gfv = function::get_registered_functions();
-	vector<function_options>::const_iterator i = gfv.begin(), end = gfv.end();
 	unsigned serial = 0;
-	while (i != end) {
-		fcns.insert(make_pair(i->get_name(), fcn_desc(f_ginac_function, i->get_nparams(), serial)));
-		++i;
+	for (auto & i : function::get_registered_functions()) {
+		fcns.insert(make_pair(i.get_name(), fcn_desc(f_ginac_function, i.get_nparams(), serial)));
 		serial++;
 	}
 }

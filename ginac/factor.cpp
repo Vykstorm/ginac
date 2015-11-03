@@ -86,15 +86,16 @@ namespace GiNaC {
 #define DCOUT2(str,var) cout << #str << ": " << var << endl
 ostream& operator<<(ostream& o, const vector<int>& v)
 {
-	vector<int>::const_iterator i = v.begin(), end = v.end();
+	auto i = v.begin(), end = v.end();
 	while ( i != end ) {
-		o << *i++ << " ";
+		o << *i << " ";
+		++i;
 	}
 	return o;
 }
 static ostream& operator<<(ostream& o, const vector<cl_I>& v)
 {
-	vector<cl_I>::const_iterator i = v.begin(), end = v.end();
+	auto i = v.begin(), end = v.end();
 	while ( i != end ) {
 		o << *i << "[" << i-v.begin() << "]" << " ";
 		++i;
@@ -103,7 +104,7 @@ static ostream& operator<<(ostream& o, const vector<cl_I>& v)
 }
 static ostream& operator<<(ostream& o, const vector<cl_MI>& v)
 {
-	vector<cl_MI>::const_iterator i = v.begin(), end = v.end();
+	auto i = v.begin(), end = v.end();
 	while ( i != end ) {
 		o << *i << "[" << i-v.begin() << "]" << " ";
 		++i;
@@ -119,7 +120,7 @@ ostream& operator<<(ostream& o, const vector<numeric>& v)
 }
 ostream& operator<<(ostream& o, const vector< vector<cl_MI> >& v)
 {
-	vector< vector<cl_MI> >::const_iterator i = v.begin(), end = v.end();
+	auto i = v.begin(), end = v.end();
 	while ( i != end ) {
 		o << i-v.begin() << ": " << *i << endl;
 		++i;
@@ -498,11 +499,10 @@ static void reduce_coeff(umodpoly& a, const cl_I& x)
 	if ( a.empty() ) return;
 
 	cl_modint_ring R = a[0].ring();
-	umodpoly::iterator i = a.begin(), end = a.end();
-	for ( ; i!=end; ++i ) {
+	for (auto & i : a) {
 		// cln cannot perform this division in the modular field
-		cl_I c = R->retract(*i);
-		*i = cl_MI(R, the<cl_I>(c / x));
+		cl_I c = R->retract(i);
+		i = cl_MI(R, the<cl_I>(c / x));
 	}
 }
 
@@ -940,15 +940,13 @@ static void berlekamp(const umodpoly& a, upvec& upv)
 				}
 				factors.push_back(g);
 				size = 0;
-				list<umodpoly>::const_iterator i = factors.begin(), end = factors.end();
-				while ( i != end ) {
-					if ( degree(*i) ) ++size; 
-					++i;
+				for (auto & i : factors) {
+					if (degree(i))
+						++size;
 				}
 				if ( size == k ) {
-					list<umodpoly>::const_iterator i = factors.begin(), end = factors.end();
-					while ( i != end ) {
-						upv.push_back(*i++);
+					for (auto & i : factors) {
+						upv.push_back(i);
 					}
 					return;
 				}
@@ -1172,15 +1170,13 @@ static void exteuclid(const umodpoly& a, const umodpoly& b, umodpoly& s, umodpol
 		d2 = r2;
 	}
 	cl_MI fac = recip(lcoeff(a) * lcoeff(c));
-	umodpoly::iterator i = s.begin(), end = s.end();
-	for ( ; i!=end; ++i ) {
-		*i = *i * fac;
+	for (auto & i : s) {
+		i = i * fac;
 	}
 	canonicalize(s);
 	fac = recip(lcoeff(b) * lcoeff(c));
-	i = t.begin(), end = t.end();
-	for ( ; i!=end; ++i ) {
-		*i = *i * fac;
+	for (auto & i : t) {
+		i = i * fac;
 	}
 	canonicalize(t);
 }
@@ -1332,7 +1328,6 @@ static unsigned int next_prime(unsigned int p)
 	if ( primes.size() == 0 ) {
 		primes.push_back(3); primes.push_back(5); primes.push_back(7);
 	}
-	vector<unsigned int>::const_iterator it = primes.begin();
 	if ( p >= primes.back() ) {
 		unsigned int candidate = primes.back() + 2;
 		while ( true ) {
@@ -1347,10 +1342,9 @@ static unsigned int next_prime(unsigned int p)
 		}
 		return candidate;
 	}
-	vector<unsigned int>::const_iterator end = primes.end();
-	for ( ; it!=end; ++it ) {
-		if ( *it > p ) {
-			return *it;
+	for (auto & it : primes) {
+		if ( it > p ) {
+			return it;
 		}
 	}
 	throw logic_error("next_prime: should not reach this point!");
@@ -1603,7 +1597,7 @@ static ex factor_univariate(const ex& poly, const ex& x, unsigned int& prime)
 				}
 				else {
 					upvec newfactors1(part.size_left()), newfactors2(part.size_right());
-					upvec::iterator i1 = newfactors1.begin(), i2 = newfactors2.begin();
+					auto i1 = newfactors1.begin(), i2 = newfactors2.begin();
 					for ( size_t i=0; i<n; ++i ) {
 						if ( part[i] ) {
 							*i2++ = tocheck.top().factors[i];
@@ -1719,9 +1713,8 @@ static void change_modulus(const cl_modint_ring& R, umodpoly& a)
 {
 	if ( a.empty() ) return;
 	cl_modint_ring oldR = a[0].ring();
-	umodpoly::iterator i = a.begin(), end = a.end();
-	for ( ; i!=end; ++i ) {
-		*i = R->canonhom(oldR->retract(*i));
+	for (auto & i : a) {
+		i = R->canonhom(oldR->retract(i));
 	}
 	canonicalize(a);
 }
@@ -2556,9 +2549,8 @@ ex factor(const ex& poly, unsigned options)
 		return poly;
 	}
 	lst syms;
-	exset::const_iterator i=findsymbols.syms.begin(), end=findsymbols.syms.end();
-	for ( ; i!=end; ++i ) {
-		syms.append(*i);
+	for (auto & i : findsymbols.syms ) {
+		syms.append(i);
 	}
 
 	// make poly square free

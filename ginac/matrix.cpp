@@ -92,12 +92,13 @@ matrix::matrix(unsigned r, unsigned c, const lst & l)
 	setflag(status_flags::not_shareable);
 
 	size_t i = 0;
-	for (lst::const_iterator it = l.begin(); it != l.end(); ++it, ++i) {
+	for (auto & it : l) {
 		size_t x = i % c;
 		size_t y = i / c;
 		if (y >= r)
 			break; // matrix smaller than list: throw away excessive elements
-		m[y*c+x] = *it;
+		m[y*c+x] = it;
+		++i;
 	}
 }
 
@@ -114,10 +115,10 @@ void matrix::read_archive(const archive_node &n, lst &sym_lst)
 	m.reserve(row * col);
 	// XXX: default ctor inserts a zero element, we need to erase it here.
 	m.pop_back();
-	archive_node::archive_node_cit first = n.find_first("m");
-	archive_node::archive_node_cit last = n.find_last("m");
+	auto first = n.find_first("m");
+	auto last = n.find_last("m");
 	++last;
-	for (archive_node::archive_node_cit i=first; i != last; ++i) {
+	for (auto i=first; i != last; ++i) {
 		ex e;
 		n.find_ex_by_loc(i, e, sym_lst);
 		m.push_back(e);
@@ -130,10 +131,8 @@ void matrix::archive(archive_node &n) const
 	inherited::archive(n);
 	n.add_unsigned("row", row);
 	n.add_unsigned("col", col);
-	exvector::const_iterator i = m.begin(), iend = m.end();
-	while (i != iend) {
-		n.add_ex("m", *i);
-		++i;
+	for (auto & i : m) {
+		n.add_ex("m", i);
 	}
 }
 
@@ -221,8 +220,8 @@ ex matrix::eval(int level) const
 		for (unsigned c=0; c<col; ++c)
 			m2[r*col+c] = m[r*col+c].eval(level);
 	
-	return (new matrix(row, col, m2))->setflag(status_flags::dynallocated |
-	                                           status_flags::evaluated);
+	return (new matrix(row, col, std::move(m2)))->setflag(status_flags::dynallocated |
+	                                                      status_flags::evaluated);
 }
 
 ex matrix::subs(const exmap & mp, unsigned options) const
@@ -232,14 +231,14 @@ ex matrix::subs(const exmap & mp, unsigned options) const
 		for (unsigned c=0; c<col; ++c)
 			m2[r*col+c] = m[r*col+c].subs(mp, options);
 
-	return matrix(row, col, m2).subs_one_level(mp, options);
+	return matrix(row, col, std::move(m2)).subs_one_level(mp, options);
 }
 
 /** Complex conjugate every matrix entry. */
 ex matrix::conjugate() const
 {
-	exvector * ev = 0;
-	for (exvector::const_iterator i=m.begin(); i!=m.end(); ++i) {
+	std::unique_ptr<exvector> ev(nullptr);
+	for (auto i=m.begin(); i!=m.end(); ++i) {
 		ex x = i->conjugate();
 		if (ev) {
 			ev->push_back(x);
@@ -248,17 +247,15 @@ ex matrix::conjugate() const
 		if (are_ex_trivially_equal(x, *i)) {
 			continue;
 		}
-		ev = new exvector;
+		ev.reset(new exvector);
 		ev->reserve(m.size());
-		for (exvector::const_iterator j=m.begin(); j!=i; ++j) {
+		for (auto j=m.begin(); j!=i; ++j) {
 			ev->push_back(*j);
 		}
 		ev->push_back(x);
 	}
 	if (ev) {
-		ex result = matrix(row, col, *ev);
-		delete ev;
-		return result;
+		return matrix(row, col, std::move(*ev));
 	}
 	return *this;
 }
@@ -267,18 +264,18 @@ ex matrix::real_part() const
 {
 	exvector v;
 	v.reserve(m.size());
-	for (exvector::const_iterator i=m.begin(); i!=m.end(); ++i)
-		v.push_back(i->real_part());
-	return matrix(row, col, v);
+	for (auto & i : m)
+		v.push_back(i.real_part());
+	return matrix(row, col, std::move(v));
 }
 
 ex matrix::imag_part() const
 {
 	exvector v;
 	v.reserve(m.size());
-	for (exvector::const_iterator i=m.begin(); i!=m.end(); ++i)
-		v.push_back(i->imag_part());
-	return matrix(row, col, v);
+	for (auto & i : m)
+		v.push_back(i.imag_part());
+	return matrix(row, col, std::move(v));
 }
 
 // protected
@@ -560,12 +557,11 @@ matrix matrix::add(const matrix & other) const
 		throw std::logic_error("matrix::add(): incompatible matrices");
 	
 	exvector sum(this->m);
-	exvector::iterator i = sum.begin(), end = sum.end();
-	exvector::const_iterator ci = other.m.begin();
-	while (i != end)
-		*i++ += *ci++;
+	auto ci = other.m.begin();
+	for (auto & i : sum)
+		i += *ci++;
 	
-	return matrix(row,col,sum);
+	return matrix(row, col, std::move(sum));
 }
 
 
@@ -578,12 +574,11 @@ matrix matrix::sub(const matrix & other) const
 		throw std::logic_error("matrix::sub(): incompatible matrices");
 	
 	exvector dif(this->m);
-	exvector::iterator i = dif.begin(), end = dif.end();
-	exvector::const_iterator ci = other.m.begin();
-	while (i != end)
-		*i++ -= *ci++;
+	auto ci = other.m.begin();
+	for (auto & i : dif)
+		i -= *ci++;
 	
-	return matrix(row,col,dif);
+	return matrix(row, col, std::move(dif));
 }
 
 
@@ -606,7 +601,7 @@ matrix matrix::mul(const matrix & other) const
 				prod[r1*other.col+r2] += (m[r1*col+c] * other.m[c*other.col+r2]);
 		}
 	}
-	return matrix(row, other.col, prod);
+	return matrix(row, other.col, std::move(prod));
 }
 
 
@@ -619,7 +614,7 @@ matrix matrix::mul(const numeric & other) const
 		for (unsigned c=0; c<col; ++c)
 			prod[r*col+c] = m[r*col+c] * other;
 
-	return matrix(row, col, prod);
+	return matrix(row, col, std::move(prod));
 }
 
 
@@ -635,7 +630,7 @@ matrix matrix::mul_scalar(const ex & other) const
 		for (unsigned c=0; c<col; ++c)
 			prod[r*col+c] = m[r*col+c] * other;
 
-	return matrix(row, col, prod);
+	return matrix(row, col, std::move(prod));
 }
 
 
@@ -721,7 +716,7 @@ matrix matrix::transpose() const
 		for (unsigned c=0; c<this->rows(); ++c)
 			trans[r*this->rows()+c] = m[c*this->cols()+r];
 	
-	return matrix(this->cols(),this->rows(),trans);
+	return matrix(this->cols(), this->rows(), std::move(trans));
 }
 
 /** Determinant of square matrix.  This routine doesn't actually calculate the
@@ -748,18 +743,16 @@ ex matrix::determinant(unsigned algo) const
 	bool numeric_flag = true;
 	bool normal_flag = false;
 	unsigned sparse_count = 0;  // counts non-zero elements
-	exvector::const_iterator r = m.begin(), rend = m.end();
-	while (r != rend) {
-		if (!r->info(info_flags::numeric))
+	for (auto r : m) {
+		if (!r.info(info_flags::numeric))
 			numeric_flag = false;
 		exmap srl;  // symbol replacement list
-		ex rtest = r->to_rational(srl);
+		ex rtest = r.to_rational(srl);
 		if (!rtest.is_zero())
 			++sparse_count;
 		if (!rtest.info(info_flags::crational_polynomial) &&
-			 rtest.info(info_flags::rational_function))
+		     rtest.info(info_flags::rational_function))
 			normal_flag = true;
-		++r;
 	}
 	
 	// Here is the heuristics in case this routine has to decide:
@@ -842,23 +835,22 @@ ex matrix::determinant(unsigned algo) const
 			}
 			std::sort(c_zeros.begin(),c_zeros.end());
 			std::vector<unsigned> pre_sort;
-			for (std::vector<uintpair>::const_iterator i=c_zeros.begin(); i!=c_zeros.end(); ++i)
-				pre_sort.push_back(i->second);
+			for (auto & i : c_zeros)
+				pre_sort.push_back(i.second);
 			std::vector<unsigned> pre_sort_test(pre_sort); // permutation_sign() modifies the vector so we make a copy here
 			int sign = permutation_sign(pre_sort_test.begin(), pre_sort_test.end());
 			exvector result(row*col);  // represents sorted matrix
 			unsigned c = 0;
-			for (std::vector<unsigned>::const_iterator i=pre_sort.begin();
-				 i!=pre_sort.end();
-				 ++i,++c) {
+			for (auto & it : pre_sort) {
 				for (unsigned r=0; r<row; ++r)
-					result[r*col+c] = m[r*col+(*i)];
+					result[r*col+c] = m[r*col+it];
+				++c;
 			}
 			
 			if (normal_flag)
-				return (sign*matrix(row,col,result).determinant_minor()).normal();
+				return (sign*matrix(row, col, std::move(result)).determinant_minor()).normal();
 			else
-				return sign*matrix(row,col,result).determinant_minor();
+				return sign*matrix(row, col, std::move(result)).determinant_minor();
 		}
 	}
 }
@@ -904,11 +896,11 @@ ex matrix::charpoly(const ex & lambda) const
 		throw (std::logic_error("matrix::charpoly(): matrix not square"));
 	
 	bool numeric_flag = true;
-	exvector::const_iterator r = m.begin(), rend = m.end();
-	while (r!=rend && numeric_flag==true) {
-		if (!r->info(info_flags::numeric))
+	for (auto & r : m) {
+		if (!r.info(info_flags::numeric)) {
 			numeric_flag = false;
-		++r;
+			break;
+		}
 	}
 	
 	// The pure numeric case is traditionally rather common.  Hence, it is
@@ -1019,11 +1011,11 @@ matrix matrix::solve(const matrix & vars,
 	
 	// Gather some statistical information about the augmented matrix:
 	bool numeric_flag = true;
-	exvector::const_iterator r = aug.m.begin(), rend = aug.m.end();
-	while (r!=rend && numeric_flag==true) {
-		if (!r->info(info_flags::numeric))
+	for (auto & r : aug.m) {
+		if (!r.info(info_flags::numeric)) {
 			numeric_flag = false;
-		++r;
+			break;
+		}
 	}
 	
 	// Here is the heuristics in case this routine has to decide:
@@ -1403,11 +1395,9 @@ int matrix::fraction_free_elimination(const bool det)
 	matrix tmp_n(*this);
 	matrix tmp_d(m,n);  // for denominators, if needed
 	exmap srl;  // symbol replacement list
-	exvector::const_iterator cit = this->m.begin(), citend = this->m.end();
-	exvector::iterator tmp_n_it = tmp_n.m.begin(), tmp_d_it = tmp_d.m.begin();
-	while (cit != citend) {
-		ex nd = cit->normal().to_rational(srl).numer_denom();
-		++cit;
+	auto tmp_n_it = tmp_n.m.begin(), tmp_d_it = tmp_d.m.begin();
+	for (auto & it : this->m) {
+		ex nd = it.normal().to_rational(srl).numer_denom();
 		*tmp_n_it++ = nd.op(0);
 		*tmp_d_it++ = nd.op(1);
 	}
@@ -1476,11 +1466,10 @@ int matrix::fraction_free_elimination(const bool det)
 	}
 
 	// repopulate *this matrix:
-	exvector::iterator it = this->m.begin(), itend = this->m.end();
 	tmp_n_it = tmp_n.m.begin();
 	tmp_d_it = tmp_d.m.begin();
-	while (it != itend)
-		*it++ = ((*tmp_n_it++)/(*tmp_d_it++)).subs(srl, subs_options::no_pattern);
+	for (auto & it : this->m)
+		it = ((*tmp_n_it++)/(*tmp_d_it++)).subs(srl, subs_options::no_pattern);
 	
 	return sign;
 }
@@ -1541,34 +1530,35 @@ int matrix::pivot(unsigned ro, unsigned co, bool symbolic)
  */
 bool matrix::is_zero_matrix() const
 {
-	for (exvector::const_iterator i=m.begin(); i!=m.end(); ++i) 
-		if(!(i->is_zero()))
+	for (auto & i : m)
+		if (!i.is_zero())
 			return false;
 	return true;
 }
 
 ex lst_to_matrix(const lst & l)
 {
-	lst::const_iterator itr, itc;
-
 	// Find number of rows and columns
 	size_t rows = l.nops(), cols = 0;
-	for (itr = l.begin(); itr != l.end(); ++itr) {
-		if (!is_a<lst>(*itr))
+	for (auto & itr : l) {
+		if (!is_a<lst>(itr))
 			throw (std::invalid_argument("lst_to_matrix: argument must be a list of lists"));
-		if (itr->nops() > cols)
-			cols = itr->nops();
+		if (itr.nops() > cols)
+			cols = itr.nops();
 	}
 
 	// Allocate and fill matrix
 	matrix &M = *new matrix(rows, cols);
 	M.setflag(status_flags::dynallocated);
 
-	unsigned i;
-	for (itr = l.begin(), i = 0; itr != l.end(); ++itr, ++i) {
-		unsigned j;
-		for (itc = ex_to<lst>(*itr).begin(), j = 0; itc != ex_to<lst>(*itr).end(); ++itc, ++j)
-			M(i, j) = *itc;
+	unsigned i = 0;
+	for (auto & itr : l) {
+		unsigned j = 0;
+		for (auto & itc : ex_to<lst>(itr)) {
+			M(i, j) = itc;
+			++j;
+		}
+		++i;
 	}
 
 	return M;
@@ -1576,16 +1566,17 @@ ex lst_to_matrix(const lst & l)
 
 ex diag_matrix(const lst & l)
 {
-	lst::const_iterator it;
 	size_t dim = l.nops();
 
 	// Allocate and fill matrix
 	matrix &M = *new matrix(dim, dim);
 	M.setflag(status_flags::dynallocated);
 
-	unsigned i;
-	for (it = l.begin(), i = 0; it != l.end(); ++it, ++i)
-		M(i, i) = *it;
+	unsigned i = 0;
+	for (auto & it : l) {
+		M(i, i) = it;
+		++i;
+	}
 
 	return M;
 }

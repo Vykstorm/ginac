@@ -524,8 +524,8 @@ ex power::eval(int level) const
 				addp->setflag(status_flags::dynallocated);
 				addp->clearflag(status_flags::hash_calculated);
 				addp->overall_coeff = ex_to<numeric>(addp->overall_coeff).div_dyn(icont);
-				for (epvector::iterator i = addp->seq.begin(); i != addp->seq.end(); ++i)
-					i->coeff = ex_to<numeric>(i->coeff).div_dyn(icont);
+				for (auto & i : addp->seq)
+					i.coeff = ex_to<numeric>(i.coeff).div_dyn(icont);
 
 				const numeric c = icont.power(*num_exponent);
 				if (likely(c != *_num1_p))
@@ -653,12 +653,12 @@ ex power::subs(const exmap & m, unsigned options) const
 	if (!(options & subs_options::algebraic))
 		return subs_one_level(m, options);
 
-	for (exmap::const_iterator it = m.begin(); it != m.end(); ++it) {
+	for (auto & it : m) {
 		int nummatches = std::numeric_limits<int>::max();
 		exmap repls;
-		if (tryfactsubs(*this, it->first, nummatches, repls)) {
-			ex anum = it->second.subs(repls, subs_options::no_pattern);
-			ex aden = it->first.subs(repls, subs_options::no_pattern);
+		if (tryfactsubs(*this, it.first, nummatches, repls)) {
+			ex anum = it.second.subs(repls, subs_options::no_pattern);
+			ex aden = it.first.subs(repls, subs_options::no_pattern);
 			ex result = (*this)*power(anum/aden, nummatches);
 			return (ex_to<basic>(result)).subs_one_level(m, options);
 		}
@@ -802,21 +802,18 @@ ex power::expand(unsigned options) const
 		epvector powseq;
 		prodseq.reserve(m.seq.size() + 1);
 		powseq.reserve(m.seq.size() + 1);
-		epvector::const_iterator last = m.seq.end();
-		epvector::const_iterator cit = m.seq.begin();
 		bool possign = true;
 
 		// search for positive/negative factors
-		while (cit!=last) {
-			ex e=m.recombine_pair_to_ex(*cit);
+		for (auto & cit : m.seq) {
+			ex e=m.recombine_pair_to_ex(cit);
 			if (e.info(info_flags::positive))
 				prodseq.push_back(pow(e, exponent).expand(options));
 			else if (e.info(info_flags::negative)) {
 				prodseq.push_back(pow(-e, exponent).expand(options));
 				possign = !possign;
 			} else
-				powseq.push_back(*cit);
-			++cit;
+				powseq.push_back(cit);
 		}
 
 		// take care on the numeric coefficient
@@ -847,11 +844,8 @@ ex power::expand(unsigned options) const
 		const add &a = ex_to<add>(expanded_exponent);
 		exvector distrseq;
 		distrseq.reserve(a.seq.size() + 1);
-		epvector::const_iterator last = a.seq.end();
-		epvector::const_iterator cit = a.seq.begin();
-		while (cit!=last) {
-			distrseq.push_back(power(expanded_basis, a.recombine_pair_to_ex(*cit)));
-			++cit;
+		for (auto & cit : a.seq) {
+			distrseq.push_back(power(expanded_basis, a.recombine_pair_to_ex(cit)));
 		}
 		
 		// Make sure that e.g. (x+y)^(2+a) expands the (x+y)^2 factor
@@ -1006,8 +1000,8 @@ private:
 		element *head, *i, *after_i;
 		// NB: Partition must be sorted in non-decreasing order.
 		explicit coolmulti(const std::vector<int>& partition)
+		  : head(nullptr), i(nullptr), after_i(nullptr)
 		{
-			head = nullptr;
 			for (unsigned n = 0; n < partition.size(); ++n) {
 				head = new element(partition[n], head);
 				if (n <= 1)
@@ -1080,11 +1074,9 @@ const numeric
 multinomial_coefficient(const std::vector<int> p)
 {
 	numeric n = 0, d = 1;
-	std::vector<int>::const_iterator it = p.begin(), itend = p.end();
-	while (it != itend) {
-		n += numeric(*it);
-		d *= factorial(numeric(*it));
-		++it;
+	for (auto & it : p) {
+		n += numeric(it);
+		d *= factorial(numeric(it));
 	}
 	return factorial(numeric(n)) / d;
 }
@@ -1327,17 +1319,14 @@ ex power::expand_mul(const mul & m, const numeric & n, unsigned options, bool fr
 	distrseq.reserve(m.seq.size());
 	bool need_reexpand = false;
 
-	epvector::const_iterator last = m.seq.end();
-	epvector::const_iterator cit = m.seq.begin();
-	while (cit!=last) {
-		expair p = m.combine_pair_with_coeff_to_pair(*cit, n);
-		if (from_expand && is_exactly_a<add>(cit->rest) && ex_to<numeric>(p.coeff).is_pos_integer()) {
+	for (auto & cit : m.seq) {
+		expair p = m.combine_pair_with_coeff_to_pair(cit, n);
+		if (from_expand && is_exactly_a<add>(cit.rest) && ex_to<numeric>(p.coeff).is_pos_integer()) {
 			// this happens when e.g. (a+b)^(1/2) gets squared and
 			// the resulting product needs to be reexpanded
 			need_reexpand = true;
 		}
 		distrseq.push_back(p);
-		++cit;
 	}
 
 	const mul & result = static_cast<const mul &>((new mul(distrseq, ex_to<numeric>(m.overall_coeff).power_dyn(n)))->setflag(status_flags::dynallocated));

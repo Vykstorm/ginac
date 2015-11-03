@@ -2539,9 +2539,8 @@ _numeric_digits& _numeric_digits::operator=(long prec)
 	cln::default_float_format = cln::float_format(prec);
 
 	// call registered callbacks
-	std::vector<digits_changed_callback>::const_iterator it = callbacklist.begin(),	end = callbacklist.end();
-	for (; it != end; ++it) {
-		(*it)(digitsdiff);
+	for (auto it : callbacklist) {
+		(it)(digitsdiff);
 	}
 
 	return *this;

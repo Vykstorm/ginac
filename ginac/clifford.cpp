@@ -520,11 +520,9 @@ ex clifford::eval_ncmul(const exvector & v) const
 	s.reserve(v.size());
 
 	// Remove superfluous ONEs
-	exvector::const_iterator cit = v.begin(), citend = v.end();
-	while (cit != citend) {
-		if (!is_a<clifford>(*cit) || !is_a<diracone>(cit->op(0)))
-			s.push_back(*cit);
-		cit++;
+	for (auto & it : v) {
+		if (!is_a<clifford>(it) || !is_a<diracone>(it.op(0)))
+			s.push_back(it);
 	}
 
 	bool something_changed = false;
@@ -1252,15 +1250,13 @@ static ex get_clifford_comp(const ex & e, const ex & c)
 						
 						if (ind_vec.size() > 0) {
 							found_dummy = true;
-							exvector::const_iterator it = ind_vec.begin(), itend = ind_vec.end();
-							while (it != itend) {
-								ex curridx = *it;
+							for (auto & it : ind_vec) {
+								ex curridx = it;
 								ex curridx_toggle = is_a<varidx>(curridx)
 									? ex_to<varidx>(curridx).toggle_variance()
 									: curridx;
 								S = S * e.op(j).subs(lst(curridx == ival,
 									curridx_toggle == ival), subs_options::no_pattern);
-								++it;
 							}
 						} else
 							S = S * e.op(j);

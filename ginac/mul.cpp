@@ -145,15 +145,13 @@ void mul::do_print(const print_context & c, unsigned level) const
 
 	print_overall_coeff(c, "*");
 
-	epvector::const_iterator it = seq.begin(), itend = seq.end();
 	bool first = true;
-	while (it != itend) {
+	for (auto & it : seq) {
 		if (!first)
 			c.s << '*';
 		else
 			first = false;
-		recombine_pair_to_ex(*it).print(c, precedence());
-		++it;
+		recombine_pair_to_ex(it).print(c, precedence());
 	}
 
 	if (precedence() <= level)
@@ -169,15 +167,13 @@ void mul::do_print_latex(const print_latex & c, unsigned level) const
 
 	// Separate factors into those with negative numeric exponent
 	// and all others
-	epvector::const_iterator it = seq.begin(), itend = seq.end();
 	exvector neg_powers, others;
-	while (it != itend) {
-		GINAC_ASSERT(is_exactly_a<numeric>(it->coeff));
-		if (ex_to<numeric>(it->coeff).is_negative())
-			neg_powers.push_back(recombine_pair_to_ex(expair(it->rest, -(it->coeff))));
+	for (auto & it : seq) {
+		GINAC_ASSERT(is_exactly_a<numeric>(it.coeff));
+		if (ex_to<numeric>(it.coeff).is_negative())
+			neg_powers.push_back(recombine_pair_to_ex(expair(it.rest, -it.coeff)));
 		else
-			others.push_back(recombine_pair_to_ex(*it));
-		++it;
+			others.push_back(recombine_pair_to_ex(it));
 	}
 
 	if (!neg_powers.empty()) {
@@ -192,11 +188,9 @@ void mul::do_print_latex(const print_latex & c, unsigned level) const
 	} else {
 
 		// All other factors are printed in the ordinary way
-		exvector::const_iterator vit = others.begin(), vitend = others.end();
-		while (vit != vitend) {
+		for (auto & vit : others) {
 			c.s << ' ';
-			vit->print(c, precedence());
-			++vit;
+			vit.print(c, precedence());
 		}
 	}
 
@@ -219,7 +213,7 @@ void mul::do_print_csrc(const print_csrc & c, unsigned level) const
 	}
 
 	// Print arguments, separated by "*" or "/"
-	epvector::const_iterator it = seq.begin(), itend = seq.end();
+	auto it = seq.begin(), itend = seq.end();
 	while (it != itend) {
 
 		// If the first argument is a negative integer power, it gets printed as "1.0/<expr>"
@@ -236,11 +230,9 @@ void mul::do_print_csrc(const print_csrc & c, unsigned level) const
 		if (it->coeff.is_equal(_ex1) || it->coeff.is_equal(_ex_1))
 			it->rest.print(c, precedence());
 		else if (it->coeff.info(info_flags::negint))
-			// Outer parens around ex needed for broken GCC parser:
-			(ex(power(it->rest, -ex_to<numeric>(it->coeff)))).print(c, level);
+			ex(power(it->rest, -ex_to<numeric>(it->coeff))).print(c, level);
 		else
-			// Outer parens around ex needed for broken GCC parser:
-			(ex(power(it->rest, ex_to<numeric>(it->coeff)))).print(c, level);
+			ex(power(it->rest, ex_to<numeric>(it->coeff))).print(c, level);
 
 		if (needclosingparenthesis)
 			c.s << ")";
@@ -285,22 +277,18 @@ bool mul::info(unsigned inf) const
 		case info_flags::even:
 		case info_flags::crational_polynomial:
 		case info_flags::rational_function: {
-			epvector::const_iterator i = seq.begin(), end = seq.end();
-			while (i != end) {
-				if (!(recombine_pair_to_ex(*i).info(inf)))
+			for (auto & it : seq) {
+				if (!recombine_pair_to_ex(it).info(inf))
 					return false;
-				++i;
 			}
 			if (overall_coeff.is_equal(*_num1_p) && inf == info_flags::even)
 				return true;
 			return overall_coeff.info(inf);
 		}
 		case info_flags::algebraic: {
-			epvector::const_iterator i = seq.begin(), end = seq.end();
-			while (i != end) {
-				if ((recombine_pair_to_ex(*i).info(inf)))
+			for (auto & it : seq) {
+				if (recombine_pair_to_ex(it).info(inf))
 					return true;
-				++i;
 			}
 			return false;
 		}
@@ -314,9 +302,8 @@ bool mul::info(unsigned inf) const
 				return false;
 
 			bool pos = true;
-			epvector::const_iterator i = seq.begin(), end = seq.end();
-			while (i != end) {
-				const ex& factor = recombine_pair_to_ex(*i++);
+			for (auto & it : seq) {
+				const ex& factor = recombine_pair_to_ex(it);
 				if (factor.info(info_flags::positive))
 					continue;
 				else if (factor.info(info_flags::negative))
@@ -333,9 +320,8 @@ bool mul::info(unsigned inf) const
 			if  (flags & status_flags::is_positive)
 				return true;
 			bool pos = true;
-			epvector::const_iterator i = seq.begin(), end = seq.end();
-			while (i != end) {
-				const ex& factor = recombine_pair_to_ex(*i++);
+			for (auto & it : seq) {
+				const ex& factor = recombine_pair_to_ex(it);
 				if (factor.info(info_flags::nonnegative) || factor.info(info_flags::positive))
 					continue;
 				else if (factor.info(info_flags::negative))
@@ -348,9 +334,8 @@ bool mul::info(unsigned inf) const
 		case info_flags::posint:
 		case info_flags::negint: {
 			bool pos = true;
-			epvector::const_iterator i = seq.begin(), end = seq.end();
-			while (i != end) {
-				const ex& factor = recombine_pair_to_ex(*i++);
+			for (auto & it : seq) {
+				const ex& factor = recombine_pair_to_ex(it);
 				if (factor.info(info_flags::posint))
 					continue;
 				else if (factor.info(info_flags::negint))
@@ -366,9 +351,8 @@ bool mul::info(unsigned inf) const
 		}
 		case info_flags::nonnegint: {
 			bool pos = true;
-			epvector::const_iterator i = seq.begin(), end = seq.end();
-			while (i != end) {
-				const ex& factor = recombine_pair_to_ex(*i++);
+			for (auto & it : seq) {
+				const ex& factor = recombine_pair_to_ex(it);
 				if (factor.info(info_flags::nonnegint) || factor.info(info_flags::posint))
 					continue;
 				else if (factor.info(info_flags::negint))
@@ -387,12 +371,10 @@ bool mul::info(unsigned inf) const
 				return true;
 			if (flags & (status_flags::is_positive | status_flags::is_negative))
 				return false;
-			epvector::const_iterator i = seq.begin(), end = seq.end();
-			while (i != end) {
-				const ex& term = recombine_pair_to_ex(*i);
+			for (auto & it : seq) {
+				const ex& term = recombine_pair_to_ex(it);
 				if (term.info(info_flags::positive) || term.info(info_flags::negative))
 					return false;
-				++i;
 			}
 			setflag(status_flags::purely_indefinite);
 			return true;
@@ -403,9 +385,9 @@ bool mul::info(unsigned inf) const
 
 bool mul::is_polynomial(const ex & var) const
 {
-	for (epvector::const_iterator i=seq.begin(); i!=seq.end(); ++i) {
-		if (!i->rest.is_polynomial(var) ||
-		    (i->rest.has(var) && !i->coeff.info(info_flags::nonnegint))) {
+	for (auto & it : seq) {
+		if (!it.rest.is_polynomial(var) ||
+		    (it.rest.has(var) && !it.coeff.info(info_flags::nonnegint))) {
 			return false;
 		}
 	}
@@ -416,15 +398,13 @@ int mul::degree(const ex & s) const
 {
 	// Sum up degrees of factors
 	int deg_sum = 0;
-	epvector::const_iterator i = seq.begin(), end = seq.end();
-	while (i != end) {
-		if (ex_to<numeric>(i->coeff).is_integer())
-			deg_sum += recombine_pair_to_ex(*i).degree(s);
+	for (auto & it : seq) {
+		if (ex_to<numeric>(it.coeff).is_integer())
+			deg_sum += recombine_pair_to_ex(it).degree(s);
 		else {
-			if (i->rest.has(s))
+			if (it.rest.has(s))
 				throw std::runtime_error("mul::degree() undefined degree because of non-integer exponent");
 		}
-		++i;
 	}
 	return deg_sum;
 }
@@ -433,15 +413,13 @@ int mul::ldegree(const ex & s) const
 {
 	// Sum up degrees of factors
 	int deg_sum = 0;
-	epvector::const_iterator i = seq.begin(), end = seq.end();
-	while (i != end) {
-		if (ex_to<numeric>(i->coeff).is_integer())
-			deg_sum += recombine_pair_to_ex(*i).ldegree(s);
+	for (auto & it : seq) {
+		if (ex_to<numeric>(it.coeff).is_integer())
+			deg_sum += recombine_pair_to_ex(it).ldegree(s);
 		else {
-			if (i->rest.has(s))
+			if (it.rest.has(s))
 				throw std::runtime_error("mul::ldegree() undefined degree because of non-integer exponent");
 		}
-		++i;
 	}
 	return deg_sum;
 }
@@ -454,19 +432,15 @@ ex mul::coeff(const ex & s, int n) const
 	if (n==0) {
 		// product of individual coeffs
 		// if a non-zero power of s is found, the resulting product will be 0
-		epvector::const_iterator i = seq.begin(), end = seq.end();
-		while (i != end) {
-			coeffseq.push_back(recombine_pair_to_ex(*i).coeff(s,n));
-			++i;
-		}
+		for (auto & it : seq)
+			coeffseq.push_back(recombine_pair_to_ex(it).coeff(s,n));
 		coeffseq.push_back(overall_coeff);
 		return (new mul(coeffseq))->setflag(status_flags::dynallocated);
 	}
 	
-	epvector::const_iterator i = seq.begin(), end = seq.end();
 	bool coeff_found = false;
-	while (i != end) {
-		ex t = recombine_pair_to_ex(*i);
+	for (auto & it : seq) {
+		ex t = recombine_pair_to_ex(it);
 		ex c = t.coeff(s, n);
 		if (!c.is_zero()) {
 			coeffseq.push_back(c);
@@ -474,7 +448,6 @@ ex mul::coeff(const ex & s, int n) const
 		} else {
 			coeffseq.push_back(t);
 		}
-		++i;
 	}
 	if (coeff_found) {
 		coeffseq.push_back(overall_coeff);
@@ -525,10 +498,8 @@ ex mul::eval(int level) const
 		const add & addref = ex_to<add>((*seq.begin()).rest);
 		epvector distrseq;
 		distrseq.reserve(addref.seq.size());
-		epvector::const_iterator i = addref.seq.begin(), end = addref.seq.end();
-		while (i != end) {
-			distrseq.push_back(addref.combine_pair_with_coeff_to_pair(*i, overall_coeff));
-			++i;
+		for (auto & it : addref.seq) {
+			distrseq.push_back(addref.combine_pair_with_coeff_to_pair(it, overall_coeff));
 		}
 		return (new add(std::move(distrseq),
 		                ex_to<numeric>(addref.overall_coeff).
@@ -538,9 +509,8 @@ ex mul::eval(int level) const
 		// Strip the content and the unit part from each term. Thus
 		// things like (-x+a)*(3*x-3*a) automagically turn into - 3*(x-a)^2
 
-		epvector::const_iterator last = seq.end();
-		epvector::const_iterator i = seq.begin();
-		epvector::const_iterator j = seq.begin();
+		auto i = seq.begin(), last = seq.end();
+		auto j = seq.begin();
 		epvector s;
 		numeric oc = *_num1_p;
 		bool something_changed = false;
@@ -621,11 +591,9 @@ ex mul::evalf(int level) const
 	s.reserve(seq.size());
 
 	--level;
-	epvector::const_iterator i = seq.begin(), end = seq.end();
-	while (i != end) {
-		s.push_back(combine_ex_with_coeff_to_pair(i->rest.evalf(level),
-		                                          i->coeff));
-		++i;
+	for (auto & it : seq) {
+		s.push_back(combine_ex_with_coeff_to_pair(it.rest.evalf(level),
+		                                          it.coeff));
 	}
 	return mul(std::move(s), overall_coeff.evalf(level));
 }
@@ -634,11 +602,11 @@ void mul::find_real_imag(ex & rp, ex & ip) const
 {
 	rp = overall_coeff.real_part();
 	ip = overall_coeff.imag_part();
-	for (epvector::const_iterator i=seq.begin(); i!=seq.end(); ++i) {
-		ex factor = recombine_pair_to_ex(*i);
+	for (auto & it : seq) {
+		ex factor = recombine_pair_to_ex(it);
 		ex new_rp = factor.real_part();
 		ex new_ip = factor.imag_part();
-		if(new_ip.is_zero()) {
+		if (new_ip.is_zero()) {
 			rp *= new_rp;
 			ip *= new_rp;
 		} else {
@@ -681,15 +649,13 @@ ex mul::evalm() const
 	bool have_matrix = false;
 	epvector::iterator the_matrix;
 
-	epvector::const_iterator i = seq.begin(), end = seq.end();
-	while (i != end) {
-		const ex &m = recombine_pair_to_ex(*i).evalm();
+	for (auto & it : seq) {
+		const ex &m = recombine_pair_to_ex(it).evalm();
 		s.push_back(split_ex_to_pair(m));
 		if (is_a<matrix>(m)) {
 			have_matrix = true;
 			the_matrix = s.end() - 1;
 		}
-		++i;
 	}
 
 	if (have_matrix) {
@@ -711,12 +677,9 @@ ex mul::eval_ncmul(const exvector & v) const
 		return inherited::eval_ncmul(v);
 
 	// Find first noncommutative element and call its eval_ncmul()
-	epvector::const_iterator i = seq.begin(), end = seq.end();
-	while (i != end) {
-		if (i->rest.return_type() == return_types::noncommutative)
-			return i->rest.eval_ncmul(v);
-		++i;
-	}
+	for (auto & it : seq)
+		if (it.rest.return_type() == return_types::noncommutative)
+			return it.rest.eval_ncmul(v);
 	return inherited::eval_ncmul(v);
 }
 
@@ -824,25 +787,25 @@ ex mul::algebraic_subs_mul(const exmap & m, unsigned options) const
 	ex divide_by = 1;
 	ex multiply_by = 1;
 
-	for (exmap::const_iterator it = m.begin(); it != m.end(); ++it) {
+	for (auto & it : m) {
 
-		if (is_exactly_a<mul>(it->first)) {
+		if (is_exactly_a<mul>(it.first)) {
 retry1:
 			int nummatches = std::numeric_limits<int>::max();
 			std::vector<bool> currsubsed(nops(), false);
 			exmap repls;
 			
-			if(!algebraic_match_mul_with_mul(*this, it->first, repls, 0, nummatches, subsed, currsubsed))
+			if (!algebraic_match_mul_with_mul(*this, it.first, repls, 0, nummatches, subsed, currsubsed))
 				continue;
 
 			for (size_t j=0; j<subsed.size(); j++)
 				if (currsubsed[j])
 					subsed[j] = true;
 			ex subsed_pattern
-				= it->first.subs(repls, subs_options::no_pattern);
+				= it.first.subs(repls, subs_options::no_pattern);
 			divide_by *= power(subsed_pattern, nummatches);
 			ex subsed_result
-				= it->second.subs(repls, subs_options::no_pattern);
+				= it.second.subs(repls, subs_options::no_pattern);
 			multiply_by *= power(subsed_result, nummatches);
 			goto retry1;
 
@@ -851,13 +814,13 @@ retry1:
 			for (size_t j=0; j<this->nops(); j++) {
 				int nummatches = std::numeric_limits<int>::max();
 				exmap repls;
-				if (!subsed[j] && tryfactsubs(op(j), it->first, nummatches, repls)){
+				if (!subsed[j] && tryfactsubs(op(j), it.first, nummatches, repls)){
 					subsed[j] = true;
 					ex subsed_pattern
-						= it->first.subs(repls, subs_options::no_pattern);
+						= it.first.subs(repls, subs_options::no_pattern);
 					divide_by *= power(subsed_pattern, nummatches);
 					ex subsed_result
-						= it->second.subs(repls, subs_options::no_pattern);
+						= it.second.subs(repls, subs_options::no_pattern);
 					multiply_by *= power(subsed_result, nummatches);
 				}
 			}
@@ -881,8 +844,8 @@ ex mul::conjugate() const
 {
 	// The base class' method is wrong here because we have to be careful at
 	// branch cuts. power::conjugate takes care of that already, so use it.
-	epvector *newepv = 0;
-	for (epvector::const_iterator i=seq.begin(); i!=seq.end(); ++i) {
+	std::unique_ptr<epvector> newepv(nullptr);
+	for (auto i=seq.begin(); i!=seq.end(); ++i) {
 		if (newepv) {
 			newepv->push_back(split_ex_to_pair(recombine_pair_to_ex(*i).conjugate()));
 			continue;
@@ -892,9 +855,9 @@ ex mul::conjugate() const
 		if (c.is_equal(x)) {
 			continue;
 		}
-		newepv = new epvector;
+		newepv.reset(new epvector);
 		newepv->reserve(seq.size());
-		for (epvector::const_iterator j=seq.begin(); j!=i; ++j) {
+		for (auto j=seq.begin(); j!=i; ++j) {
 			newepv->push_back(*j);
 		}
 		newepv->push_back(split_ex_to_pair(c));
@@ -903,9 +866,7 @@ ex mul::conjugate() const
 	if (!newepv && are_ex_trivially_equal(x, overall_coeff)) {
 		return *this;
 	}
-	ex result = thisexpairseq(newepv ? *newepv : seq, x);
-	delete newepv;
-	return result;
+	return thisexpairseq(newepv ? std::move(*newepv) : seq, x);
 }
 
 
@@ -921,8 +882,8 @@ ex mul::derivative(const symbol & s) const
 	
 	// D(a*b*c) = D(a)*b*c + a*D(b)*c + a*b*D(c)
 	epvector mulseq = seq;
-	epvector::const_iterator i = seq.begin(), end = seq.end();
-	epvector::iterator i2 = mulseq.begin();
+	auto i = seq.begin(), end = seq.end();
+	auto i2 = mulseq.begin();
 	while (i != end) {
 		expair ep = split_ex_to_pair(power(i->rest, i->coeff - _ex1) *
 		                             i->rest.diff(s));
@@ -978,12 +939,10 @@ return_type_t mul::return_type_tinfo() const
 		return make_return_type_t<mul>(); // mul without factors: should not happen
 	
 	// return type_info of first noncommutative element
-	epvector::const_iterator i = seq.begin(), end = seq.end();
-	while (i != end) {
-		if (i->rest.return_type() == return_types::noncommutative)
-			return i->rest.return_type_tinfo();
-		++i;
-	}
+	for (auto & it : seq)
+		if (it.rest.return_type() == return_types::noncommutative)
+			return it.rest.return_type_tinfo();
+
 	// no noncommutative element found, should not happen
 	return make_return_type_t<mul>();
 }
@@ -1097,8 +1056,8 @@ bool mul::can_make_flat(const expair & p) const
 bool mul::can_be_further_expanded(const ex & e)
 {
 	if (is_exactly_a<mul>(e)) {
-		for (epvector::const_iterator cit = ex_to<mul>(e).seq.begin(); cit != ex_to<mul>(e).seq.end(); ++cit) {
-			if (is_exactly_a<add>(cit->rest) && cit->coeff.info(info_flags::posint))
+		for (auto & it : ex_to<mul>(e).seq) {
+			if (is_exactly_a<add>(it.rest) && it.coeff.info(info_flags::posint))
 				return true;
 		}
 	} else if (is_exactly_a<power>(e)) {
@@ -1140,43 +1099,39 @@ ex mul::expand(unsigned options) const
 	epvector non_adds;
 	non_adds.reserve(expanded_seq.size());
 
-	for (epvector::const_iterator cit = expanded_seq.begin(); cit != expanded_seq.end(); ++cit) {
-		if (is_exactly_a<add>(cit->rest) &&
-			(cit->coeff.is_equal(_ex1))) {
+	for (const auto & cit : expanded_seq) {
+		if (is_exactly_a<add>(cit.rest) &&
+			(cit.coeff.is_equal(_ex1))) {
 			if (is_exactly_a<add>(last_expanded)) {
 
 				// Expand a product of two sums, aggressive version.
 				// Caring for the overall coefficients in separate loops can
 				// sometimes give a performance gain of up to 15%!
 
-				const int sizedifference = ex_to<add>(last_expanded).seq.size()-ex_to<add>(cit->rest).seq.size();
+				const int sizedifference = ex_to<add>(last_expanded).seq.size()-ex_to<add>(cit.rest).seq.size();
 				// add2 is for the inner loop and should be the bigger of the two sums
 				// in the presence of asymptotically good sorting:
-				const add& add1 = (sizedifference<0 ? ex_to<add>(last_expanded) : ex_to<add>(cit->rest));
-				const add& add2 = (sizedifference<0 ? ex_to<add>(cit->rest) : ex_to<add>(last_expanded));
-				const epvector::const_iterator add1begin = add1.seq.begin();
-				const epvector::const_iterator add1end   = add1.seq.end();
-				const epvector::const_iterator add2begin = add2.seq.begin();
-				const epvector::const_iterator add2end   = add2.seq.end();
+				const add& add1 = (sizedifference<0 ? ex_to<add>(last_expanded) : ex_to<add>(cit.rest));
+				const add& add2 = (sizedifference<0 ? ex_to<add>(cit.rest) : ex_to<add>(last_expanded));
 				epvector distrseq;
 				distrseq.reserve(add1.seq.size()+add2.seq.size());
 
 				// Multiply add2 with the overall coefficient of add1 and append it to distrseq:
 				if (!add1.overall_coeff.is_zero()) {
 					if (add1.overall_coeff.is_equal(_ex1))
-						distrseq.insert(distrseq.end(),add2begin,add2end);
+						distrseq.insert(distrseq.end(), add2.seq.begin(), add2.seq.end());
 					else
-						for (epvector::const_iterator i=add2begin; i!=add2end; ++i)
-							distrseq.push_back(expair(i->rest, ex_to<numeric>(i->coeff).mul_dyn(ex_to<numeric>(add1.overall_coeff))));
+						for (const auto & i : add2.seq)
+							distrseq.push_back(expair(i.rest, ex_to<numeric>(i.coeff).mul_dyn(ex_to<numeric>(add1.overall_coeff))));
 				}
 
 				// Multiply add1 with the overall coefficient of add2 and append it to distrseq:
 				if (!add2.overall_coeff.is_zero()) {
 					if (add2.overall_coeff.is_equal(_ex1))
-						distrseq.insert(distrseq.end(),add1begin,add1end);
+						distrseq.insert(distrseq.end(), add1.seq.begin(), add1.seq.end());
 					else
-						for (epvector::const_iterator i=add1begin; i!=add1end; ++i)
-							distrseq.push_back(expair(i->rest, ex_to<numeric>(i->coeff).mul_dyn(ex_to<numeric>(add2.overall_coeff))));
+						for (const auto & i : add1.seq)
+							distrseq.push_back(expair(i.rest, ex_to<numeric>(i.coeff).mul_dyn(ex_to<numeric>(add2.overall_coeff))));
 				}
 
 				// Compute the new overall coefficient and put it together:
@@ -1186,12 +1141,12 @@ ex mul::expand(unsigned options) const
 				lst dummy_subs;
 
 				if (!skip_idx_rename) {
-					for (epvector::const_iterator i=add1begin; i!=add1end; ++i) {
-						add_indices = get_all_dummy_indices_safely(i->rest);
+					for (const auto & i : add1.seq) {
+						add_indices = get_all_dummy_indices_safely(i.rest);
 						add1_dummy_indices.insert(add1_dummy_indices.end(), add_indices.begin(), add_indices.end());
 					}
-					for (epvector::const_iterator i=add2begin; i!=add2end; ++i) {
-						add_indices = get_all_dummy_indices_safely(i->rest);
+					for (const auto & i : add2.seq) {
+						add_indices = get_all_dummy_indices_safely(i.rest);
 						add2_dummy_indices.insert(add2_dummy_indices.end(), add_indices.begin(), add_indices.end());
 					}
 
@@ -1201,37 +1156,37 @@ ex mul::expand(unsigned options) const
 				}
 
 				// Multiply explicitly all non-numeric terms of add1 and add2:
-				for (epvector::const_iterator i2=add2begin; i2!=add2end; ++i2) {
+				for (const auto & i2 : add2.seq) {
 					// We really have to combine terms here in order to compactify
 					// the result.  Otherwise it would become waayy tooo bigg.
 					numeric oc(*_num0_p);
 					epvector distrseq2;
 					distrseq2.reserve(add1.seq.size());
 					const ex i2_new = (skip_idx_rename || (dummy_subs.op(0).nops() == 0) ?
-							i2->rest :
-							i2->rest.subs(ex_to<lst>(dummy_subs.op(0)), 
-								ex_to<lst>(dummy_subs.op(1)), subs_options::no_pattern));
-					for (epvector::const_iterator i1=add1begin; i1!=add1end; ++i1) {
+							i2.rest :
+							i2.rest.subs(ex_to<lst>(dummy_subs.op(0)),
+							             ex_to<lst>(dummy_subs.op(1)), subs_options::no_pattern));
+					for (const auto & i1 : add1.seq) {
 						// Don't push_back expairs which might have a rest that evaluates to a numeric,
 						// since that would violate an invariant of expairseq:
-						const ex rest = (new mul(i1->rest, i2_new))->setflag(status_flags::dynallocated);
+						const ex rest = (new mul(i1.rest, i2_new))->setflag(status_flags::dynallocated);
 						if (is_exactly_a<numeric>(rest)) {
-							oc += ex_to<numeric>(rest).mul(ex_to<numeric>(i1->coeff).mul(ex_to<numeric>(i2->coeff)));
+							oc += ex_to<numeric>(rest).mul(ex_to<numeric>(i1.coeff).mul(ex_to<numeric>(i2.coeff)));
 						} else {
-							distrseq2.push_back(expair(rest, ex_to<numeric>(i1->coeff).mul_dyn(ex_to<numeric>(i2->coeff))));
+							distrseq2.push_back(expair(rest, ex_to<numeric>(i1.coeff).mul_dyn(ex_to<numeric>(i2.coeff))));
 						}
 					}
 					tmp_accu += (new add(distrseq2, oc))->setflag(status_flags::dynallocated);
-				} 
+				}
 				last_expanded = tmp_accu;
 			} else {
 				if (!last_expanded.is_equal(_ex1))
 					non_adds.push_back(split_ex_to_pair(last_expanded));
-				last_expanded = cit->rest;
+				last_expanded = cit.rest;
 			}
 
 		} else {
-			non_adds.push_back(*cit);
+			non_adds.push_back(cit);
 		}
 	}
 
@@ -1299,8 +1254,7 @@ ex mul::expand(unsigned options) const
  *    had to be changed. */
 epvector mul::expandchildren(unsigned options) const
 {
-	const epvector::const_iterator last = seq.end();
-	epvector::const_iterator cit = seq.begin();
+	auto cit = seq.begin(), last = seq.end();
 	while (cit!=last) {
 		const ex & factor = recombine_pair_to_ex(*cit);
 		const ex & expanded_factor = factor.expand(options);
@@ -1311,7 +1265,7 @@ epvector mul::expandchildren(unsigned options) const
 			s.reserve(seq.size());
 			
 			// copy parts of seq which are known not to have changed
-			epvector::const_iterator cit2 = seq.begin();
+			auto cit2 = seq.begin();
 			while (cit2!=cit) {
 				s.push_back(*cit2);
 				++cit2;

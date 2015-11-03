@@ -96,13 +96,9 @@ const prototype_table& get_default_reader()
 		reader[make_pair("pow", 2)] = pow_reader;
 		reader[make_pair("power", 2)] = power_reader;
 		reader[make_pair("lst", 0)] = lst_reader;
-		std::vector<function_options>::const_iterator it =
-			registered_functions_hack::get_registered_functions().begin();
-		std::vector<function_options>::const_iterator end =
-			registered_functions_hack::get_registered_functions().end();
 		unsigned serial = 0;
-		for (; it != end; ++it) {
-			prototype proto = make_pair(it->get_name(), it->get_nparams());
+		for (auto & it : registered_functions_hack::get_registered_functions()) {
+			prototype proto = make_pair(it.get_name(), it.get_nparams());
 			reader[proto] = encode_serial_as_reader_func(serial);
 			++serial;
 		}

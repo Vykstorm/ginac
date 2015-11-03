@@ -76,7 +76,7 @@ public:
 	 */
 	~excompiler()
 	{
-		for (std::vector<filedesc>::const_iterator it = filelist.begin(); it != filelist.end(); ++it) {
+		for (auto it = filelist.begin(); it != filelist.end(); ++it) {
 			clean_up(it);
 		}
 	}
@@ -169,7 +169,7 @@ public:
 	 */
 	void unlink(const std::string filename)
 	{
-		for (std::vector<filedesc>::iterator it = filelist.begin(); it != filelist.end();) {
+		for (auto it = filelist.begin(); it != filelist.end();) {
 			if (it->name == filename) {
 				clean_up(it);
 				it = filelist.erase(it);

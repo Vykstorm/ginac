@@ -37,7 +37,7 @@ typedef std::vector<int> exp_vector_t;
 static inline bool operator<(const exp_vector_t& v1, const exp_vector_t& v2)
 {
 	return std::lexicographical_compare(v1.rbegin(), v1.rend(),
-					    v2.rbegin(), v2.rend());
+	                                    v2.rbegin(), v2.rend());
 }
 
 static inline bool operator>(const exp_vector_t& v1, const exp_vector_t& v2)
@@ -49,8 +49,8 @@ static inline bool operator>(const exp_vector_t& v1, const exp_vector_t& v2)
 
 static inline bool zerop(const exp_vector_t& v)
 {
-	for (exp_vector_t::const_reverse_iterator i = v.rbegin(); i != v.rend(); ++i) {
-		if (*i != 0) 
+	for (auto & i : v) {
+		if (i != 0)
 			return false;
 	}
 	return true;
