@@ -453,9 +453,8 @@ static ex step_series(const ex & arg,
 	    && !(options & series_options::suppress_branchcut))
 		throw (std::domain_error("step_series(): on imaginary axis"));
 	
-	epvector seq;
-	seq.push_back(expair(step(arg_pt), _ex0));
-	return pseries(rel,seq);
+	epvector seq { expair(step(arg_pt), _ex0) };
+	return pseries(rel, std::move(seq));
 }
 
 static ex step_conjugate(const ex& arg)
@@ -532,9 +531,8 @@ static ex csgn_series(const ex & arg,
 	    && !(options & series_options::suppress_branchcut))
 		throw (std::domain_error("csgn_series(): on imaginary axis"));
 	
-	epvector seq;
-	seq.push_back(expair(csgn(arg_pt), _ex0));
-	return pseries(rel,seq);
+	epvector seq { expair(csgn(arg_pt), _ex0) };
+	return pseries(rel, std::move(seq));
 }
 
 static ex csgn_conjugate(const ex& arg)
@@ -640,9 +638,8 @@ static ex eta_series(const ex & x, const ex & y,
 	    (y_pt.info(info_flags::numeric) && y_pt.info(info_flags::negative)) ||
 	    ((x_pt*y_pt).info(info_flags::numeric) && (x_pt*y_pt).info(info_flags::negative)))
 			throw (std::domain_error("eta_series(): on discontinuity"));
-	epvector seq;
-	seq.push_back(expair(eta(x_pt,y_pt), _ex0));
-	return pseries(rel,seq);
+	epvector seq { expair(eta(x_pt,y_pt), _ex0) };
+	return pseries(rel, std::move(seq));
 }
 
 static ex eta_conjugate(const ex & x, const ex & y)
@@ -745,9 +742,8 @@ static ex Li2_series(const ex &x, const relational &rel, int order, unsigned opt
 			// substitute the argument's series expansion
 			ser = ser.subs(s==x.series(rel, order), subs_options::no_pattern);
 			// maybe that was terminating, so add a proper order term
-			epvector nseq;
-			nseq.push_back(expair(Order(_ex1), order));
-			ser += pseries(rel, nseq);
+			epvector nseq { expair(Order(_ex1), order) };
+			ser += pseries(rel, std::move(nseq));
 			// reexpanding it will collapse the series again
 			return ser.series(rel, order);
 			// NB: Of course, this still does not allow us to compute anything
@@ -770,9 +766,8 @@ static ex Li2_series(const ex &x, const relational &rel, int order, unsigned opt
 			// substitute the argument's series expansion
 			ser = ser.subs(s==x.series(rel, order), subs_options::no_pattern);
 			// maybe that was terminating, so add a proper order term
-			epvector nseq;
-			nseq.push_back(expair(Order(_ex1), order));
-			ser += pseries(rel, nseq);
+			epvector nseq { expair(Order(_ex1), order) };
+			ser += pseries(rel, std::move(nseq));
 			// reexpanding it will collapse the series again
 			return ser.series(rel, order);
 		}
@@ -794,7 +789,7 @@ static ex Li2_series(const ex &x, const relational &rel, int order, unsigned opt
 				seq.push_back(expair((replarg.op(i)/power(s-foo,i)).series(foo==point,1,options).op(0).subs(foo==s, subs_options::no_pattern),i));
 			// append an order term:
 			seq.push_back(expair(Order(_ex1), replarg.nops()-1));
-			return pseries(rel, seq);
+			return pseries(rel, std::move(seq));
 		}
 	}
 	// all other cases should be safe, by now:
@@ -1004,11 +999,10 @@ static ex Order_eval(const ex & x)
 static ex Order_series(const ex & x, const relational & r, int order, unsigned options)
 {
 	// Just wrap the function into a pseries object
-	epvector new_seq;
 	GINAC_ASSERT(is_a<symbol>(r.lhs()));
 	const symbol &s = ex_to<symbol>(r.lhs());
-	new_seq.push_back(expair(Order(_ex1), numeric(std::min(x.ldegree(s), order))));
-	return pseries(r, new_seq);
+	epvector new_seq { expair(Order(_ex1), numeric(std::min(x.ldegree(s), order))) };
+	return pseries(r, std::move(new_seq));
 }
 
 static ex Order_conjugate(const ex & x)

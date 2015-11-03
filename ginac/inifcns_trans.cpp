@@ -247,20 +247,18 @@ static ex log_series(const ex &arg,
 				epv.reserve(2);
 				epv.push_back(expair(-1, _ex0));
 				epv.push_back(expair(Order(_ex1), order));
-				ex rest = pseries(rel, epv).add_series(argser);
+				ex rest = pseries(rel, std::move(epv)).add_series(argser);
 				for (int i = order-1; i>0; --i) {
-					epvector cterm;
-					cterm.reserve(1);
-					cterm.push_back(expair(i%2 ? _ex1/i : _ex_1/i, _ex0));
-					acc = pseries(rel, cterm).add_series(ex_to<pseries>(acc));
+					epvector cterm { expair(i%2 ? _ex1/i : _ex_1/i, _ex0) };
+					acc = pseries(rel, std::move(cterm)).add_series(ex_to<pseries>(acc));
 					acc = (ex_to<pseries>(rest)).mul_series(ex_to<pseries>(acc));
 				}
 				return acc;
 			}
 			const ex newarg = ex_to<pseries>((arg/coeff).series(rel, order+n, options)).shift_exponents(-n).convert_to_poly(true);
-			return pseries(rel, seq).add_series(ex_to<pseries>(log(newarg).series(rel, order, options)));
+			return pseries(rel, std::move(seq)).add_series(ex_to<pseries>(log(newarg).series(rel, order, options)));
 		} else  // it was a monomial
-			return pseries(rel, seq);
+			return pseries(rel, std::move(seq));
 	}
 	if (!(options & series_options::suppress_branchcut) &&
 	     arg_pt.info(info_flags::negative)) {
@@ -271,10 +269,9 @@ static ex log_series(const ex &arg,
 		const ex &point = rel.rhs();
 		const symbol foo;
 		const ex replarg = series(log(arg), s==foo, order).subs(foo==point, subs_options::no_pattern);
-		epvector seq;
-		seq.push_back(expair(-I*csgn(arg*I)*Pi, _ex0));
-		seq.push_back(expair(Order(_ex1), order));
-		return series(replarg - I*Pi + pseries(rel, seq), rel, order);
+		epvector seq { expair(-I*csgn(arg*I)*Pi, _ex0),
+		               expair(Order(_ex1), order) };
+		return series(replarg - I*Pi + pseries(rel, std::move(seq)), rel, order);
 	}
 	throw do_taylor();  // caught by function::series()
 }
@@ -935,10 +932,9 @@ static ex atan_series(const ex &arg,
 			Order0correction += log((I*arg_pt+_ex_1)/(I*arg_pt+_ex1))*I*_ex_1_2;
 		else
 			Order0correction += log((I*arg_pt+_ex1)/(I*arg_pt+_ex_1))*I*_ex1_2;
-		epvector seq;
-		seq.push_back(expair(Order0correction, _ex0));
-		seq.push_back(expair(Order(_ex1), order));
-		return series(replarg - pseries(rel, seq), rel, order);
+		epvector seq { expair(Order0correction, _ex0),
+		               expair(Order(_ex1), order) };
+		return series(replarg - pseries(rel, std::move(seq)), rel, order);
 	}
 	throw do_taylor();
 }
@@ -1542,10 +1538,9 @@ static ex atanh_series(const ex &arg,
 			Order0correction += log((arg_pt+_ex_1)/(arg_pt+_ex1))*_ex1_2;
 		else
 			Order0correction += log((arg_pt+_ex1)/(arg_pt+_ex_1))*_ex_1_2;
-		epvector seq;
-		seq.push_back(expair(Order0correction, _ex0));
-		seq.push_back(expair(Order(_ex1), order));
-		return series(replarg - pseries(rel, seq), rel, order);
+		epvector seq { expair(Order0correction, _ex0),
+		               expair(Order(_ex1), order) };
+		return series(replarg - pseries(rel, std::move(seq)), rel, order);
 	}
 	throw do_taylor();
 }

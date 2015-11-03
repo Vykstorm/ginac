@@ -81,6 +81,11 @@ matrix::matrix(unsigned r, unsigned c, const exvector & m2)
 {
 	setflag(status_flags::not_shareable);
 }
+matrix::matrix(unsigned r, unsigned c, exvector && m2)
+  : row(r), col(c), m(std::move(m2))
+{
+	setflag(status_flags::not_shareable);
+}
 
 /** Construct matrix from (flat) list of elements. If the list has fewer
  *  elements than the matrix, the remaining matrix elements are set to zero.

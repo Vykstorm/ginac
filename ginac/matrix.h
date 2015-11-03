@@ -98,7 +98,6 @@ class matrix : public basic
 	// other constructors
 public:
 	matrix(unsigned r, unsigned c);
-	matrix(unsigned r, unsigned c, const exvector & m2);
 	matrix(unsigned r, unsigned c, const lst & l);
 
 	// First step of initialization of matrix with a comma-separated sequence
@@ -108,7 +107,10 @@ public:
 		m[0] = x;
 		return matrix_init<ex, exvector::iterator>(++m.begin());
 	}
-	
+
+protected:
+	matrix(unsigned r, unsigned c, const exvector & m2);
+	matrix(unsigned r, unsigned c, exvector && m2);
 	// functions overriding virtual functions from base classes
 public:
 	size_t nops() const;

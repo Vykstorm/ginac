@@ -1662,9 +1662,8 @@ static ex Li_series(const ex& m, const ex& x, const relational& rel, int order, 
 {
 	if (is_a<lst>(m) || is_a<lst>(x)) {
 		// multiple polylog
-		epvector seq;
-		seq.push_back(expair(Li(m, x), 0));
-		return pseries(rel, seq);
+		epvector seq { expair(Li(m, x), 0) };
+		return pseries(rel, std::move(seq));
 	}
 	
 	// classical polylog
@@ -1680,9 +1679,8 @@ static ex Li_series(const ex& m, const ex& x, const relational& rel, int order, 
 			// substitute the argument's series expansion
 			ser = ser.subs(s==x.series(rel, order), subs_options::no_pattern);
 			// maybe that was terminating, so add a proper order term
-			epvector nseq;
-			nseq.push_back(expair(Order(_ex1), order));
-			ser += pseries(rel, nseq);
+			epvector nseq { expair(Order(_ex1), order) };
+			ser += pseries(rel, std::move(nseq));
 			// reexpanding it will collapse the series again
 			return ser.series(rel, order);
 		}
@@ -2235,9 +2233,8 @@ static ex S_series(const ex& n, const ex& p, const ex& x, const relational& rel,
 			// substitute the argument's series expansion
 			ser = ser.subs(s==x.series(rel, order), subs_options::no_pattern);
 			// maybe that was terminating, so add a proper order term
-			epvector nseq;
-			nseq.push_back(expair(Order(_ex1), order));
-			ser += pseries(rel, nseq);
+			epvector nseq { expair(Order(_ex1), order) };
+			ser += pseries(rel, std::move(nseq));
 			// reexpanding it will collapse the series again
 			return ser.series(rel, order);
 		}
@@ -3430,9 +3427,8 @@ static ex H_eval(const ex& m_, const ex& x)
 
 static ex H_series(const ex& m, const ex& x, const relational& rel, int order, unsigned options)
 {
-	epvector seq;
-	seq.push_back(expair(H(m, x), 0));
-	return pseries(rel, seq);
+	epvector seq { expair(H(m, x), 0) };
+	return pseries(rel, std::move(seq));
 }
 
 

@@ -68,7 +68,16 @@ pseries::pseries() { }
  *  @param rel_  expansion variable and point (must hold a relational)
  *  @param ops_  vector of {coefficient, power} pairs (coefficient must not be zero)
  *  @return newly constructed pseries */
-pseries::pseries(const ex &rel_, const epvector &ops_) : seq(ops_)
+pseries::pseries(const ex &rel_, const epvector &ops_)
+  : seq(ops_)
+{
+	GINAC_ASSERT(is_a<relational>(rel_));
+	GINAC_ASSERT(is_a<symbol>(rel_.lhs()));
+	point = rel_.rhs();
+	var = rel_.lhs();
+}
+pseries::pseries(const ex &rel_, epvector &&ops_)
+  : seq(std::move(ops_))
 {
 	GINAC_ASSERT(is_a<relational>(rel_));
 	GINAC_ASSERT(is_a<symbol>(rel_.lhs()));
@@ -461,7 +470,7 @@ ex pseries::imag_part() const
 
 ex pseries::eval_integ() const
 {
-	epvector *newseq = nullptr;
+	std::unique_ptr<epvector> newseq(nullptr);
 	for (auto i=seq.begin(); i!=seq.end(); ++i) {
 		if (newseq) {
 			newseq->push_back(expair(i->rest.eval_integ(), i->coeff));
@@ -469,7 +478,7 @@ ex pseries::eval_integ() const
 		}
 		ex newterm = i->rest.eval_integ();
 		if (!are_ex_trivially_equal(newterm, i->rest)) {
-			newseq = new epvector;
+			newseq.reset(new epvector);
 			newseq->reserve(seq.size());
 			for (auto j=seq.begin(); j!=i; ++j)
 				newseq->push_back(*j);
@@ -479,7 +488,7 @@ ex pseries::eval_integ() const
 
 	ex newpoint = point.eval_integ();
 	if (newseq || !are_ex_trivially_equal(newpoint, point))
-		return (new pseries(var==newpoint, *newseq))
+		return (new pseries(var==newpoint, std::move(*newseq)))
 		       ->setflag(status_flags::dynallocated);
 	return *this;
 }
@@ -526,7 +535,7 @@ ex pseries::subs(const exmap & m, unsigned options) const
 	newseq.reserve(seq.size());
 	for (auto & it : seq)
 		newseq.push_back(expair(it.rest.subs(m, options), it.coeff));
-	return (new pseries(relational(var,point.subs(m, options)), newseq))->setflag(status_flags::dynallocated);
+	return (new pseries(relational(var,point.subs(m, options)), std::move(newseq)))->setflag(status_flags::dynallocated);
 }
 
 /** Implementation of ex::expand() for a power series.  It expands all the
@@ -625,7 +634,7 @@ ex basic::series(const relational & r, int order, unsigned options) const
 	// default for order-values that make no sense for Taylor expansion
 	if ((order <= 0) && this->has(s)) {
 		seq.push_back(expair(Order(_ex1), order));
-		return pseries(r, seq);
+		return pseries(r, std::move(seq));
 	}
 
 	// do Taylor expansion
@@ -645,7 +654,7 @@ ex basic::series(const relational & r, int order, unsigned options) const
 		// zero.  Expanding the term occasionally helps a little...
 		deriv = deriv.diff(s).expand();
 		if (deriv.is_zero())  // Series terminates
-			return pseries(r, seq);
+			return pseries(r, std::move(seq));
 
 		coeff = deriv.subs(r, subs_options::no_pattern);
 		if (!coeff.is_zero())
@@ -656,7 +665,7 @@ ex basic::series(const relational & r, int order, unsigned options) const
 	deriv = deriv.diff(s);
 	if (!deriv.expand().is_zero())
 		seq.push_back(expair(Order(_ex1), n));
-	return pseries(r, seq);
+	return pseries(r, std::move(seq));
 }
 
 
@@ -677,7 +686,7 @@ ex symbol::series(const relational & r, int order, unsigned options) const
 			seq.push_back(expair(Order(_ex1), numeric(order)));
 	} else
 		seq.push_back(expair(*this, _ex0));
-	return pseries(r, seq);
+	return pseries(r, std::move(seq));
 }
 
 
@@ -691,9 +700,8 @@ ex pseries::add_series(const pseries &other) const
 	// Adding two series with different variables or expansion points
 	// results in an empty (constant) series 
 	if (!is_compatible_to(other)) {
-		epvector nul;
-		nul.push_back(expair(Order(_ex1), _ex0));
-		return pseries(relational(var,point), nul);
+		epvector nul { expair(Order(_ex1), _ex0) };
+		return pseries(relational(var,point), std::move(nul));
 	}
 	
 	// Series addition
@@ -796,7 +804,7 @@ ex pseries::mul_const(const numeric &other) const
 		else
 			new_seq.push_back(it);
 	}
-	return pseries(relational(var,point), new_seq);
+	return pseries(relational(var,point), std::move(new_seq));
 }
 
 
@@ -810,9 +818,8 @@ ex pseries::mul_series(const pseries &other) const
 	// Multiplying two series with different variables or expansion points
 	// results in an empty (constant) series 
 	if (!is_compatible_to(other)) {
-		epvector nul;
-		nul.push_back(expair(Order(_ex1), _ex0));
-		return pseries(relational(var,point), nul);
+		epvector nul { expair(Order(_ex1), _ex0) };
+		return pseries(relational(var,point), std::move(nul));
 	}
 
 	if (seq.empty() || other.seq.empty()) {
@@ -853,7 +860,7 @@ ex pseries::mul_series(const pseries &other) const
 	}
 	if (higher_order_c < std::numeric_limits<int>::max())
 		new_seq.push_back(expair(Order(_ex1), numeric(higher_order_c)));
-	return pseries(relational(var, point), new_seq);
+	return pseries(relational(var, point), std::move(new_seq));
 }
 
 
@@ -947,9 +954,8 @@ ex mul::series(const relational & r, int order, unsigned options) const
 	int degsum = std::accumulate(ldegrees.begin(), ldegrees.end(), 0);
 
 	if (degsum >= order) {
-		epvector epv;
-		epv.push_back(expair(Order(_ex1), order));
-		return (new pseries(r, epv))->setflag(status_flags::dynallocated);
+		epvector epv { expair(Order(_ex1), order) };
+		return (new pseries(r, std::move(epv)))->setflag(status_flags::dynallocated);
 	}
 
 	// Multiply with remaining terms
@@ -1015,10 +1021,8 @@ ex pseries::power_const(const numeric &p, int deg) const
 	// adjust number of coefficients
 	int numcoeff = deg - (p*ldeg).to_int();
 	if (numcoeff <= 0) {
-		epvector epv;
-		epv.reserve(1);
-		epv.push_back(expair(Order(_ex1), deg));
-		return (new pseries(relational(var,point), epv))
+		epvector epv { expair(Order(_ex1), deg) };
+		return (new pseries(relational(var,point), std::move(epv)))
 		       ->setflag(status_flags::dynallocated);
 	}
 	
@@ -1057,7 +1061,7 @@ ex pseries::power_const(const numeric &p, int deg) const
 	if (!higher_order)
 		new_seq.push_back(expair(Order(_ex1), p * ldeg + numcoeff));
 
-	return pseries(relational(var,point), new_seq);
+	return pseries(relational(var,point), std::move(new_seq));
 }
 
 
@@ -1128,7 +1132,7 @@ ex power::series(const relational & r, int order, unsigned options) const
 			new_seq.push_back(expair(_ex1, exponent));
 		else
 			new_seq.push_back(expair(Order(_ex1), exponent));
-		return pseries(r, new_seq);
+		return pseries(r, std::move(new_seq));
 	}
 
 	// No, expand basis into series
@@ -1161,9 +1165,8 @@ ex power::series(const relational & r, int order, unsigned options) const
 	try {
 		result = ex_to<pseries>(e).power_const(numexp, order);
 	} catch (pole_error) {
-		epvector ser;
-		ser.push_back(expair(Order(_ex1), order));
-		result = pseries(r, ser);
+		epvector ser { expair(Order(_ex1), order) };
+		result = pseries(r, std::move(ser));
 	}
 
 	return result;
@@ -1190,7 +1193,7 @@ ex pseries::series(const relational & r, int order, unsigned options) const
 				}
 				new_seq.push_back(it);
 			}
-			return pseries(r, new_seq);
+			return pseries(r, std::move(new_seq));
 		}
 	} else
 		return convert_to_poly().series(r, order, options);
