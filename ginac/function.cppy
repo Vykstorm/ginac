@@ -732,22 +732,22 @@ ex function::pderivative(unsigned diff_param) const // partial differentiation
 	GINAC_ASSERT(serial<registered_functions().size());
 	const function_options &opt = registered_functions()[serial];
 	
-	// No derivative defined? Then return abstract derivative object
-	if (opt.derivative_f == nullptr)
-		return fderivative(serial, diff_param, seq);
-
-	current_serial = serial;
-	if (opt.derivative_use_exvector_args)
-		return ((derivative_funcp_exvector)(opt.derivative_f))(seq, diff_param);
-	switch (opt.nparams) {
-		// the following lines have been generated for max. @maxargs@ parameters
+	if (opt.derivative_f) {
+		// Invoke the defined derivative function.
+		current_serial = serial;
+		if (opt.derivative_use_exvector_args)
+			return ((derivative_funcp_exvector)(opt.derivative_f))(seq, diff_param);
+		switch (opt.nparams) {
+			// the following lines have been generated for max. @maxargs@ parameters
 +++ for N in range(1, maxargs + 1):
-		case @N@:
-			return ((derivative_funcp_@N@)(opt.derivative_f))(@seq('seq[%(n)d]', N, 0)@, diff_param);
+			case @N@:
+				return ((derivative_funcp_@N@)(opt.derivative_f))(@seq('seq[%(n)d]', N, 0)@, diff_param);
 ---
-		// end of generated lines
+			// end of generated lines
+		}
 	}
-	throw(std::logic_error("function::pderivative(): no diff function defined"));
+	// No derivative defined? Fall back to abstract derivative object.
+	return fderivative(serial, diff_param, seq);
 }
 
 ex function::expl_derivative(const symbol & s) const // explicit differentiation
@@ -755,21 +755,22 @@ ex function::expl_derivative(const symbol & s) const // explicit differentiation
 	GINAC_ASSERT(serial<registered_functions().size());
 	const function_options &opt = registered_functions()[serial];
 
-	// No explicit derivative defined? Then this function shall not be called!
-	if (opt.expl_derivative_f == nullptr)
-		throw(std::logic_error("function::expl_derivative(): explicit derivation is called, but no such function defined"));
-
-	current_serial = serial;
-	if (opt.expl_derivative_use_exvector_args)
-		return ((expl_derivative_funcp_exvector)(opt.expl_derivative_f))(seq, s);
-	switch (opt.nparams) {
-		// the following lines have been generated for max. @maxargs@ parameters
+	if (opt.expl_derivative_f) {
+		// Invoke the defined explicit derivative function.
+		current_serial = serial;
+		if (opt.expl_derivative_use_exvector_args)
+			return ((expl_derivative_funcp_exvector)(opt.expl_derivative_f))(seq, s);
+		switch (opt.nparams) {
+			// the following lines have been generated for max. @maxargs@ parameters
 +++ for N in range(1, maxargs + 1):
-		case @N@:
-			return ((expl_derivative_funcp_@N@)(opt.expl_derivative_f))(@seq('seq[%(n)d]', N, 0)@, s);
+			case @N@:
+				return ((expl_derivative_funcp_@N@)(opt.expl_derivative_f))(@seq('seq[%(n)d]', N, 0)@, s);
 ---
-		// end of generated lines
+			// end of generated lines
+		}
 	}
+	// There is no fallback for explicit deriviative.
+	throw(std::logic_error("function::expl_derivative(): explicit derivation is called, but no such function defined"));
 }
 
 ex function::power(const ex & power_param) const // power of function
@@ -777,22 +778,23 @@ ex function::power(const ex & power_param) const // power of function
 	GINAC_ASSERT(serial<registered_functions().size());
 	const function_options &opt = registered_functions()[serial];
 	
-	if (opt.power_f == nullptr)
-		return (new GiNaC::power(*this, power_param))->setflag(status_flags::dynallocated |
-		                                                       status_flags::evaluated);
-
-	current_serial = serial;
-	if (opt.power_use_exvector_args)
-		return ((power_funcp_exvector)(opt.power_f))(seq,  power_param);
-	switch (opt.nparams) {
-		// the following lines have been generated for max. @maxargs@ parameters
+	if (opt.power_f) {
+		// Invoke the defined power function.
+		current_serial = serial;
+		if (opt.power_use_exvector_args)
+			return ((power_funcp_exvector)(opt.power_f))(seq,  power_param);
+		switch (opt.nparams) {
+			// the following lines have been generated for max. @maxargs@ parameters
 +++ for N in range(1, maxargs + 1):
-		case @N@:
-			return ((power_funcp_@N@)(opt.power_f))(@seq('seq[%(n)d]', N, 0)@, power_param);
+			case @N@:
+				return ((power_funcp_@N@)(opt.power_f))(@seq('seq[%(n)d]', N, 0)@, power_param);
 ---
-		// end of generated lines
+			// end of generated lines
+		}
 	}
-	throw(std::logic_error("function::power(): no power function defined"));
+	// No power function defined? Fall back to returning a power object.
+	return (new GiNaC::power(*this, power_param))->setflag(status_flags::dynallocated |
+	                                                       status_flags::evaluated);
 }
 
 ex function::expand(unsigned options) const
@@ -800,27 +802,25 @@ ex function::expand(unsigned options) const
 	GINAC_ASSERT(serial<registered_functions().size());
 	const function_options &opt = registered_functions()[serial];
 
-	// No expand defined? Then return the same function with expanded arguments (if required)
-	if (opt.expand_f == nullptr) {
-		// Only expand arguments when asked to do so
-		if (options & expand_options::expand_function_args)
-			return inherited::expand(options);
-		else
-			return (options == 0) ? setflag(status_flags::expanded) : *this;
-	}
-
-	current_serial = serial;
-	if (opt.expand_use_exvector_args)
-		return ((expand_funcp_exvector)(opt.expand_f))(seq,  options);
-	switch (opt.nparams) {
-		// the following lines have been generated for max. @maxargs@ parameters
+	if (opt.expand_f) {
+		// Invoke the defined expand function.
+		current_serial = serial;
+		if (opt.expand_use_exvector_args)
+			return ((expand_funcp_exvector)(opt.expand_f))(seq,  options);
+		switch (opt.nparams) {
+			// the following lines have been generated for max. @maxargs@ parameters
 +++ for N in range(1, maxargs + 1):
-		case @N@:
-			return ((expand_funcp_@N@)(opt.expand_f))(@seq('seq[%(n)d]', N, 0)@, options);
+			case @N@:
+				return ((expand_funcp_@N@)(opt.expand_f))(@seq('seq[%(n)d]', N, 0)@, options);
 ---
-		// end of generated lines
+			// end of generated lines
+		}
 	}
-	throw(std::logic_error("function::expand(): no expand of function defined"));
+	// No expand function defined? Return the same function with expanded arguments (if required)
+	if (options & expand_options::expand_function_args)
+		return inherited::expand(options);
+	else
+		return (options == 0) ? setflag(status_flags::expanded) : *this;
 }
 
 std::vector<function_options> & function::registered_functions()

@@ -20,45 +20,48 @@
  *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#ifndef GINAC_UPOLY_REMAINDER_H
-#define GINAC_UPOLY_REMAINDER_H
-
-#include "upoly.h"
+#include "remainder.h"
 #include "ring_traits.h"
 #include "upoly_io.h"
 #include "debug.h"
 
 namespace GiNaC {
 
-bool remainder_in_field(umodpoly& r, const umodpoly& a, const umodpoly& b);
-
 /**
- * @brief Polynomial remainder for univariate polynomials over a ring. 
+ * @brief Polynomial remainder for univariate polynomials over fields
  *
- * Given two univariate polynomials \f$a, b \in R[x]\f$, where R is
- * a ring (presumably Z) computes the remainder @a r, which is
+ * Given two univariate polynomials \f$a, b \in F[x]\f$, where F is
+ * a finite field (presumably Z/p) computes the remainder @a r, which is
  * defined as \f$a = b q + r\f$. Returns true if the remainder is zero
  * and false otherwise.
  */
-template<typename T>
-bool remainder_in_ring(T& r, const T& a, const T& b)
+bool
+remainder_in_field(umodpoly& r, const umodpoly& a, const umodpoly& b)
 {
-	typedef typename T::value_type ring_t;
+	typedef cln::cl_MI field_t;
+
 	if (degree(a) < degree(b)) {
 		r = a;
 		return false;
 	}
-	// N.B: don't bother to optimize division by constant
+	// The coefficient ring is a field, so any 0 degree polynomial
+	// divides any other polynomial.
+	if (degree(b) == 0) {
+		r.clear();
+		return true;
+	}
 
 	r = a;
-	const ring_t b_lcoeff = lcoeff(b);
+	const field_t b_lcoeff = lcoeff(b);
 	for (std::size_t k = a.size(); k-- >= b.size(); ) {
 
 		// r -= r_k/b_n x^{k - n} b(x)
 		if (zerop(r[k]))
 			continue;
 
-		const ring_t qk = truncate1(r[k], b_lcoeff);
+		field_t qk = div(r[k], b_lcoeff);
+		bug_on(zerop(qk), "division in a field yield zero: "
+			           << r[k] << '/' << b_lcoeff);
 
 		// Why C++ is so off-by-one prone?
 		for (std::size_t j = k, i = b.size(); i-- != 0; --j) {
@@ -66,19 +69,19 @@ bool remainder_in_ring(T& r, const T& a, const T& b)
 				continue;
 			r[j] = r[j] - qk*b[i];
 		}
+		bug_on(!zerop(r[k]), "polynomial division in field failed: " <<
+			              "r[" << k << "] = " << r[k] << ", " <<
+				      "r = " << r << ", b = " << b);
 
-		if (!zerop(r[k])) {
-			// division failed, don't bother to continue
-			break;
-		}
 	}
 
-	// Canonicalize the remainder: remove leading zeros. We can't say
-	// anything about the degree of the remainder here.
-	canonicalize(r);
+	// Canonicalize the remainder: remove leading zeros. Give a hint
+	// to canonicalize(): we know degree(remainder) < degree(b)
+	// (because the coefficient ring is a field), so
+	// c_{degree(b)} \ldots c_{degree(a)} are definitely zero.
+	std::size_t from = degree(b) - 1;
+	canonicalize(r, from);
 	return r.empty();
 }
 
 } // namespace GiNaC
-
-#endif // GINAC_UPOLY_REMAINDER_H

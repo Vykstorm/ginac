@@ -46,6 +46,11 @@ namespace {
  *  @see get_symbol_stats */
 struct sym_desc 
 {
+	/** Initialize symbol, leave other variables uninitialized */
+	sym_desc(const ex& s)
+	  : sym(s), deg_a(0), deg_b(0), ldeg_a(0), ldeg_b(0), max_deg(0), max_lcnops(0)
+	{ }
+
 	/** Reference to symbol */
 	ex sym;
 
@@ -87,9 +92,7 @@ static void add_symbol(const ex &s, sym_desc_vec &v)
 		if (it.sym.is_equal(s))  // If it's already in there, don't add it a second time
 			return;
 	}
-	sym_desc d;
-	d.sym = s;
-	v.push_back(d);
+	v.push_back(sym_desc(s));
 }
 
 // Collect all symbols of an expression (used internally by get_symbol_stats())

@@ -287,6 +287,8 @@ static unsigned inifcns_test_LiG()
 		cout << "." << flush;
 	}
 
+	Digits = digitsbuf;
+
 	return result;
 }
 
@@ -300,6 +302,7 @@ static unsigned inifcns_test_LiG()
 
 static unsigned inifcns_test_legacy()
 {
+	int digitsbuf = Digits;
 	Digits = 17;
 	ex prec = 5 * pow(10, -(ex)Digits);
 
@@ -361,6 +364,8 @@ static unsigned inifcns_test_legacy()
 		clog << "Legacy test 5 seems to be wrong." << endl;
 		result++;
 	}
+
+	Digits = digitsbuf;
 
 	return result;
 }

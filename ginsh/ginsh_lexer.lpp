@@ -26,6 +26,8 @@
  *  Definitions
  */
 
+%option nounput
+
 %pointer
 
 %{

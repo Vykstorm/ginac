@@ -29,27 +29,7 @@
 
 namespace GiNaC {
 
-/// Make the univariate polynomial @a a \in F[x] unit normal.
-/// F should be a field.
-/// Returns true if the polynomial @x is already unit normal, and false
-/// otherwise.
-static bool normalize_in_field(umodpoly& a, cln::cl_MI* content_ = 0)
-{
-	if (a.size() == 0)
-		return true;
-	if (lcoeff(a) == the_one(a[0])) {
-		if (content_)
-			*content_ = the_one(a[0]);
-		return true;
-	}
-
-	const cln::cl_MI lc_1 = recip(lcoeff(a));
-	for (std::size_t k = a.size(); k-- != 0; )
-		a[k] = a[k]*lc_1;
-	if (content_)
-		*content_ = lc_1;
-	return false;
-}
+bool normalize_in_field(umodpoly& a, cln::cl_MI* content_ = 0);
 
 /// Make the univariate polynomial @a x unit normal. This version is used
 /// for rings which are not fields. 

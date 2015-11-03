@@ -21,7 +21,9 @@ libginac_la_SOURCES = add.cpp archive.cpp basic.cpp clifford.cpp color.cpp \
 polynomial/mod_gcd.cpp \
 polynomial/cra_garner.cpp \
 polynomial/gcd_euclid.h \
+polynomial/remainder.cpp \
 polynomial/remainder.h \
+polynomial/normalize.cpp \
 polynomial/normalize.h \
 polynomial/upoly.h \
 polynomial/ring_traits.h \
