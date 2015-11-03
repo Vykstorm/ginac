@@ -39,6 +39,7 @@ AS_IF([test -z "$YACCEXE" -a ! -f $srcdir/ginsh/ginsh_parser.hpp],
 
 dnl Switch to C++ language mode for the following libraries and headers.
 AC_LANG([C++])
+AX_CXX_COMPILE_STDCXX_11
 
 dnl Make sure all the necessary standard headers are installed on the system.
 GINAC_STD_CXX_HEADERS
