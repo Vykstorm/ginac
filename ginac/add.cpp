@@ -331,7 +331,7 @@ ex add::coeff(const ex & s, int n) const
 ex add::eval(int level) const
 {
 	epvector evaled = evalchildren(level);
-	if (!evaled.empty()) {
+	if (unlikely(!evaled.empty())) {
 		// do more evaluation later
 		return (new add(std::move(evaled), overall_coeff))->
 			setflag(status_flags::dynallocated);

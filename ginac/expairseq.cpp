@@ -32,6 +32,7 @@
 #include "utils.h"
 #include "hash_seed.h"
 #include "indexed.h"
+#include "compiler.h"
 
 #include <algorithm>
 #include <iostream>
@@ -1053,7 +1054,7 @@ epvector expairseq::expandchildren(unsigned options) const
  *    had to be changed. */
 epvector expairseq::evalchildren(int level) const
 {
-	if (level==1)
+	if (likely(level==1))
 		return epvector();  // nothing had to be evaluated
 	
 	if (level == -max_recursion_level)
