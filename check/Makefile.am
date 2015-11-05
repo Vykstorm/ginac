@@ -34,7 +34,8 @@ EXAMS = exam_paranoia \
 	factor_univariate_bug \
 	pgcd_relatively_prime_bug \
 	pgcd_infinite_loop \
-	exam_cra
+	exam_cra \
+	exam_real_imag
 
 TIMES = time_dennyfliegner \
 	time_gammaseries \
@@ -156,6 +157,9 @@ exam_mod_gcd_LDADD = ../ginac/libginac.la
 
 exam_cra_SOURCES = exam_cra.cpp
 exam_cra_LDADD = ../ginac/libginac.la
+
+exam_real_imag_SOURCES = exam_real_imag.cpp
+exam_real_imag_LDADD = ../ginac/libginac.la
 
 time_dennyfliegner_SOURCES = time_dennyfliegner.cpp \
 			     randomize_serials.cpp timer.cpp timer.h
