@@ -344,7 +344,7 @@ ex add::coeff(const ex & s, int n) const
 ex add::eval(int level) const
 {
 	std::auto_ptr<epvector> evaled_seqp = evalchildren(level);
-	if (evaled_seqp.get()) {
+	if (unlikely(evaled_seqp.get() != 0)) {
 		// do more evaluation later
 		return (new add(evaled_seqp, overall_coeff))->
 		       setflag(status_flags::dynallocated);

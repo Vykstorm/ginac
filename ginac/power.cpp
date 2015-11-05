@@ -1215,7 +1215,6 @@ ex power::expand_add(const add & a, int n, unsigned options) const
 				numeric factor = coeff;
 				for (unsigned i = 0; i < exponent.size(); ++i) {
 					const ex & r = a.seq[i].rest;
-					const ex & c = a.seq[i].coeff;
 					GINAC_ASSERT(!is_exactly_a<add>(r));
 					GINAC_ASSERT(!is_exactly_a<power>(r) ||
 						     !is_exactly_a<numeric>(ex_to<power>(r).exponent) ||
@@ -1223,15 +1222,19 @@ ex power::expand_add(const add & a, int n, unsigned options) const
 						     !is_exactly_a<add>(ex_to<power>(r).basis) ||
 						     !is_exactly_a<mul>(ex_to<power>(r).basis) ||
 						     !is_exactly_a<power>(ex_to<power>(r).basis));
+					GINAC_ASSERT(is_exactly_a<numeric>(a.seq[i].coeff));
+					const numeric & c = ex_to<numeric>(a.seq[i].coeff);
 					if (exponent[i] == 0) {
 						// optimize away
 					} else if (exponent[i] == 1) {
 						// optimized
 						term.push_back(r);
-						factor = factor.mul(ex_to<numeric>(c));
+						if (c != *_num1_p)
+							factor = factor.mul(c);
 					} else { // general case exponent[i] > 1
 						term.push_back((new power(r, exponent[i]))->setflag(status_flags::dynallocated));
-						factor = factor.mul(ex_to<numeric>(c).power(exponent[i]));
+						if (c != *_num1_p)
+							factor = factor.mul(c.power(exponent[i]));
 					}
 				}
 				result.push_back(a.combine_ex_with_coeff_to_pair(mul(term).expand(options), factor));
