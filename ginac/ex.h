@@ -77,7 +77,7 @@ class ex {
 	
 	// default constructor, copy constructor and assignment operator
 public:
-	ex() throw();
+	ex() noexcept;
 
 	// other constructors
 public:
@@ -98,7 +98,7 @@ public:
 	// non-virtual functions in this class
 public:
 	/** Efficiently swap the contents of two expressions. */
-	void swap(ex & other) throw()
+	void swap(ex & other) noexcept
 	{
 		GINAC_ASSERT(bp->flags & status_flags::dynallocated);
 		GINAC_ASSERT(other.bp->flags & status_flags::dynallocated);
@@ -106,12 +106,12 @@ public:
 	}
 
 	// iterators
-	const_iterator begin() const throw();
-	const_iterator end() const throw();
+	const_iterator begin() const noexcept;
+	const_iterator end() const noexcept;
 	const_preorder_iterator preorder_begin() const;
-	const_preorder_iterator preorder_end() const throw();
+	const_preorder_iterator preorder_end() const noexcept;
 	const_postorder_iterator postorder_begin() const;
-	const_postorder_iterator postorder_end() const throw();
+	const_postorder_iterator postorder_end() const noexcept;
 
 	// evaluation
 	ex eval(int level = 0) const { return bp->eval(level); }
@@ -256,7 +256,7 @@ private:
 extern const basic *_num0_bp;
 
 inline
-ex::ex() throw() : bp(*const_cast<basic *>(_num0_bp))
+ex::ex() noexcept : bp(*const_cast<basic *>(_num0_bp))
 {
 	GINAC_ASSERT(bp->flags & status_flags::dynallocated);
 }
@@ -358,10 +358,10 @@ class const_iterator : public std::iterator<std::random_access_iterator_tag, ex,
 	friend class const_postorder_iterator;
 
 public:
-	const_iterator() throw() {}
+	const_iterator() noexcept {}
 
 private:
-	const_iterator(const ex &e_, size_t i_) throw() : e(e_), i(i_) {}
+	const_iterator(const ex &e_, size_t i_) noexcept : e(e_), i(i_) {}
 
 public:
 	// This should return an ex&, but that would be a reference to a
@@ -383,90 +383,90 @@ public:
 		return e.op(i + n);
 	}
 
-	const_iterator &operator++() throw()
+	const_iterator &operator++() noexcept
 	{
 		++i;
 		return *this;
 	}
 
-	const_iterator operator++(int) throw()
+	const_iterator operator++(int) noexcept
 	{
 		const_iterator tmp = *this;
 		++i;
 		return tmp;
 	}
 
-	const_iterator &operator+=(difference_type n) throw()
+	const_iterator &operator+=(difference_type n) noexcept
 	{
 		i += n;
 		return *this;
 	}
 
-	const_iterator operator+(difference_type n) const throw()
+	const_iterator operator+(difference_type n) const noexcept
 	{
 		return const_iterator(e, i + n);
 	}
 
-	inline friend const_iterator operator+(difference_type n, const const_iterator &it) throw()
+	inline friend const_iterator operator+(difference_type n, const const_iterator &it) noexcept
 	{
 		return const_iterator(it.e, it.i + n);
 	}
 
-	const_iterator &operator--() throw()
+	const_iterator &operator--() noexcept
 	{
 		--i;
 		return *this;
 	}
 
-	const_iterator operator--(int) throw()
+	const_iterator operator--(int) noexcept
 	{
 		const_iterator tmp = *this;
 		--i;
 		return tmp;
 	}
 
-	const_iterator &operator-=(difference_type n) throw()
+	const_iterator &operator-=(difference_type n) noexcept
 	{
 		i -= n;
 		return *this;
 	}
 
-	const_iterator operator-(difference_type n) const throw()
+	const_iterator operator-(difference_type n) const noexcept
 	{
 		return const_iterator(e, i - n);
 	}
 
-	inline friend difference_type operator-(const const_iterator &lhs, const const_iterator &rhs) throw()
+	inline friend difference_type operator-(const const_iterator &lhs, const const_iterator &rhs) noexcept
 	{
 		return lhs.i - rhs.i;
 	}
 
-	bool operator==(const const_iterator &other) const throw()
+	bool operator==(const const_iterator &other) const noexcept
 	{
 		return are_ex_trivially_equal(e, other.e) && i == other.i;
 	}
 
-	bool operator!=(const const_iterator &other) const throw()
+	bool operator!=(const const_iterator &other) const noexcept
 	{
 		return !(*this == other);
 	}
 
-	bool operator<(const const_iterator &other) const throw()
+	bool operator<(const const_iterator &other) const noexcept
 	{
 		return i < other.i;
 	}
 
-	bool operator>(const const_iterator &other) const throw()
+	bool operator>(const const_iterator &other) const noexcept
 	{
 		return other < *this;
 	}
 
-	bool operator<=(const const_iterator &other) const throw()
+	bool operator<=(const const_iterator &other) const noexcept
 	{
 		return !(other < *this);
 	}
 
-	bool operator>=(const const_iterator &other) const throw()
+	bool operator>=(const const_iterator &other) const noexcept
 	{
 		return !(*this < other);
 	}
@@ -481,12 +481,12 @@ namespace internal {
 struct _iter_rep {
 	_iter_rep(const ex &e_, size_t i_, size_t i_end_) : e(e_), i(i_), i_end(i_end_) {}
 
-	bool operator==(const _iter_rep &other) const throw()
+	bool operator==(const _iter_rep &other) const noexcept
 	{
 		return are_ex_trivially_equal(e, other.e) && i == other.i;
 	}
 
-	bool operator!=(const _iter_rep &other) const throw()
+	bool operator!=(const _iter_rep &other) const noexcept
 	{
 		return !(*this == other);
 	}
@@ -500,7 +500,7 @@ struct _iter_rep {
 
 class const_preorder_iterator : public std::iterator<std::forward_iterator_tag, ex, ptrdiff_t, const ex *, const ex &> {
 public:
-	const_preorder_iterator() throw() {}
+	const_preorder_iterator() noexcept {}
 
 	const_preorder_iterator(const ex &e, size_t n)
 	{
@@ -531,12 +531,12 @@ public:
 		return tmp;
 	}
 
-	bool operator==(const const_preorder_iterator &other) const throw()
+	bool operator==(const const_preorder_iterator &other) const noexcept
 	{
 		return s == other.s;
 	}
 
-	bool operator!=(const const_preorder_iterator &other) const throw()
+	bool operator!=(const const_preorder_iterator &other) const noexcept
 	{
 		return !(*this == other);
 	}
@@ -564,7 +564,7 @@ private:
 
 class const_postorder_iterator : public std::iterator<std::forward_iterator_tag, ex, ptrdiff_t, const ex *, const ex &> {
 public:
-	const_postorder_iterator() throw() {}
+	const_postorder_iterator() noexcept {}
 
 	const_postorder_iterator(const ex &e, size_t n)
 	{
@@ -596,12 +596,12 @@ public:
 		return tmp;
 	}
 
-	bool operator==(const const_postorder_iterator &other) const throw()
+	bool operator==(const const_postorder_iterator &other) const noexcept
 	{
 		return s == other.s;
 	}
 
-	bool operator!=(const const_postorder_iterator &other) const throw()
+	bool operator!=(const const_postorder_iterator &other) const noexcept
 	{
 		return !(*this == other);
 	}
@@ -629,12 +629,12 @@ private:
 	}
 };
 
-inline const_iterator ex::begin() const throw()
+inline const_iterator ex::begin() const noexcept
 {
 	return const_iterator(*this, 0);
 }
 
-inline const_iterator ex::end() const throw()
+inline const_iterator ex::end() const noexcept
 {
 	return const_iterator(*this, nops());
 }
@@ -644,7 +644,7 @@ inline const_preorder_iterator ex::preorder_begin() const
 	return const_preorder_iterator(*this, nops());
 }
 
-inline const_preorder_iterator ex::preorder_end() const throw()
+inline const_preorder_iterator ex::preorder_end() const noexcept
 {
 	return const_preorder_iterator();
 }
@@ -654,7 +654,7 @@ inline const_postorder_iterator ex::postorder_begin() const
 	return const_postorder_iterator(*this, nops());
 }
 
-inline const_postorder_iterator ex::postorder_end() const throw()
+inline const_postorder_iterator ex::postorder_end() const noexcept
 {
 	return const_postorder_iterator();
 }
