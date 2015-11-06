@@ -1091,7 +1091,7 @@ public:
  *  where n = p1+p2+...+pk, i.e. p is a partition of n.
  */
 const numeric
-multinomial_coefficient(const std::vector<int> p)
+multinomial_coefficient(const std::vector<int> & p)
 {
 	numeric n = 0, d = 1;
 	for (auto & it : p) {
