@@ -134,7 +134,7 @@ public:
 		return *this;
 	}
 
-	function_options & set_return_type(unsigned rt, const return_type_t* rtt = 0);
+	function_options & set_return_type(unsigned rt, const return_type_t* rtt = nullptr);
 	function_options & do_not_evalf_params();
 	function_options & remember(unsigned size, unsigned assoc_size=0,
 	                            unsigned strategy=remember_strategies::delete_never);

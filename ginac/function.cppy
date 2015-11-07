@@ -79,7 +79,7 @@ void function_options::initialize()
 	set_name("unnamed_function", "\\\\mbox{unnamed}");
 	nparams = 0;
 	eval_f = evalf_f = real_part_f = imag_part_f = conjugate_f = expand_f
-		= derivative_f = expl_derivative_f = power_f = series_f = 0;
+		= derivative_f = expl_derivative_f = power_f = series_f = nullptr;
 	info_f = 0;
 	evalf_params_first = true;
 	use_return_type = false;
@@ -386,7 +386,7 @@ ex function::eval(int level) const
 		}
 	}
 
-	if (opt.eval_f==0) {
+	if (opt.eval_f==nullptr) {
 		return this->hold();
 	}
 

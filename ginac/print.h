@@ -179,7 +179,7 @@ public:
 /** Check if obj is a T, including base classes. */
 template <class T>
 inline bool is_a(const print_context & obj)
-{ return dynamic_cast<const T *>(&obj) != 0; }
+{ return dynamic_cast<const T *>(&obj) != nullptr; }
 
 
 class basic;
@@ -252,7 +252,7 @@ public:
 	{
 		if (this != &other) {
 			print_functor_impl *p = other.impl.get();
-			impl.reset(p ? other.impl->duplicate() : 0);
+			impl.reset(p ? other.impl->duplicate() : nullptr);
 		}
 		return *this;
 	}

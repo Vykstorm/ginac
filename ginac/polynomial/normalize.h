@@ -29,14 +29,14 @@
 
 namespace GiNaC {
 
-bool normalize_in_field(umodpoly& a, cln::cl_MI* content_ = 0);
+bool normalize_in_field(umodpoly& a, cln::cl_MI* content_ = nullptr);
 
 /// Make the univariate polynomial @a x unit normal. This version is used
 /// for rings which are not fields. 
 /// Returns true if the polynomial @x is already unit normal, and false
 /// otherwise.
 template<typename T> bool
-normalize_in_ring(T& x, typename T::value_type* content_ = 0, int* unit_ = 0)
+normalize_in_ring(T& x, typename T::value_type* content_ = nullptr, int* unit_ = nullptr)
 {
 	typedef typename T::value_type ring_t;
 	static const ring_t one(1);

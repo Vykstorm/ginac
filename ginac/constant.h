@@ -42,7 +42,7 @@ class constant : public basic
 	GINAC_DECLARE_REGISTERED_CLASS(constant, basic)
 	// other constructors
 public:
-	constant(const std::string & initname, evalffunctype efun = 0, const std::string & texname = std::string(), unsigned domain = domain::complex);
+	constant(const std::string & initname, evalffunctype efun = nullptr, const std::string & texname = std::string(), unsigned domain = domain::complex);
 	constant(const std::string & initname, const numeric & initnumber, const std::string & texname = std::string(), unsigned domain = domain::complex);
 	
 	// functions overriding virtual functions from base classes

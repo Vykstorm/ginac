@@ -310,7 +310,7 @@ extern int max_recursion_level;
 template <class T>
 inline bool is_a(const basic &obj)
 {
-	return dynamic_cast<const T *>(&obj) != 0;
+	return dynamic_cast<const T *>(&obj) != nullptr;
 }
 
 /** Check if obj is a T, not including base classes. */
