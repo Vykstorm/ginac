@@ -538,6 +538,8 @@ expair add::split_ex_to_pair(const ex & e) const
 	if (is_exactly_a<mul>(e)) {
 		const mul &mulref(ex_to<mul>(e));
 		const ex &numfactor = mulref.overall_coeff;
+		if (numfactor.is_equal(_ex1))
+			return expair(e, _ex1);
 		mul *mulcopyp = new mul(mulref);
 		mulcopyp->overall_coeff = _ex1;
 		mulcopyp->clearflag(status_flags::evaluated);
@@ -555,6 +557,8 @@ expair add::combine_ex_with_coeff_to_pair(const ex & e,
 	if (is_exactly_a<mul>(e)) {
 		const mul &mulref(ex_to<mul>(e));
 		const ex &numfactor = mulref.overall_coeff;
+		if (numfactor.is_equal(_ex1))
+			return expair(e, c);
 		mul *mulcopyp = new mul(mulref);
 		mulcopyp->overall_coeff = _ex1;
 		mulcopyp->clearflag(status_flags::evaluated);
@@ -562,13 +566,13 @@ expair add::combine_ex_with_coeff_to_pair(const ex & e,
 		mulcopyp->setflag(status_flags::dynallocated);
 		if (c.is_equal(_ex1))
 			return expair(*mulcopyp, numfactor);
-		else if (numfactor.is_equal(_ex1))
-			return expair(*mulcopyp, c);
 		else
 			return expair(*mulcopyp, ex_to<numeric>(numfactor).mul_dyn(ex_to<numeric>(c)));
 	} else if (is_exactly_a<numeric>(e)) {
 		if (c.is_equal(_ex1))
 			return expair(e, _ex1);
+		if (e.is_equal(_ex1))
+			return expair(c, _ex1);
 		return expair(ex_to<numeric>(e).mul_dyn(ex_to<numeric>(c)), _ex1);
 	}
 	return expair(e, c);
