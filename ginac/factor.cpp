@@ -118,7 +118,7 @@ ostream& operator<<(ostream& o, const vector<numeric>& v)
 	}
 	return o;
 }
-ostream& operator<<(ostream& o, const vector< vector<cl_MI> >& v)
+ostream& operator<<(ostream& o, const vector<vector<cl_MI>>& v)
 {
 	auto i = v.begin(), end = v.end();
 	while ( i != end ) {
@@ -1462,7 +1462,7 @@ private:
 	}
 private:
 	umodpoly lr[2];
-	vector< vector<umodpoly> > cache;
+	vector<vector<umodpoly>> cache;
 	upvec factors;
 	umodpoly one;
 	size_t n;

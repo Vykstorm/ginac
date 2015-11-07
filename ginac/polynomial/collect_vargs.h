@@ -56,7 +56,7 @@ static inline bool zerop(const exp_vector_t& v)
 	return true;
 }
 
-typedef std::vector<std::pair<exp_vector_t, ex> > ex_collect_t;
+typedef std::vector<std::pair<exp_vector_t, ex>> ex_collect_t;
 
 extern void
 collect_vargs(ex_collect_t& ec, const ex& e, const exvector& x);

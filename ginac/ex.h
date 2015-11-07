@@ -542,7 +542,7 @@ public:
 	}
 
 private:
-	std::stack<internal::_iter_rep, std::vector<internal::_iter_rep> > s;
+	std::stack<internal::_iter_rep, std::vector<internal::_iter_rep>> s;
 
 	void increment()
 	{
@@ -607,7 +607,7 @@ public:
 	}
 
 private:
-	std::stack<internal::_iter_rep, std::vector<internal::_iter_rep> > s;
+	std::stack<internal::_iter_rep, std::vector<internal::_iter_rep>> s;
 
 	void descend()
 	{

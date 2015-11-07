@@ -36,7 +36,7 @@ namespace GiNaC {
 class ex;
 class archive_node;
 
-template <template <class T, class = std::allocator<T> > class> class container;
+template <template <class T, class = std::allocator<T>> class> class container;
 typedef container<std::list> lst;
 
 /** To distinguish between different kinds of non-commutative objects */

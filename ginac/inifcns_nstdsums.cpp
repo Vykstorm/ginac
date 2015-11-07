@@ -102,7 +102,7 @@ namespace {
 
 // lookup table for factors built from Bernoulli numbers
 // see fill_Xn()
-std::vector<std::vector<cln::cl_N> > Xn;
+std::vector<std::vector<cln::cl_N>> Xn;
 // initial size of Xn that should suffice for 32bit machines (must be even)
 const int xninitsizestep = 26;
 int xninitsize = xninitsizestep;
@@ -1779,7 +1779,7 @@ namespace {
 
 // lookup table for special Euler-Zagier-Sums (used for S_n,p(x))
 // see fill_Yn()
-std::vector<std::vector<cln::cl_N> > Yn;
+std::vector<std::vector<cln::cl_N>> Yn;
 int ynsize = 0; // number of Yn[]
 int ynlength = 100; // initial length of all Yn[i]
 
@@ -3547,7 +3547,7 @@ static void initcX(std::vector<cln::cl_N>& crX,
 
 	int Sm = 0;
 	int Smp1 = 0;
-	std::vector<std::vector<cln::cl_N> > crG(s.size() - 1, std::vector<cln::cl_N>(L2 + 1));
+	std::vector<std::vector<cln::cl_N>> crG(s.size() - 1, std::vector<cln::cl_N>(L2 + 1));
 	for (int m=0; m < (int)s.size() - 1; m++) {
 		Sm += s[m];
 		Smp1 = Sm + s[m+1];
@@ -3587,12 +3587,12 @@ static cln::cl_N crandall_Y_loop(const cln::cl_N& Sqk,
 
 
 // [Cra] section 4
-static void calc_f(std::vector<std::vector<cln::cl_N> >& f_kj,
+static void calc_f(std::vector<std::vector<cln::cl_N>>& f_kj,
 	           const int maxr, const int L1)
 {
 	cln::cl_N t0, t1, t2, t3, t4;
 	int i, j, k;
-	std::vector<std::vector<cln::cl_N> >::iterator it = f_kj.begin();
+	std::vector<std::vector<cln::cl_N>>::iterator it = f_kj.begin();
 	cln::cl_F one = cln::cl_float(1, cln::float_format(Digits));
 	
 	t0 = cln::exp(-lambda);
@@ -3616,7 +3616,7 @@ static void calc_f(std::vector<std::vector<cln::cl_N> >& f_kj,
 
 // [Cra] (3.1)
 static cln::cl_N crandall_Z(const std::vector<int>& s,
-	                    const std::vector<std::vector<cln::cl_N> >& f_kj)
+	                    const std::vector<std::vector<cln::cl_N>>& f_kj)
 {
 	const int j = s.size();
 
@@ -3693,7 +3693,7 @@ cln::cl_N zeta_do_sum_Crandall(const std::vector<int>& s)
 		}
 	}
 
-	std::vector<std::vector<cln::cl_N> > f_kj(L1);
+	std::vector<std::vector<cln::cl_N>> f_kj(L1);
 	calc_f(f_kj, maxr, L1);
 
 	const cln::cl_N r0factorial = cln::factorial(r[0]-1);

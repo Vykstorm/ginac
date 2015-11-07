@@ -54,7 +54,7 @@ private:
  *      from refcounted)
  *    T* T::duplicate() member function (only if makewriteable() is used) */
 template <class T> class ptr {
-	friend class std::less< ptr<T> >;
+	friend class std::less<ptr<T>>;
 
 	// NB: This implementation of reference counting is not thread-safe.
 	// The reference counter needs to be incremented/decremented atomically,
@@ -155,7 +155,7 @@ namespace std {
 
 /** Specialization of std::less for ptr<T> to enable ordering of ptr<T>
  *  objects (e.g. for the use as std::map keys). */
-template <class T> struct less< GiNaC::ptr<T> >
+template <class T> struct less<GiNaC::ptr<T>>
  : public binary_function<GiNaC::ptr<T>, GiNaC::ptr<T>, bool> {
 	bool operator()(const GiNaC::ptr<T> &lhs, const GiNaC::ptr<T> &rhs) const
 	{
