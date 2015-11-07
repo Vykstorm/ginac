@@ -142,14 +142,10 @@ protected:
 
 	// constructors
 public:
-	container(STLT const & s, bool discardable = false)
+	container(STLT const & s)
 	{
 		setflag(get_default_flags());
-
-		if (discardable)
-			this->seq.swap(const_cast<STLT &>(s));
-		else
-			this->seq = s;
+		this->seq = s;
 	}
 
 	explicit container(STLT && v)

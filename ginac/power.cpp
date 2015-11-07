@@ -571,7 +571,7 @@ ex power::eval(int level) const
 		if (num_exponent->is_pos_integer() &&
 		    ebasis.return_type() != return_types::commutative &&
 		    !is_a<matrix>(ebasis)) {
-			return ncmul(exvector(num_exponent->to_int(), ebasis), true);
+			return ncmul(exvector(num_exponent->to_int(), ebasis));
 		}
 	}
 	

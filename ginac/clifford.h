@@ -46,7 +46,7 @@ public:
 	clifford(const ex & b, const ex & mu,  const ex & metr, unsigned char rl = 0, int comm_sign = -1);
 
 	// internal constructors
-	clifford(unsigned char rl, const ex & metr, int comm_sign, const exvector & v, bool discardable = false);
+	clifford(unsigned char rl, const ex & metr, int comm_sign, const exvector & v);
 	clifford(unsigned char rl, const ex & metr, int comm_sign, exvector && v);
 
 	// functions overriding virtual functions from base classes

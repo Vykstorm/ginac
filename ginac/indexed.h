@@ -138,7 +138,7 @@ public:
 
 	// internal constructors
 	indexed(const symmetry & symm, const exprseq & es);
-	indexed(const symmetry & symm, const exvector & v, bool discardable = false);
+	indexed(const symmetry & symm, const exvector & v);
 	indexed(const symmetry & symm, exvector && v);
 
 	// functions overriding virtual functions from base classes

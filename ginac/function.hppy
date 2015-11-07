@@ -222,7 +222,7 @@ public:
 ---
 	// end of generated lines
 	function(unsigned ser, const exprseq & es);
-	function(unsigned ser, const exvector & v, bool discardable = false);
+	function(unsigned ser, const exvector & v);
 	function(unsigned ser, exvector && v);
 	
 	// functions overriding virtual functions from base classes

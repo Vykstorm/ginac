@@ -105,7 +105,7 @@ clifford::clifford(const ex & b, const ex & mu, const ex & metr, unsigned char r
 	GINAC_ASSERT(is_a<idx>(mu));
 }
 
-clifford::clifford(unsigned char rl, const ex & metr, int comm_sign, const exvector & v, bool discardable) : inherited(not_symmetric(), v, discardable), representation_label(rl), metric(metr), commutator_sign(comm_sign)
+clifford::clifford(unsigned char rl, const ex & metr, int comm_sign, const exvector & v) : inherited(not_symmetric(), v), representation_label(rl), metric(metr), commutator_sign(comm_sign)
 {
 }
 
@@ -399,7 +399,7 @@ bool diracgamma::contract_with(exvector::iterator self, exvector::iterator other
 			if (std::find_if(self + 1, other, is_not_a_clifford()) != other)
 				return false;
 
-			*self = ncmul(exvector(std::reverse_iterator<exvector::const_iterator>(other), std::reverse_iterator<exvector::const_iterator>(self + 1)), true);
+			*self = ncmul(exvector(std::reverse_iterator<exvector::const_iterator>(other), std::reverse_iterator<exvector::const_iterator>(self + 1)));
 			std::fill(self + 1, other, _ex1);
 			*other = _ex_2;
 			return true;
@@ -412,8 +412,8 @@ bool diracgamma::contract_with(exvector::iterator self, exvector::iterator other
 				return false;
 
 			exvector::iterator next_to_last = other - 1;
-			ex S = ncmul(exvector(self + 1, next_to_last), true);
-			ex SR = ncmul(exvector(std::reverse_iterator<exvector::const_iterator>(next_to_last), std::reverse_iterator<exvector::const_iterator>(self + 1)), true);
+			ex S = ncmul(exvector(self + 1, next_to_last));
+			ex SR = ncmul(exvector(std::reverse_iterator<exvector::const_iterator>(next_to_last), std::reverse_iterator<exvector::const_iterator>(self + 1)));
 
 			*self = (*next_to_last) * S + SR * (*next_to_last);
 			std::fill(self + 1, other, _ex1);
@@ -428,7 +428,7 @@ bool diracgamma::contract_with(exvector::iterator self, exvector::iterator other
 				return false;
 
 			exvector::iterator next_to_last = other - 1;
-			ex S = ncmul(exvector(self + 1, next_to_last), true);
+			ex S = ncmul(exvector(self + 1, next_to_last));
 
 			*self = 2 * (*next_to_last) * S - (*self) * S * (*other) * (*next_to_last);
 			std::fill(self + 1, other + 1, _ex1);
@@ -495,7 +495,7 @@ bool cliffordunit::contract_with(exvector::iterator self, exvector::iterator oth
 				return false;
 			}
 			
-			ex S = ncmul(exvector(self + 1, before_other), true);
+			ex S = ncmul(exvector(self + 1, before_other));
 
 			if (is_a<clifford>(*before_other) && ex_to<clifford>(*before_other).get_representation_label() == rl) {
 				*self = 2 * (*self) * S * unit.get_metric(alpha, mu_toggle, true) - (*self) * S * (*other) * (*before_other);
@@ -1063,7 +1063,7 @@ ex canonicalize_clifford(const ex & e_)
 						ex sum = ncmul(v);
 						it[0] = save1;
 						it[1] = save0;
-						sum += ex_to<clifford>(save0).get_commutator_sign() * ncmul(v, true);
+						sum += ex_to<clifford>(save0).get_commutator_sign() * ncmul(std::move(v));
 						i->second = canonicalize_clifford(sum);
 						goto next_sym;
 					}

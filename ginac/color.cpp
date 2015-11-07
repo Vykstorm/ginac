@@ -86,7 +86,7 @@ color::color(const ex & b, const ex & i1, unsigned char rl) : inherited(b, i1), 
 {
 }
 
-color::color(unsigned char rl, const exvector & v, bool discardable) : inherited(not_symmetric(), v, discardable), representation_label(rl)
+color::color(unsigned char rl, const exvector & v) : inherited(not_symmetric(), v), representation_label(rl)
 {
 }
 

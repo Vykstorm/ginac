@@ -117,7 +117,7 @@ indexed::indexed(const symmetry & symm, const exprseq & es) : inherited(es), sym
 {
 }
 
-indexed::indexed(const symmetry & symm, const exvector & v, bool discardable) : inherited(v, discardable), symtree(symm)
+indexed::indexed(const symmetry & symm, const exvector & v) : inherited(v), symtree(symm)
 {
 }
 
@@ -874,7 +874,7 @@ contraction_done:
 					// the product
 					bool is_a_product = (is_exactly_a<mul>(*it1) || is_exactly_a<ncmul>(*it1)) &&
 					                    (is_exactly_a<mul>(*it2) || is_exactly_a<ncmul>(*it2));
-					ex r = (non_commutative ? ex(ncmul(v, true)) : ex(mul(v)));
+					ex r = (non_commutative ? ex(ncmul(std::move(v))) : ex(mul(std::move(v))));
 
 					// If new expression is a product we can call this function again,
 					// otherwise we need to pass argument to simplify_indexed() to be expanded
@@ -941,7 +941,7 @@ contraction_done:
 
 	ex r;
 	if (something_changed)
-		r = non_commutative ? ex(ncmul(v, true)) : ex(mul(v));
+		r = non_commutative ? ex(ncmul(std::move(v))) : ex(mul(std::move(v)));
 	else
 		r = e;
 

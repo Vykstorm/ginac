@@ -242,8 +242,8 @@ function::function(unsigned ser, const exprseq & es) : exprseq(es), serial(ser)
 	clearflag(status_flags::evaluated);
 }
 
-function::function(unsigned ser, const exvector & v, bool discardable) 
-  : exprseq(v,discardable), serial(ser)
+function::function(unsigned ser, const exvector & v)
+  : exprseq(v), serial(ser)
 {
 }
 

@@ -80,7 +80,7 @@ ncmul::ncmul(const ex & f1, const ex & f2, const ex & f3,
 {
 }
 
-ncmul::ncmul(const exvector & v, bool discardable) : inherited(v,discardable)
+ncmul::ncmul(const exvector & v) : inherited(v)
 {
 }
 
@@ -179,7 +179,7 @@ ex ncmul::expand(unsigned options) const
 			term[positions_of_adds[i]] = rename_dummy_indices_uniquely(va, expanded_seq[positions_of_adds[i]].op(k[i]), true);
 		}
 
-		distrseq.push_back((new ncmul(term, true))->
+		distrseq.push_back((new ncmul(std::move(term)))->
 		                    setflag(status_flags::dynallocated | (options == 0 ? status_flags::expanded : 0)));
 
 		// increment k[]
@@ -233,7 +233,7 @@ ex ncmul::coeff(const ex & s, int n) const
 		// if a non-zero power of s is found, the resulting product will be 0
 		for (auto & it : seq)
 			coeffseq.push_back(it.coeff(s,n));
-		return (new ncmul(std::move(coeffseq),1))->setflag(status_flags::dynallocated);
+		return (new ncmul(std::move(coeffseq)))->setflag(status_flags::dynallocated);
 	}
 		 
 	bool coeff_found = false;
@@ -248,7 +248,7 @@ ex ncmul::coeff(const ex & s, int n) const
 	}
 
 	if (coeff_found)
-		return (new ncmul(std::move(coeffseq), 1))->setflag(status_flags::dynallocated);
+		return (new ncmul(std::move(coeffseq)))->setflag(status_flags::dynallocated);
 	
 	return _ex0;
 }
@@ -364,8 +364,8 @@ ex ncmul::eval(int level) const
 			else
 				noncommutativeseq.push_back(assocseq[i]);
 		}
-		commutativeseq.push_back((new ncmul(noncommutativeseq,1))->setflag(status_flags::dynallocated));
-		return (new mul(commutativeseq))->setflag(status_flags::dynallocated);
+		commutativeseq.push_back((new ncmul(std::move(noncommutativeseq)))->setflag(status_flags::dynallocated));
+		return (new mul(std::move(commutativeseq)))->setflag(status_flags::dynallocated);
 	}
 		
 	// ncmul(x1,y1,x2,y2) -> *(ncmul(x1,x2),ncmul(y1,y2))
@@ -480,7 +480,7 @@ ex ncmul::conjugate() const
 		--i;
 		ev.push_back(i->conjugate());
 	}
-	return (new ncmul(std::move(ev), true))->setflag(status_flags::dynallocated).eval();
+	return (new ncmul(std::move(ev)))->setflag(status_flags::dynallocated).eval();
 }
 
 ex ncmul::real_part() const

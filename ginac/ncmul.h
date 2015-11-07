@@ -49,7 +49,7 @@ public:
 	      const ex & f4, const ex & f5);
 	ncmul(const ex & f1, const ex & f2, const ex & f3,
 	      const ex & f4, const ex & f5, const ex & f6);
-	ncmul(const exvector & v, bool discardable=false);
+	ncmul(const exvector & v);
 	ncmul(exvector && v);
 
 	// functions overriding virtual functions from base classes

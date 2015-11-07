@@ -46,7 +46,7 @@ public:
 	color(const ex & b, const ex & i1, unsigned char rl = 0);
 
 	// internal constructors
-	color(unsigned char rl, const exvector & v, bool discardable = false);
+	color(unsigned char rl, const exvector & v);
 	color(unsigned char rl, exvector && v);
 	void archive(archive_node& n) const;
 	void read_archive(const archive_node& n, lst& sym_lst);
