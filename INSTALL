@@ -20,7 +20,7 @@ TeX are necessary.
 
 Known to work with:
  - Linux on x86 and x86_64 using 
-   - GCC 4.9, 5.1, and 5.2
+   - GCC 4.8, 4.9, 5.1, and 5.2
    - Clang 3.5.0
 
 Known not to work with:

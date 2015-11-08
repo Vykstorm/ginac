@@ -34,7 +34,6 @@
 #include "power.h"
 #include "archive.h"
 #include "inifcns.h"
-#include "tostring.h"
 #include "utils.h"
 #include "hash_seed.h"
 #include "remember.h"
@@ -878,7 +877,7 @@ unsigned function::find_function(const std::string &name, unsigned nparams)
 			return serial;
 		++serial;
 	}
-	throw (std::runtime_error("no function '" + name + "' with " + ToString(nparams) + " parameters defined"));
+	throw (std::runtime_error("no function '" + name + "' with " + std::to_string(nparams) + " parameters defined"));
 }
 
 /** Return the print name of the function. */

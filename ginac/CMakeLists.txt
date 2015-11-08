@@ -111,7 +111,6 @@ set(ginaclib_public_headers
 
 set(ginaclib_private_headers
     remember.h
-    tostring.h
     utils.h
     crc32.h
     hash_seed.h

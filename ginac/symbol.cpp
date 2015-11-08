@@ -23,7 +23,6 @@
 #include "symbol.h"
 #include "lst.h"
 #include "archive.h"
-#include "tostring.h"
 #include "utils.h"
 #include "hash_seed.h"
 #include "inifcns.h"
@@ -153,9 +152,7 @@ static const std::string& get_default_TeX_name(const std::string& name);
 std::string symbol::get_name() const
 {
 	if (name.empty()) {
-		std::ostringstream s;
-		s << "symbol" << serial;
-		name = s.str();
+		name = "symbol" + std::to_string(serial);
 	}
 	return name;
 }

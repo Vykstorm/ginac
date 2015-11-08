@@ -27,7 +27,6 @@
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
-#include "tostring.h"
 #include "version.h"
 
 #include <iostream>
@@ -272,7 +271,7 @@ std::istream &operator>>(std::istream &is, archive &ar)
 	static const unsigned min_version = GINACLIB_ARCHIVE_VERSION - GINACLIB_ARCHIVE_AGE;
 	unsigned version = read_unsigned(is);
 	if ((version > max_version) || (version < min_version))
-		throw (std::runtime_error("archive version " + ToString(version) + " cannot be read by this GiNaC library (which supports versions " + ToString(min_version) + " thru " + ToString(max_version)));
+		throw (std::runtime_error("archive version " + std::to_string(version) + " cannot be read by this GiNaC library (which supports versions " + std::to_string(min_version) + " thru " + std::to_string(max_version)));
 
 	// Read atoms
 	unsigned num_atoms = read_unsigned(is);

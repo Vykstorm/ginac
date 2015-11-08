@@ -32,7 +32,6 @@
 #include "ex.h"
 #include "operators.h"
 #include "archive.h"
-#include "tostring.h"
 #include "utils.h"
 
 #include <limits>
@@ -225,7 +224,7 @@ numeric::numeric(const char *s)
 			// E to lower case
 			term = term.replace(term.find("E"),1,"e");
 			// append _<Digits> to term
-			term += "_" + ToString((unsigned)Digits);
+			term += "_" + std::to_string((unsigned)Digits);
 			// construct float using cln::cl_F(const char *) ctor.
 			if (imaginary)
 				ctorval = ctorval + cln::complex(cln::cl_I(0),cln::cl_F(term.c_str()));
