@@ -46,7 +46,7 @@ using namespace GiNaC;
 using namespace std;
 
 // whether to run this beast or not:
-static const bool do_test = true;
+constexpr bool do_test = true;
 
 // regularization parameter:
 static const symbol x("x");

@@ -1218,7 +1218,7 @@ fsolve(const ex& f_in, const symbol& x, const numeric& x1, const numeric& x2)
 			// determined by the secant between the values xx[0] and xx[1].
 			// Don't set the secant_weight to one because that could disturb
 			// the convergence in some corner cases!
-			static const double secant_weight = 0.984375;  // == 63/64 < 1
+			constexpr double secant_weight = 0.984375;  // == 63/64 < 1
 			numeric xxmid = (1-secant_weight)*0.5*(xx[0]+xx[1])
 			    + secant_weight*(xx[0]+fx[0]*(xx[0]-xx[1])/(fx[1]-fx[0]));
 			ex fxmid_ = f.subs(x == xxmid).evalf();

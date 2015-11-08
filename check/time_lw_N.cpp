@@ -30,7 +30,7 @@ using namespace GiNaC;
 #include <vector>
 using namespace std;
 
-static const bool do_test = false;  // set to true in order to run this beast
+constexpr bool do_test = false;  // set to true in order to run this beast
 
 static unsigned test()
 {

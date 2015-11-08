@@ -29,7 +29,7 @@ using namespace GiNaC;
 #include <vector>
 using namespace std;
 
-static const bool do_test = true;  // set to true in order to run this beast
+const bool do_test = true;  // set to true in order to run this beast
 
 static unsigned test()
 {

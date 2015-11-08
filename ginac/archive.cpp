@@ -267,8 +267,8 @@ std::istream &operator>>(std::istream &is, archive &ar)
 	is.get(c1); is.get(c2); is.get(c3); is.get(c4);
 	if (c1 != 'G' || c2 != 'A' || c3 != 'R' || c4 != 'C')
 		throw (std::runtime_error("not a GiNaC archive (signature not found)"));
-	static const unsigned max_version = GINACLIB_ARCHIVE_VERSION;
-	static const unsigned min_version = GINACLIB_ARCHIVE_VERSION - GINACLIB_ARCHIVE_AGE;
+	constexpr unsigned max_version = GINACLIB_ARCHIVE_VERSION;
+	constexpr unsigned min_version = GINACLIB_ARCHIVE_VERSION - GINACLIB_ARCHIVE_AGE;
 	unsigned version = read_unsigned(is);
 	if ((version > max_version) || (version < min_version))
 		throw (std::runtime_error("archive version " + std::to_string(version) + " cannot be read by this GiNaC library (which supports versions " + std::to_string(min_version) + " thru " + std::to_string(max_version)));

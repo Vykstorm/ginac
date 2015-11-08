@@ -34,7 +34,7 @@ static symtab make_symtab(const ex& l);
 
 ptr<basic> ex::construct_from_string_and_lst(const std::string &s, const ex &l)
 {
-	static const bool strict = true;
+	constexpr bool strict = true;
 	symtab syms = make_symtab(l);
 	parser reader(syms, strict); 
 	ex parsed_ex = reader(s);
