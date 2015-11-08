@@ -2023,7 +2023,7 @@ lanczos_coeffs::lanczos_coeffs()
 	coeffs[3].swap(coeffs_120);
 }
 
-static const cln::float_format_t guess_precision(const cln::cl_N& x)
+static cln::float_format_t guess_precision(const cln::cl_N& x)
 {
 	cln::float_format_t prec = cln::default_float_format;
 	if (!instanceof(realpart(x), cln::cl_RA_ring))

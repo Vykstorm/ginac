@@ -679,7 +679,9 @@ typedef vector<cl_MI> mvec;
 
 class modular_matrix
 {
+#ifdef DEBUGFACTOR
 	friend ostream& operator<<(ostream& o, const modular_matrix& m);
+#endif
 public:
 	modular_matrix(size_t r_, size_t c_, const cl_MI& init) : r(r_), c(c_)
 	{
