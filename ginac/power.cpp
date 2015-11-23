@@ -775,7 +775,7 @@ ex power::derivative(const symbol & s) const
 		newseq.reserve(2);
 		newseq.push_back(expair(basis, exponent - _ex1));
 		newseq.push_back(expair(basis.diff(s), _ex1));
-		return mul(newseq, exponent);
+		return mul(std::move(newseq), exponent);
 	} else {
 		// D(b^e) = b^e * (D(e)*ln(b) + e*D(b)/b)
 		return mul(*this,
@@ -849,9 +849,9 @@ ex power::expand(unsigned options) const
 		// In either case we set a flag to avoid the second run on a part
 		// which does not have positive/negative terms.
 		if (prodseq.size() > 0) {
-			ex newbasis = coeff*mul(powseq);
+			ex newbasis = coeff*mul(std::move(powseq));
 			ex_to<basic>(newbasis).setflag(status_flags::purely_indefinite);
-			return ((new mul(prodseq))->setflag(status_flags::dynallocated)*(new power(newbasis, exponent))->setflag(status_flags::dynallocated).expand(options)).expand(options);
+			return ((new mul(std::move(prodseq)))->setflag(status_flags::dynallocated)*(new power(newbasis, exponent))->setflag(status_flags::dynallocated).expand(options)).expand(options);
 		} else
 			ex_to<basic>(basis).setflag(status_flags::purely_indefinite);
 	}
@@ -1237,11 +1237,11 @@ ex power::expand_add(const add & a, int n, unsigned options) const
 	GINAC_ASSERT(result.size() == result_size);
 
 	if (a.overall_coeff.is_zero()) {
-		return (new add(result))->setflag(status_flags::dynallocated |
-		                                  status_flags::expanded);
+		return (new add(std::move(result)))->setflag(status_flags::dynallocated |
+		                                             status_flags::expanded);
 	} else {
-		return (new add(result, ex_to<numeric>(a.overall_coeff).power(n)))->setflag(status_flags::dynallocated |
-		                                                                            status_flags::expanded);
+		return (new add(std::move(result), ex_to<numeric>(a.overall_coeff).power(n)))->setflag(status_flags::dynallocated |
+		                                                                                       status_flags::expanded);
 	}
 }
 
@@ -1309,7 +1309,7 @@ ex power::expand_add_2(const add & a, unsigned options) const
 	
 	GINAC_ASSERT(sum.size()==(a_nops*(a_nops+1))/2);
 	
-	return (new add(sum))->setflag(status_flags::dynallocated | status_flags::expanded);
+	return (new add(std::move(sum)))->setflag(status_flags::dynallocated | status_flags::expanded);
 }
 
 /** Expand factors of m in m^n where m is a mul and n is an integer.

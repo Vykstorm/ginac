@@ -1219,7 +1219,7 @@ ex integral::series(const relational & r, int order, unsigned options) const
 	}
 
 	// Expanding lower boundary
-	ex result = (new pseries(r, fexpansion))->setflag(status_flags::dynallocated);
+	ex result = (new pseries(r, std::move(fexpansion)))->setflag(status_flags::dynallocated);
 	ex aseries = (a-a.subs(r)).series(r, order, options);
 	fseries = f.series(x == (a.subs(r)), order, options);
 	for (size_t i=0; i<fseries.nops(); ++i) {

@@ -1210,7 +1210,7 @@ ex add::smod(const numeric &xi) const
 	}
 	GINAC_ASSERT(is_exactly_a<numeric>(overall_coeff));
 	numeric coeff = GiNaC::smod(ex_to<numeric>(overall_coeff), xi);
-	return (new add(newseq,coeff))->setflag(status_flags::dynallocated);
+	return (new add(std::move(newseq), coeff))->setflag(status_flags::dynallocated);
 }
 
 ex mul::smod(const numeric &xi) const
