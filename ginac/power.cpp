@@ -871,7 +871,7 @@ ex power::expand(unsigned options) const
 		// Make sure that e.g. (x+y)^(2+a) expands the (x+y)^2 factor
 		if (ex_to<numeric>(a.overall_coeff).is_integer()) {
 			const numeric &num_exponent = ex_to<numeric>(a.overall_coeff);
-			int int_exponent = num_exponent.to_int();
+			long int_exponent = num_exponent.to_int();
 			if (int_exponent > 0 && is_exactly_a<add>(expanded_basis))
 				distrseq.push_back(expand_add(ex_to<add>(expanded_basis), int_exponent, options));
 			else
@@ -895,7 +895,7 @@ ex power::expand(unsigned options) const
 	
 	// integer numeric exponent
 	const numeric & num_exponent = ex_to<numeric>(expanded_exponent);
-	int int_exponent = num_exponent.to_int();
+	long int_exponent = num_exponent.to_long();
 	
 	// (x+y)^n, n>0
 	if (int_exponent > 0 && is_exactly_a<add>(expanded_basis))
@@ -1105,7 +1105,7 @@ multinomial_coefficient(const std::vector<int> & p)
 
 /** expand a^n where a is an add and n is a positive integer.
  *  @see power::expand */
-ex power::expand_add(const add & a, int n, unsigned options) const
+ex power::expand_add(const add & a, long n, unsigned options) const
 {
 	// The special case power(+(x,...y;x),2) can be optimized better.
 	if (n==2)
@@ -1167,7 +1167,7 @@ ex power::expand_add(const add & a, int n, unsigned options) const
 	// i.e. the number of unordered arrangements of m nonnegative integers
 	// which sum up to n.  It is frequently written as C_n(m) and directly
 	// related with binomial coefficients: binomial(n+m-1,m-1).
-	size_t result_size = binomial(numeric(n+a.nops()-1), numeric(a.nops()-1)).to_int();
+	size_t result_size = binomial(numeric(n+a.nops()-1), numeric(a.nops()-1)).to_long();
 	if (!a.overall_coeff.is_zero()) {
 		// the result's overall_coeff is one of the terms
 		--result_size;
@@ -1250,9 +1250,14 @@ ex power::expand_add(const add & a, int n, unsigned options) const
  *  @see power::expand_add */
 ex power::expand_add_2(const add & a, unsigned options) const
 {
-	epvector sum;
-	size_t a_nops = a.nops();
-	sum.reserve((a_nops*(a_nops+1))/2);
+	epvector result;
+	size_t result_size = (a.nops() * (a.nops()+1)) / 2;
+	if (!a.overall_coeff.is_zero()) {
+		// the result's overall_coeff is one of the terms
+		--result_size;
+	}
+	result.reserve(result_size);
+
 	epvector::const_iterator last = a.seq.end();
 
 	// power(+(x,...,z;c),2)=power(+(x,...,z;0),2)+2*c*+(x,...,z;0)+c*c
@@ -1271,45 +1276,45 @@ ex power::expand_add_2(const add & a, unsigned options) const
 		
 		if (c.is_equal(_ex1)) {
 			if (is_exactly_a<mul>(r)) {
-				sum.push_back(a.combine_ex_with_coeff_to_pair(expand_mul(ex_to<mul>(r), *_num2_p, options, true),
-				                                              _ex1));
+				result.push_back(a.combine_ex_with_coeff_to_pair(expand_mul(ex_to<mul>(r), *_num2_p, options, true),
+				                                                 _ex1));
 			} else {
-				sum.push_back(a.combine_ex_with_coeff_to_pair((new power(r,_ex2))->setflag(status_flags::dynallocated),
-				                                              _ex1));
+				result.push_back(a.combine_ex_with_coeff_to_pair((new power(r,_ex2))->setflag(status_flags::dynallocated),
+				                                                 _ex1));
 			}
 		} else {
 			if (is_exactly_a<mul>(r)) {
-				sum.push_back(a.combine_ex_with_coeff_to_pair(expand_mul(ex_to<mul>(r), *_num2_p, options, true),
-				                     ex_to<numeric>(c).power_dyn(*_num2_p)));
+				result.push_back(a.combine_ex_with_coeff_to_pair(expand_mul(ex_to<mul>(r), *_num2_p, options, true),
+				                                                 ex_to<numeric>(c).power_dyn(*_num2_p)));
 			} else {
-				sum.push_back(a.combine_ex_with_coeff_to_pair((new power(r,_ex2))->setflag(status_flags::dynallocated),
-				                     ex_to<numeric>(c).power_dyn(*_num2_p)));
+				result.push_back(a.combine_ex_with_coeff_to_pair((new power(r,_ex2))->setflag(status_flags::dynallocated),
+				                                                 ex_to<numeric>(c).power_dyn(*_num2_p)));
 			}
 		}
 
 		for (epvector::const_iterator cit1=cit0+1; cit1!=last; ++cit1) {
 			const ex & r1 = cit1->rest;
 			const ex & c1 = cit1->coeff;
-			sum.push_back(a.combine_ex_with_coeff_to_pair(mul(r,r1).expand(options),
-			                                              _num2_p->mul(ex_to<numeric>(c)).mul_dyn(ex_to<numeric>(c1))));
+			result.push_back(a.combine_ex_with_coeff_to_pair(mul(r,r1).expand(options),
+			                                                 _num2_p->mul(ex_to<numeric>(c)).mul_dyn(ex_to<numeric>(c1))));
 		}
 	}
-	
-	GINAC_ASSERT(sum.size()==(a.seq.size()*(a.seq.size()+1))/2);
 	
 	// second part: add terms coming from overall_coeff (if != 0)
 	if (!a.overall_coeff.is_zero()) {
-		epvector::const_iterator i = a.seq.begin(), end = a.seq.end();
-		while (i != end) {
-			sum.push_back(a.combine_pair_with_coeff_to_pair(*i, ex_to<numeric>(a.overall_coeff).mul_dyn(*_num2_p)));
-			++i;
-		}
-		sum.push_back(expair(ex_to<numeric>(a.overall_coeff).power_dyn(*_num2_p),_ex1));
+		for (auto & i : a.seq)
+			result.push_back(a.combine_pair_with_coeff_to_pair(i, ex_to<numeric>(a.overall_coeff).mul_dyn(*_num2_p)));
 	}
-	
-	GINAC_ASSERT(sum.size()==(a_nops*(a_nops+1))/2);
-	
-	return (new add(std::move(sum)))->setflag(status_flags::dynallocated | status_flags::expanded);
+
+	GINAC_ASSERT(result.size() == result_size);
+
+	if (a.overall_coeff.is_zero()) {
+		return (new add(std::move(result)))->setflag(status_flags::dynallocated |
+		                                             status_flags::expanded);
+	} else {
+		return (new add(std::move(result), ex_to<numeric>(a.overall_coeff).power(2)))->setflag(status_flags::dynallocated |
+		                                                                                       status_flags::expanded);
+	}
 }
 
 /** Expand factors of m in m^n where m is a mul and n is an integer.
