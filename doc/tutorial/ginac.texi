@@ -3033,6 +3033,8 @@ canonicalize themselves according to rules specified in the implementation
 of the non-commutative classes. The drawback is that to work with other than
 the built-in algebras you have to implement new classes yourself. Both
 symbols and user-defined functions can be specified as being non-commutative.
+For symbols, this is done by subclassing class symbol; for functions,
+by explicitly setting the return type (@pxref{Symbolic functions}).
 
 @cindex @code{return_type()}
 @cindex @code{return_type_tinfo()}
