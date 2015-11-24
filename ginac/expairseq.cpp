@@ -715,8 +715,8 @@ void expairseq::construct_from_2_expairseq(const expairseq &s1,
 	}
 	
 	if (needs_further_processing) {
-		epvector v = seq;
-		seq.clear();
+		// Clear seq and start over.
+		epvector v = std::move(seq);
 		construct_from_epvector(std::move(v));
 	}
 }
@@ -776,8 +776,8 @@ void expairseq::construct_from_expairseq_ex(const expairseq &s,
 	}
 
 	if (needs_further_processing) {
-		epvector v = seq;
-		seq.clear();
+		// Clear seq and start over.
+		epvector v = std::move(seq);
 		construct_from_epvector(std::move(v));
 	}
 }
@@ -964,8 +964,8 @@ void expairseq::combine_same_terms_sorted_seq()
 		seq.erase(itout,last);
 
 	if (needs_further_processing) {
-		epvector v = seq;
-		seq.clear();
+		// Clear seq and start over.
+		epvector v = std::move(seq);
 		construct_from_epvector(std::move(v));
 	}
 }

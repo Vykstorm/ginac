@@ -1221,9 +1221,8 @@ ex matrix::determinant_minor() const
 				for (unsigned j=fc; j<n-c; ++j)
 					Pkey[j] = Pkey[j-1]+1;
 		} while(fc);
-		// next column, so change the role of A and B:
-		A.swap(B);
-		B.clear();
+		// next column, clear B and change the role of A and B:
+		A = std::move(B);
 	}
 	
 	return det;
