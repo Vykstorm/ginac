@@ -243,12 +243,6 @@ bool indexed::info(unsigned inf) const
 	return inherited::info(inf);
 }
 
-struct idx_is_not : public std::binary_function<ex, unsigned, bool> {
-	bool operator() (const ex & e, unsigned inf) const {
-		return !(ex_to<idx>(e).get_value().info(inf));
-	}
-};
-
 bool indexed::all_index_values_are(unsigned inf) const
 {
 	// No indices? Then no property can be fulfilled
@@ -256,7 +250,8 @@ bool indexed::all_index_values_are(unsigned inf) const
 		return false;
 
 	// Check all indices
-	return find_if(seq.begin() + 1, seq.end(), bind2nd(idx_is_not(), inf)) == seq.end();
+	return find_if(seq.begin() + 1, seq.end(),
+	               [inf](const ex & e) { return !(ex_to<idx>(e).get_value().info(inf)); }) == seq.end();
 }
 
 int indexed::compare_same_type(const basic & other) const
