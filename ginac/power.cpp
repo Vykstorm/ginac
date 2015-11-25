@@ -42,6 +42,7 @@
 #include <limits>
 #include <stdexcept>
 #include <vector>
+#include <algorithm>
 
 namespace GiNaC {
 
@@ -1204,14 +1205,16 @@ ex power::expand_add(const add & a, int n, unsigned options) const
 		partition_generator partitions(k, a.seq.size());
 		do {
 			const std::vector<int>& partition = partitions.current();
+			// All monomials of this partition have the same number of terms and the same coefficient.
+			const unsigned msize = count_if(partition.begin(), partition.end(), bind2nd(std::greater<int>(), 0));
 			const numeric coeff = multinomial_coefficient(partition) * binomial_coefficient;
 
 			// Iterate over all compositions of the current partition.
 			composition_generator compositions(partition);
 			do {
 				const std::vector<int>& exponent = compositions.current();
-				exvector term;
-				term.reserve(n);
+				exvector monomial;
+				monomial.reserve(msize);
 				numeric factor = coeff;
 				for (unsigned i = 0; i < exponent.size(); ++i) {
 					const ex & r = a.seq[i].rest;
@@ -1228,16 +1231,16 @@ ex power::expand_add(const add & a, int n, unsigned options) const
 						// optimize away
 					} else if (exponent[i] == 1) {
 						// optimized
-						term.push_back(r);
+						monomial.push_back(r);
 						if (c != *_num1_p)
 							factor = factor.mul(c);
 					} else { // general case exponent[i] > 1
-						term.push_back((new power(r, exponent[i]))->setflag(status_flags::dynallocated));
+						monomial.push_back((new power(r, exponent[i]))->setflag(status_flags::dynallocated));
 						if (c != *_num1_p)
 							factor = factor.mul(c.power(exponent[i]));
 					}
 				}
-				result.push_back(a.combine_ex_with_coeff_to_pair(mul(term).expand(options), factor));
+				result.push_back(a.combine_ex_with_coeff_to_pair(mul(monomial).expand(options), factor));
 			} while (compositions.next());
 		} while (partitions.next());
 	}
