@@ -1103,9 +1103,10 @@ multinomial_coefficient(const std::vector<int> & p)
 
 }  // anonymous namespace
 
+
 /** expand a^n where a is an add and n is a positive integer.
  *  @see power::expand */
-ex power::expand_add(const add & a, long n, unsigned options) const
+ex power::expand_add(const add & a, long n, unsigned options)
 {
 	// The special case power(+(x,...y;x),2) can be optimized better.
 	if (n==2)
@@ -1248,7 +1249,7 @@ ex power::expand_add(const add & a, long n, unsigned options) const
 
 /** Special case of power::expand_add. Expands a^2 where a is an add.
  *  @see power::expand_add */
-ex power::expand_add_2(const add & a, unsigned options) const
+ex power::expand_add_2(const add & a, unsigned options)
 {
 	epvector result;
 	size_t result_size = (a.nops() * (a.nops()+1)) / 2;
@@ -1319,7 +1320,7 @@ ex power::expand_add_2(const add & a, unsigned options) const
 
 /** Expand factors of m in m^n where m is a mul and n is an integer.
  *  @see power::expand */
-ex power::expand_mul(const mul & m, const numeric & n, unsigned options, bool from_expand) const
+ex power::expand_mul(const mul & m, const numeric & n, unsigned options, bool from_expand)
 {
 	GINAC_ASSERT(n.is_integer());
 
