@@ -28,8 +28,6 @@
 
 #include "exprseq.h"
 
-// CINT needs <algorithm> to work properly with <vector>
-#include <algorithm>
 #include <string>
 #include <vector>
 

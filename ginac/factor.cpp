@@ -70,6 +70,7 @@
 #include <limits>
 #include <list>
 #include <vector>
+#include <stack>
 #ifdef DEBUGFACTOR
 #include <ostream>
 #endif

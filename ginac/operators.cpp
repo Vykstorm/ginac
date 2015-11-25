@@ -30,7 +30,6 @@
 #include "print.h"
 #include "utils.h"
 
-#include <iomanip>
 #include <iostream>
 
 namespace GiNaC {

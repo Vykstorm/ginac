@@ -28,8 +28,6 @@
 #include "assertion.h"
 #include "registrar.h"
 
-// CINT needs <algorithm> to work properly with <vector>
-#include <algorithm>
 #include <cstddef> // for size_t
 #include <map>
 #include <set>

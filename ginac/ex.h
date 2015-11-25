@@ -29,6 +29,7 @@
 #include <functional>
 #include <iosfwd>
 #include <iterator>
+#include <memory>
 #include <stack>
 
 namespace GiNaC {

@@ -26,18 +26,12 @@
 #include "expair.h"
 #include "indexed.h"
 
-// CINT needs <algorithm> to work properly with <vector> and <list>
-#include <algorithm>
-#include <list>
-#include <memory>
 #include <vector>
 
 namespace GiNaC {
 
 typedef std::vector<expair> epvector;       ///< expair-vector
 typedef epvector::iterator epp;             ///< expair-vector pointer
-typedef std::list<epp> epplist;             ///< list of expair-vector pointers
-typedef std::vector<epplist> epplistvector; ///< vector of epplist
 
 /** Complex conjugate every element of an epvector. Returns zero if this
  *  does not change anything. */
