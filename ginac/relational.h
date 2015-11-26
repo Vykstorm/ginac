@@ -52,24 +52,24 @@ public:
 	
 	// functions overriding virtual functions from base classes
 public:
-	unsigned precedence() const {return 20;}
-	bool info(unsigned inf) const;
-	size_t nops() const;
-	ex op(size_t i) const;
-	ex map(map_function & f) const;
-	ex subs(const exmap & m, unsigned options = 0) const;
-	ex eval(int level=0) const;
+	unsigned precedence() const override {return 20;}
+	bool info(unsigned inf) const override;
+	size_t nops() const override;
+	ex op(size_t i) const override;
+	ex map(map_function & f) const override;
+	ex subs(const exmap & m, unsigned options = 0) const override;
+	ex eval(int level=0) const override;
 
 	/** Save (a.k.a. serialize) object into archive. */
-	void archive(archive_node& n) const;
+	void archive(archive_node& n) const override;
 	/** Read (a.k.a. deserialize) object from archive. */
-	void read_archive(const archive_node& n, lst& syms);
+	void read_archive(const archive_node& n, lst& syms) override;
 protected:
-	ex eval_ncmul(const exvector & v) const;
-	bool match_same_type(const basic & other) const;
-	unsigned return_type() const;
-	return_type_t return_type_tinfo() const;
-	unsigned calchash() const;
+	ex eval_ncmul(const exvector & v) const override;
+	bool match_same_type(const basic & other) const override;
+	unsigned return_type() const override;
+	return_type_t return_type_tinfo() const override;
+	unsigned calchash() const override;
 
 	// new virtual functions which can be overridden by derived classes
 protected:

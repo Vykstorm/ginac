@@ -151,9 +151,9 @@ public: \
 	GINAC_DECLARE_REGISTERED_CLASS_NO_CTORS(classname, supername) \
 public: \
 	classname(); \
-	virtual classname * duplicate() const { return new classname(*this); } \
+	classname * duplicate() const override { return new classname(*this); } \
 	\
-	virtual void accept(GiNaC::visitor & v) const \
+	void accept(GiNaC::visitor & v) const override \
 	{ \
 		if (visitor *p = dynamic_cast<visitor *>(&v)) \
 			p->visit(*this); \
@@ -161,7 +161,7 @@ public: \
 			inherited::accept(v); \
 	} \
 protected: \
-	virtual int compare_same_type(const GiNaC::basic & other) const; \
+	int compare_same_type(const GiNaC::basic & other) const override; \
 private:
 
 

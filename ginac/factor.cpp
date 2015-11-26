@@ -1831,7 +1831,7 @@ static upvec univar_diophant(const upvec& a, const ex& x, unsigned int m, unsign
 struct make_modular_map : public map_function {
 	cl_modint_ring R;
 	make_modular_map(const cl_modint_ring& R_) : R(R_) { }
-	ex operator()(const ex& e)
+	ex operator()(const ex& e) override
 	{
 		if ( is_a<add>(e) || is_a<mul>(e) ) {
 			return e.map(*this);
@@ -2456,7 +2456,7 @@ static ex factor_multivariate(const ex& poly, const exset& syms)
  */
 struct find_symbols_map : public map_function {
 	exset syms;
-	ex operator()(const ex& e)
+	ex operator()(const ex& e) override
 	{
 		if ( is_a<symbol>(e) ) {
 			syms.insert(e);
@@ -2504,7 +2504,7 @@ static ex factor_sqrfree(const ex& poly)
 struct apply_factor_map : public map_function {
 	unsigned options;
 	apply_factor_map(unsigned options_) : options(options_) { }
-	ex operator()(const ex& e)
+	ex operator()(const ex& e) override
 	{
 		if ( e.info(info_flags::polynomial) ) {
 			return factor(e, options);

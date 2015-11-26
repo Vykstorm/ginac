@@ -2360,7 +2360,7 @@ bool convert_parameter_H_to_Li(const lst& l, lst& m, lst& s, ex& pf)
 // recursivly transforms H to corresponding multiple polylogarithms
 struct map_trafo_H_convert_to_Li : public map_function
 {
-	ex operator()(const ex& e)
+	ex operator()(const ex& e) override
 	{
 		if (is_a<add>(e) || is_a<mul>(e)) {
 			return e.map(*this);
@@ -2399,7 +2399,7 @@ struct map_trafo_H_convert_to_Li : public map_function
 // recursivly transforms H to corresponding zetas
 struct map_trafo_H_convert_to_zeta : public map_function
 {
-	ex operator()(const ex& e)
+	ex operator()(const ex& e) override
 	{
 		if (is_a<add>(e) || is_a<mul>(e)) {
 			return e.map(*this);
@@ -2432,7 +2432,7 @@ struct map_trafo_H_convert_to_zeta : public map_function
 // remove trailing zeros from H-parameters
 struct map_trafo_H_reduce_trailing_zeros : public map_function
 {
-	ex operator()(const ex& e)
+	ex operator()(const ex& e) override
 	{
 		if (is_a<add>(e) || is_a<mul>(e)) {
 			return e.map(*this);
@@ -2578,7 +2578,7 @@ ex trafo_H_mult(const ex& h1, const ex& h2)
 // applies trafo_H_mult recursively on expressions
 struct map_trafo_H_mult : public map_function
 {
-	ex operator()(const ex& e)
+	ex operator()(const ex& e) override
 	{
 		if (is_a<add>(e)) {
 			return e.map(*this);
@@ -2800,7 +2800,7 @@ ex trafo_H_1mxt1px_prepend_one(const ex& e, const ex& arg)
 // do x -> 1-x transformation
 struct map_trafo_H_1mx : public map_function
 {
-	ex operator()(const ex& e)
+	ex operator()(const ex& e) override
 	{
 		if (is_a<add>(e) || is_a<mul>(e)) {
 			return e.map(*this);
@@ -2901,7 +2901,7 @@ struct map_trafo_H_1mx : public map_function
 // do x -> 1/x transformation
 struct map_trafo_H_1overx : public map_function
 {
-	ex operator()(const ex& e)
+	ex operator()(const ex& e) override
 	{
 		if (is_a<add>(e) || is_a<mul>(e)) {
 			return e.map(*this);
@@ -3022,7 +3022,7 @@ struct map_trafo_H_1overx : public map_function
 // do x -> (1-x)/(1+x) transformation
 struct map_trafo_H_1mxt1px : public map_function
 {
-	ex operator()(const ex& e)
+	ex operator()(const ex& e) override
 	{
 		if (is_a<add>(e) || is_a<mul>(e)) {
 			return e.map(*this);

@@ -59,25 +59,25 @@ public:
 	
 	// functions overriding virtual functions from base classes
 public:
-	unsigned precedence() const {return 10;}
-	bool info(unsigned inf) const;
-	size_t nops() const;
-	ex op(size_t i) const;
-	ex map(map_function & f) const;
-	ex eval(int level=0) const;
-	ex to_rational(exmap & repl) const;
-	ex to_polynomial(exmap & repl) const;
-	bool match(const ex & pattern, exmap& repl_lst) const;
-	ex subs(const exmap & m, unsigned options = 0) const;
-	ex conjugate() const;
+	unsigned precedence() const override {return 10;}
+	bool info(unsigned inf) const override;
+	size_t nops() const override;
+	ex op(size_t i) const override;
+	ex map(map_function & f) const override;
+	ex eval(int level=0) const override;
+	ex to_rational(exmap & repl) const override;
+	ex to_polynomial(exmap & repl) const override;
+	bool match(const ex & pattern, exmap& repl_lst) const override;
+	ex subs(const exmap & m, unsigned options = 0) const override;
+	ex conjugate() const override;
 
-	void archive(archive_node& n) const;
-	void read_archive(const archive_node& n, lst& syms);
+	void archive(archive_node& n) const override;
+	void read_archive(const archive_node& n, lst& syms) override;
 protected:
-	bool is_equal_same_type(const basic & other) const;
-	unsigned return_type() const;
-	unsigned calchash() const;
-	ex expand(unsigned options=0) const;
+	bool is_equal_same_type(const basic & other) const override;
+	unsigned return_type() const override;
+	unsigned calchash() const override;
+	ex expand(unsigned options=0) const override;
 	
 	// new virtual functions which can be overridden by derived classes
 protected:

@@ -143,24 +143,24 @@ public:
 
 	// functions overriding virtual functions from base classes
 public:
-	unsigned precedence() const {return 55;}
-	bool info(unsigned inf) const;
-	ex eval(int level = 0) const;
-	ex real_part() const;
-	ex imag_part() const;
-	exvector get_free_indices() const;
+	unsigned precedence() const override {return 55;}
+	bool info(unsigned inf) const override;
+	ex eval(int level = 0) const override;
+	ex real_part() const override;
+	ex imag_part() const override;
+	exvector get_free_indices() const override;
 
 	/** Save (a.k.a. serialize) indexed object into archive. */
-	void archive(archive_node& n) const;
+	void archive(archive_node& n) const override;
 	/** Read (a.k.a. deserialize) indexed object from archive. */
-	void read_archive(const archive_node& n, lst& syms);
+	void read_archive(const archive_node& n, lst& syms) override;
 protected:
-	ex derivative(const symbol & s) const;
-	ex thiscontainer(const exvector & v) const;
-	ex thiscontainer(exvector && v) const;
-	unsigned return_type() const;
-	return_type_t return_type_tinfo() const { return op(0).return_type_tinfo(); }
-	ex expand(unsigned options = 0) const;
+	ex derivative(const symbol & s) const override;
+	ex thiscontainer(const exvector & v) const override;
+	ex thiscontainer(exvector && v) const override;
+	unsigned return_type() const override;
+	return_type_t return_type_tinfo() const override { return op(0).return_type_tinfo(); }
+	ex expand(unsigned options = 0) const override;
 
 	// new virtual functions which can be overridden by derived classes
 	// none

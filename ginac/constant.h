@@ -47,18 +47,18 @@ public:
 	
 	// functions overriding virtual functions from base classes
 public:
-	bool info(unsigned inf) const;
-	ex evalf(int level = 0) const;
-	bool is_polynomial(const ex & var) const;
-	ex conjugate() const;
-	ex real_part() const;
-	ex imag_part() const;
-	void archive(archive_node& n) const;
-	void read_archive(const archive_node& n, lst& syms);
+	bool info(unsigned inf) const override;
+	ex evalf(int level = 0) const override;
+	bool is_polynomial(const ex & var) const override;
+	ex conjugate() const override;
+	ex real_part() const override;
+	ex imag_part() const override;
+	void archive(archive_node& n) const override;
+	void read_archive(const archive_node& n, lst& syms) override;
 protected:
-	ex derivative(const symbol & s) const;
-	bool is_equal_same_type(const basic & other) const;
-	unsigned calchash() const;
+	ex derivative(const symbol & s) const override;
+	bool is_equal_same_type(const basic & other) const override;
+	unsigned calchash() const override;
 	
 	// non-virtual functions in this class
 protected:

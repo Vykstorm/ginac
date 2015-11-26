@@ -47,43 +47,42 @@ public:
 	
 	// functions overriding virtual functions from base classes
 public:
-	unsigned precedence() const {return 50;}
-	bool info(unsigned inf) const;
-	bool is_polynomial(const ex & var) const;
-	int degree(const ex & s) const;
-	int ldegree(const ex & s) const;
-	ex coeff(const ex & s, int n = 1) const;
-	bool has(const ex & other, unsigned options = 0) const;
-	ex eval(int level=0) const;
-	ex evalf(int level=0) const;
-	ex real_part() const;
-	ex imag_part() const;
-	ex evalm() const;
-	ex series(const relational & s, int order, unsigned options = 0) const;
-	ex normal(exmap & repl, exmap & rev_lookup, int level = 0) const;
-	numeric integer_content() const;
-	ex smod(const numeric &xi) const;
-	numeric max_coefficient() const;
-	exvector get_free_indices() const;
-	ex conjugate() const;
+	unsigned precedence() const override {return 50;}
+	bool info(unsigned inf) const override;
+	bool is_polynomial(const ex & var) const override;
+	int degree(const ex & s) const override;
+	int ldegree(const ex & s) const override;
+	ex coeff(const ex & s, int n = 1) const override;
+	bool has(const ex & other, unsigned options = 0) const override;
+	ex eval(int level=0) const override;
+	ex evalf(int level=0) const override;
+	ex real_part() const override;
+	ex imag_part() const override;
+	ex evalm() const override;
+	ex series(const relational & s, int order, unsigned options = 0) const override;
+	ex normal(exmap & repl, exmap & rev_lookup, int level = 0) const override;
+	numeric integer_content() const override;
+	ex smod(const numeric &xi) const override;
+	numeric max_coefficient() const override;
+	exvector get_free_indices() const override;
+	ex conjugate() const override;
 protected:
-	ex derivative(const symbol & s) const;
-	ex eval_ncmul(const exvector & v) const;
-	unsigned return_type() const;
-	return_type_t return_type_tinfo() const;
-	ex thisexpairseq(const epvector & v, const ex & oc, bool do_index_renaming = false) const;
-	ex thisexpairseq(epvector && vp, const ex & oc, bool do_index_renaming = false) const;
-	expair split_ex_to_pair(const ex & e) const;
-	expair combine_ex_with_coeff_to_pair(const ex & e, const ex & c) const;
-	expair combine_pair_with_coeff_to_pair(const expair & p, const ex & c) const;
-	ex recombine_pair_to_ex(const expair & p) const;
-	bool expair_needs_further_processing(epp it);
-	ex default_overall_coeff() const;
-	void combine_overall_coeff(const ex & c);
-	void combine_overall_coeff(const ex & c1, const ex & c2);
-	bool can_make_flat(const expair & p) const;
-	ex expand(unsigned options=0) const;
-	void find_real_imag(ex&, ex&) const;
+	ex derivative(const symbol & s) const override;
+	ex eval_ncmul(const exvector & v) const override;
+	unsigned return_type() const override;
+	return_type_t return_type_tinfo() const override;
+	ex thisexpairseq(const epvector & v, const ex & oc, bool do_index_renaming = false) const override;
+	ex thisexpairseq(epvector && vp, const ex & oc, bool do_index_renaming = false) const override;
+	expair split_ex_to_pair(const ex & e) const override;
+	expair combine_ex_with_coeff_to_pair(const ex & e, const ex & c) const override;
+	expair combine_pair_with_coeff_to_pair(const expair & p, const ex & c) const override;
+	ex recombine_pair_to_ex(const expair & p) const override;
+	bool expair_needs_further_processing(epp it) override;
+	ex default_overall_coeff() const override;
+	void combine_overall_coeff(const ex & c) override;
+	void combine_overall_coeff(const ex & c1, const ex & c2) override;
+	bool can_make_flat(const expair & p) const override;
+	ex expand(unsigned options=0) const override;
 	
 	// new virtual functions which can be overridden by derived classes
 	// none
@@ -92,6 +91,7 @@ protected:
 public:
 	ex algebraic_subs_mul(const exmap & m, unsigned options) const;
 protected:
+	void find_real_imag(ex&, ex&) const;
 	void print_overall_coeff(const print_context & c, const char *mul_sym) const;
 	void do_print(const print_context & c, unsigned level) const;
 	void do_print_latex(const print_latex & c, unsigned level) const;

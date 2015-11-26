@@ -1616,7 +1616,7 @@ static const std::string r2_srep_3("\
 class sym_finder : public visitor, public symbol::visitor
 {
 protected:
-	inline void visit(const symbol& s)
+	inline void visit(const symbol& s) override
 	{
 		found.insert(s);
 	}

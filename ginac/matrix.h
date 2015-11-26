@@ -113,27 +113,27 @@ protected:
 	matrix(unsigned r, unsigned c, exvector && m2);
 	// functions overriding virtual functions from base classes
 public:
-	size_t nops() const;
-	ex op(size_t i) const;
-	ex & let_op(size_t i);
-	ex eval(int level=0) const;
-	ex evalm() const {return *this;}
-	ex subs(const exmap & m, unsigned options = 0) const;
-	ex eval_indexed(const basic & i) const;
-	ex add_indexed(const ex & self, const ex & other) const;
-	ex scalar_mul_indexed(const ex & self, const numeric & other) const;
-	bool contract_with(exvector::iterator self, exvector::iterator other, exvector & v) const;
-	ex conjugate() const;
-	ex real_part() const;
-	ex imag_part() const;
+	size_t nops() const override;
+	ex op(size_t i) const override;
+	ex & let_op(size_t i) override;
+	ex eval(int level=0) const override;
+	ex evalm() const override {return *this;}
+	ex subs(const exmap & m, unsigned options = 0) const override;
+	ex eval_indexed(const basic & i) const override;
+	ex add_indexed(const ex & self, const ex & other) const override;
+	ex scalar_mul_indexed(const ex & self, const numeric & other) const override;
+	bool contract_with(exvector::iterator self, exvector::iterator other, exvector & v) const override;
+	ex conjugate() const override;
+	ex real_part() const override;
+	ex imag_part() const override;
 
 	/** Save (a.k.a. serialize) object into archive. */
-	void archive(archive_node& n) const;
+	void archive(archive_node& n) const override;
 	/** Read (a.k.a. deserialize) object from archive. */
-	void read_archive(const archive_node& n, lst& syms);
+	void read_archive(const archive_node& n, lst& syms) override;
 protected:
-	bool match_same_type(const basic & other) const;
-	unsigned return_type() const { return return_types::noncommutative; };
+	bool match_same_type(const basic & other) const override;
+	unsigned return_type() const override { return return_types::noncommutative; };
 	
 	// non-virtual functions in this class
 public:

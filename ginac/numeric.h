@@ -96,35 +96,35 @@ public:
 	
 	// functions overriding virtual functions from base classes
 public:
-	unsigned precedence() const {return 30;}
-	bool info(unsigned inf) const;
-	bool is_polynomial(const ex & var) const;
-	int degree(const ex & s) const;
-	int ldegree(const ex & s) const;
-	ex coeff(const ex & s, int n = 1) const;
-	bool has(const ex &other, unsigned options = 0) const;
-	ex eval(int level = 0) const;
-	ex evalf(int level = 0) const;
-	ex subs(const exmap & m, unsigned options = 0) const { return subs_one_level(m, options); } // overwrites basic::subs() for performance reasons
-	ex normal(exmap & repl, exmap & rev_lookup, int level = 0) const;
-	ex to_rational(exmap & repl) const;
-	ex to_polynomial(exmap & repl) const;
-	numeric integer_content() const;
-	ex smod(const numeric &xi) const;
-	numeric max_coefficient() const;
-	ex conjugate() const;
-	ex real_part() const;
-	ex imag_part() const;
+	unsigned precedence() const override {return 30;}
+	bool info(unsigned inf) const override;
+	bool is_polynomial(const ex & var) const override;
+	int degree(const ex & s) const override;
+	int ldegree(const ex & s) const override;
+	ex coeff(const ex & s, int n = 1) const override;
+	bool has(const ex &other, unsigned options = 0) const override;
+	ex eval(int level = 0) const override;
+	ex evalf(int level = 0) const override;
+	ex subs(const exmap & m, unsigned options = 0) const override { return subs_one_level(m, options); } // overwrites basic::subs() for performance reasons
+	ex normal(exmap & repl, exmap & rev_lookup, int level = 0) const override;
+	ex to_rational(exmap & repl) const override;
+	ex to_polynomial(exmap & repl) const override;
+	numeric integer_content() const override;
+	ex smod(const numeric &xi) const override;
+	numeric max_coefficient() const override;
+	ex conjugate() const override;
+	ex real_part() const override;
+	ex imag_part() const override;
 	/** Save (a.k.a. serialize) object into archive. */
-	void archive(archive_node& n) const;
+	void archive(archive_node& n) const override;
 	/** Read (a.k.a. deserialize) object from archive. */
-	void read_archive(const archive_node& n, lst& syms);
+	void read_archive(const archive_node& n, lst& syms) override;
 protected:
 	/** Implementation of ex::diff for a numeric always returns 0.
 	 *  @see ex::diff */
-	ex derivative(const symbol &s) const { return 0; }
-	bool is_equal_same_type(const basic &other) const;
-	unsigned calchash() const;
+	ex derivative(const symbol &s) const override { return 0; }
+	bool is_equal_same_type(const basic &other) const override;
+	unsigned calchash() const override;
 	
 	// new virtual functions which can be overridden by derived classes
 	// (none)

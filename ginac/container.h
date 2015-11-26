@@ -352,15 +352,15 @@ public:
 
 	// functions overriding virtual functions from base classes
 public:
-	bool info(unsigned inf) const { return inherited::info(inf); }
-	unsigned precedence() const { return 10; }
-	size_t nops() const { return this->seq.size(); }
-	ex op(size_t i) const;
-	ex & let_op(size_t i);
-	ex eval(int level = 0) const;
-	ex subs(const exmap & m, unsigned options = 0) const;
+	bool info(unsigned inf) const override { return inherited::info(inf); }
+	unsigned precedence() const override { return 10; }
+	size_t nops() const override { return this->seq.size(); }
+	ex op(size_t i) const override;
+	ex & let_op(size_t i) override;
+	ex eval(int level = 0) const override;
+	ex subs(const exmap & m, unsigned options = 0) const override;
 
-	void read_archive(const archive_node &n, lst &sym_lst) 
+	void read_archive(const archive_node &n, lst &sym_lst) override
 	{
 		inherited::read_archive(n, sym_lst);
 		setflag(get_default_flags());
@@ -377,7 +377,7 @@ public:
 	}
 
 	/** Archive the object. */
-	void archive(archive_node &n) const
+	void archive(archive_node &n) const override
 	{
 		inherited::archive(n);
 		for (auto & i : this->seq) {
@@ -386,7 +386,7 @@ public:
 	}
 
 protected:
-	ex conjugate() const
+	ex conjugate() const override
 	{
 		STLT *newcont = nullptr;
 		for (const_iterator i=this->seq.begin(); i!=this->seq.end(); ++i) {
@@ -413,7 +413,7 @@ protected:
 		return *this;
 	}
 
-	ex real_part() const
+	ex real_part() const override
 	{
 		STLT cont;
 		this->reserve(cont, nops());
@@ -424,7 +424,7 @@ protected:
 		return thiscontainer(cont);
 	}
 
-	ex imag_part() const
+	ex imag_part() const override
 	{
 		STLT cont;
 		this->reserve(cont, nops());
@@ -435,7 +435,7 @@ protected:
 		return thiscontainer(cont);
 	}
 
-	bool is_equal_same_type(const basic & other) const;
+	bool is_equal_same_type(const basic & other) const override;
 
 	// new virtual functions which can be overridden by derived classes
 protected:

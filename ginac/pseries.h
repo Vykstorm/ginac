@@ -43,30 +43,30 @@ public:
 
 	// functions overriding virtual functions from base classes
 public:
-	unsigned precedence() const {return 38;} // for clarity just below add::precedence
-	size_t nops() const;
-	ex op(size_t i) const;
-	int degree(const ex &s) const;
-	int ldegree(const ex &s) const;
-	ex coeff(const ex &s, int n = 1) const;
-	ex collect(const ex &s, bool distributed = false) const;
-	ex eval(int level=0) const;
-	ex evalf(int level=0) const;
-	ex series(const relational & r, int order, unsigned options = 0) const;
-	ex subs(const exmap & m, unsigned options = 0) const;
-	ex normal(exmap & repl, exmap & rev_lookup, int level = 0) const;
-	ex expand(unsigned options = 0) const;
-	ex conjugate() const;
-	ex real_part() const;
-	ex imag_part() const;
-	ex eval_integ() const;
-	ex evalm() const;
+	unsigned precedence() const override {return 38;} // for clarity just below add::precedence
+	size_t nops() const override;
+	ex op(size_t i) const override;
+	int degree(const ex &s) const override;
+	int ldegree(const ex &s) const override;
+	ex coeff(const ex &s, int n = 1) const override;
+	ex collect(const ex &s, bool distributed = false) const override;
+	ex eval(int level=0) const override;
+	ex evalf(int level=0) const override;
+	ex series(const relational & r, int order, unsigned options = 0) const override;
+	ex subs(const exmap & m, unsigned options = 0) const override;
+	ex normal(exmap & repl, exmap & rev_lookup, int level = 0) const override;
+	ex expand(unsigned options = 0) const override;
+	ex conjugate() const override;
+	ex real_part() const override;
+	ex imag_part() const override;
+	ex eval_integ() const override;
+	ex evalm() const override;
 	/** Save (a.k.a. serialize) object into archive. */
-	void archive(archive_node& n) const;
+	void archive(archive_node& n) const override;
 	/** Read (a.k.a. deserialize) object from archive. */
-	void read_archive(const archive_node& n, lst& syms);
+	void read_archive(const archive_node& n, lst& syms) override;
 protected:
-	ex derivative(const symbol & s) const;
+	ex derivative(const symbol & s) const override;
 
 	// non-virtual functions in this class
 public:

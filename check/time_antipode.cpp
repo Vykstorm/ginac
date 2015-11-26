@@ -105,9 +105,9 @@ protected:
 class Sigma : public vertex {
 public:
 	Sigma(ijpair ij = ijpair(0,0)) : vertex(ij) { }
-	vertex* copy() const { return new Sigma(*this); }
-	ijpair get_increment() const { return ijpair(indices.first+indices.second+1, 0); }
-	const ex evaluate(const symbol &x, const unsigned grad) const;
+	vertex* copy() const override { return new Sigma(*this); }
+	ijpair get_increment() const override { return ijpair(indices.first+indices.second+1, 0); }
+	const ex evaluate(const symbol &x, const unsigned grad) const override;
 private:
 };
 
@@ -137,9 +137,9 @@ const ex Sigma::evaluate(const symbol &x, const unsigned grad) const
 class Sigma_flipped : public Sigma {
 public:
 	Sigma_flipped(ijpair ij = ijpair(0,0)) : Sigma(ij) { }
-	vertex* copy() const { return new Sigma_flipped(*this); }
-	ijpair get_increment() const { return ijpair(0, indices.first+indices.second+1); }
-	const ex evaluate(const symbol &x, const unsigned grad) const { return Sigma::evaluate(x, grad); }
+	vertex* copy() const override { return new Sigma_flipped(*this); }
+	ijpair get_increment() const override { return ijpair(0, indices.first+indices.second+1); }
+	const ex evaluate(const symbol &x, const unsigned grad) const override { return Sigma::evaluate(x, grad); }
 private:
 };
 
@@ -150,9 +150,9 @@ private:
 class Gamma : public vertex {
 public:
 	Gamma(ijpair ij = ijpair(0,0)) : vertex(ij) { }
-	vertex* copy() const { return new Gamma(*this); }
-	ijpair get_increment() const { return ijpair(indices.first+indices.second+1, 0); }
-	const ex evaluate(const symbol &x, const unsigned grad) const;
+	vertex* copy() const override { return new Gamma(*this); }
+	ijpair get_increment() const override { return ijpair(indices.first+indices.second+1, 0); }
+	const ex evaluate(const symbol &x, const unsigned grad) const override;
 private:
 };
 
@@ -184,9 +184,9 @@ const ex Gamma::evaluate(const symbol &x, const unsigned grad) const
 class Vacuum : public vertex {
 public:
 	Vacuum(ijpair ij = ijpair(0,0)) : vertex(ij) { }
-	vertex* copy() const { return new Vacuum(*this); }
-	ijpair get_increment() const { return ijpair(0, indices.first+indices.second+1); }
-	const ex evaluate(const symbol &x, const unsigned grad) const;
+	vertex* copy() const override { return new Vacuum(*this); }
+	ijpair get_increment() const override { return ijpair(0, indices.first+indices.second+1); }
+	const ex evaluate(const symbol &x, const unsigned grad) const override;
 private:
 };
 
