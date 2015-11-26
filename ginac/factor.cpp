@@ -2093,7 +2093,7 @@ static ex hensel_multivar(const ex& a, const ex& x, const vector<EvalPoint>& I,
 	}
 	else {
 		lst res;
-		return lst();
+		return lst{};
 	}
 }
 
@@ -2267,7 +2267,7 @@ static ex factor_multivariate(const ex& poly, const exset& syms)
 	ex vn = pp.collect(x).lcoeff(x);
 	ex vnlst;
 	if ( is_a<numeric>(vn) ) {
-		vnlst = lst(vn);
+		vnlst = lst{vn};
 	}
 	else {
 		ex vnfactors = factor(vn);
@@ -2441,7 +2441,7 @@ static ex factor_multivariate(const ex& poly, const exset& syms)
 
 		// try Hensel lifting
 		ex res = hensel_multivar(pp, x, epv, prime, l, modfactors, C);
-		if ( res != lst() ) {
+		if ( res != lst{} ) {
 			ex result = cont * unit;
 			for ( size_t i=0; i<res.nops(); ++i ) {
 				result *= res.op(i).content(x) * res.op(i).unit(x);

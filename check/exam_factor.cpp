@@ -113,8 +113,7 @@ static unsigned exam_factor2()
 	unsigned result = 0;
 	ex e;
 	symbol x("x"), y("y"), z("z");
-	lst syms;
-	syms = x, y, z;
+	lst syms = {x, y, z};
 	
 	e = ex("x+y", syms);
 	result += check_factor(e);
@@ -172,8 +171,7 @@ static unsigned exam_factor3()
 	unsigned result = 0;
 	ex e;
 	symbol k("k"), n("n");
-	lst syms;
-	syms = k, n;
+	lst syms = {k, n};
 	
 	e = ex("1/2*(-3+3*k-n)*(-2+3*k-n)*(-1+3*k-n)", syms);
 	result += check_factor(e);

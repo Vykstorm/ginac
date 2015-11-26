@@ -140,7 +140,7 @@ ex ex::subs(const lst & ls, const lst & lr, unsigned options) const
 /** Substitute objects in an expression (syntactic substitution) and return
  *  the result as a new expression.  There are two valid types of
  *  replacement arguments: 1) a relational like object==ex and 2) a list of
- *  relationals lst(object1==ex1,object2==ex2,...). */
+ *  relationals lst{object1==ex1,object2==ex2,...}. */
 ex ex::subs(const ex & e, unsigned options) const
 {
 	if (e.info(info_flags::relation_equal)) {

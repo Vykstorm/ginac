@@ -195,7 +195,7 @@ static excompiler global_excompiler;
 void compile_ex(const ex& expr, const symbol& sym, FUNCP_1P& fp, const std::string filename)
 {
 	symbol x("x");
-	ex expr_with_x = expr.subs(lst(sym==x));
+	ex expr_with_x = expr.subs(lst{sym==x});
 
 	std::ofstream ofs;
 	std::string unique_filename = filename;
@@ -220,7 +220,7 @@ void compile_ex(const ex& expr, const symbol& sym, FUNCP_1P& fp, const std::stri
 void compile_ex(const ex& expr, const symbol& sym1, const symbol& sym2, FUNCP_2P& fp, const std::string filename)
 {
 	symbol x("x"), y("y");
-	ex expr_with_xy = expr.subs(lst(sym1==x, sym2==y));
+	ex expr_with_xy = expr.subs(lst{sym1==x, sym2==y});
 
 	std::ofstream ofs;
 	std::string unique_filename = filename;

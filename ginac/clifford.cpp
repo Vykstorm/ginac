@@ -161,15 +161,15 @@ ex clifford::get_metric(const ex & i, const ex & j, bool symmetrised) const
 				return simplify_indexed(indexed(metric.op(0)*_ex1_2, i, j) + indexed(metric.op(0)*_ex1_2, j, i));
 			}
 		} else {
-			return metric.subs(lst(metric.op(1) == i, metric.op(2) == j), subs_options::no_pattern);
+			return metric.subs(lst{metric.op(1) == i, metric.op(2) == j}, subs_options::no_pattern);
 		}
 	} else {
 		exvector indices = metric.get_free_indices();
 		if (symmetrised)
-			return _ex1_2*simplify_indexed(metric.subs(lst(indices[0] == i, indices[1] == j), subs_options::no_pattern)
-									+ metric.subs(lst(indices[0] == j, indices[1] == i), subs_options::no_pattern));
+			return _ex1_2*simplify_indexed(metric.subs(lst{indices[0] == i, indices[1] == j}, subs_options::no_pattern)
+			                             + metric.subs(lst{indices[0] == j, indices[1] == i}, subs_options::no_pattern));
 		else
-			return metric.subs(lst(indices[0] == i, indices[1] == j), subs_options::no_pattern);
+			return metric.subs(lst{indices[0] == i, indices[1] == j}, subs_options::no_pattern);
 	}
 }
 
@@ -892,10 +892,10 @@ ex dirac_trace(const ex & e, const std::set<unsigned char> & rls, const ex & trO
 			return e;
 
 		// Substitute gammaL/R and expand product, if necessary
-		ex e_expanded = e.subs(lst(
+		ex e_expanded = e.subs(lst{
 			dirac_gammaL(rl) == (dirac_ONE(rl)-dirac_gamma5(rl))/2,
 			dirac_gammaR(rl) == (dirac_ONE(rl)+dirac_gamma5(rl))/2
-		), subs_options::no_pattern).expand();
+		}, subs_options::no_pattern).expand();
 		if (!is_a<ncmul>(e_expanded))
 			return dirac_trace(e_expanded, rls, trONE);
 
@@ -1255,8 +1255,8 @@ static ex get_clifford_comp(const ex & e, const ex & c)
 								ex curridx_toggle = is_a<varidx>(curridx)
 									? ex_to<varidx>(curridx).toggle_variance()
 									: curridx;
-								S = S * e.op(j).subs(lst(curridx == ival,
-									curridx_toggle == ival), subs_options::no_pattern);
+								S = S * e.op(j).subs(lst{curridx == ival, curridx_toggle == ival},
+								                     subs_options::no_pattern);
 							}
 						} else
 							S = S * e.op(j);

@@ -267,12 +267,12 @@ static unsigned edyn_check()
 	      * indexed(F, rho, sigma)).simplify_indexed();
 
 	// Extract transformed electric and magnetic fields
-	ex Ex_p = e.subs(lst(mu == 1, nu == 0)).normal();
-	ex Ey_p = e.subs(lst(mu == 2, nu == 0)).normal();
-	ex Ez_p = e.subs(lst(mu == 3, nu == 0)).normal();
-	ex Bx_p = e.subs(lst(mu == 3, nu == 2)).normal();
-	ex By_p = e.subs(lst(mu == 1, nu == 3)).normal();
-	ex Bz_p = e.subs(lst(mu == 2, nu == 1)).normal();
+	ex Ex_p = e.subs(lst{mu == 1, nu == 0}).normal();
+	ex Ey_p = e.subs(lst{mu == 2, nu == 0}).normal();
+	ex Ez_p = e.subs(lst{mu == 3, nu == 0}).normal();
+	ex Bx_p = e.subs(lst{mu == 3, nu == 2}).normal();
+	ex By_p = e.subs(lst{mu == 1, nu == 3}).normal();
+	ex Bz_p = e.subs(lst{mu == 2, nu == 1}).normal();
 
 	// Check results
 	result += check_equal(Ex_p, Ex);
@@ -285,7 +285,7 @@ static unsigned edyn_check()
 	// Test 2: check energy density and Poynting vector of electromagnetic field
 
 	// Minkowski metric
-	ex eta = diag_matrix(lst(1, -1, -1, -1));
+	ex eta = diag_matrix(lst{1, -1, -1, -1});
 
 	// Covariant field tensor
 	ex F_mu_nu = (indexed(eta, mu.toggle_variance(), rho.toggle_variance())
@@ -294,16 +294,16 @@ static unsigned edyn_check()
 
 	// Energy-momentum tensor
 	ex T = (-indexed(eta, rho, sigma) * F_mu_nu.subs(s_nu == s_rho) 
-	        * F_mu_nu.subs(lst(s_mu == s_nu, s_nu == s_sigma))
+	        * F_mu_nu.subs(lst{s_mu == s_nu, s_nu == s_sigma})
 	      + indexed(eta, mu.toggle_variance(), nu.toggle_variance())
-	        * F_mu_nu.subs(lst(s_mu == s_rho, s_nu == s_sigma))
+	        * F_mu_nu.subs(lst{s_mu == s_rho, s_nu == s_sigma})
 	        * indexed(F, rho, sigma) / 4).simplify_indexed() / (4 * Pi);
 
 	// Extract energy density and Poynting vector
-	ex E = T.subs(lst(s_mu == 0, s_nu == 0)).normal();
-	ex Px = T.subs(lst(s_mu == 0, s_nu == 1));
-	ex Py = T.subs(lst(s_mu == 0, s_nu == 2)); 
-	ex Pz = T.subs(lst(s_mu == 0, s_nu == 3));
+	ex E = T.subs(lst{s_mu == 0, s_nu == 0}).normal();
+	ex Px = T.subs(lst{s_mu == 0, s_nu == 1});
+	ex Py = T.subs(lst{s_mu == 0, s_nu == 2});
+	ex Pz = T.subs(lst{s_mu == 0, s_nu == 3});
 
 	// Check results
 	result += check_equal(E, (Ex*Ex+Ey*Ey+Ez*Ez+Bx*Bx+By*By+Bz*Bz) / (8 * Pi));
@@ -382,7 +382,7 @@ static unsigned dummy_check()
 	// GiNaC 1.2.1 had a bug here because p.i*p.i -> (p.i)^2
 	e = indexed(p, i) * indexed(p, i) * indexed(p, j) + indexed(p, j);
 	ex fi = exprseq(e.get_free_indices());
-	if (!fi.is_equal(exprseq(j))) {
+	if (!fi.is_equal(exprseq{j})) {
 		clog << "get_free_indices(" << e << ") erroneously returned "
 		     << fi << " instead of (.j)" << endl;
 		++result;

@@ -57,26 +57,26 @@ ncmul::ncmul()
 
 // public
 
-ncmul::ncmul(const ex & lh, const ex & rh) : inherited(lh,rh)
+ncmul::ncmul(const ex & lh, const ex & rh) : inherited{lh,rh}
 {
 }
 
-ncmul::ncmul(const ex & f1, const ex & f2, const ex & f3) : inherited(f1,f2,f3)
-{
-}
-
-ncmul::ncmul(const ex & f1, const ex & f2, const ex & f3,
-             const ex & f4) : inherited(f1,f2,f3,f4)
+ncmul::ncmul(const ex & f1, const ex & f2, const ex & f3) : inherited{f1,f2,f3}
 {
 }
 
 ncmul::ncmul(const ex & f1, const ex & f2, const ex & f3,
-             const ex & f4, const ex & f5) : inherited(f1,f2,f3,f4,f5)
+             const ex & f4) : inherited{f1,f2,f3,f4}
 {
 }
 
 ncmul::ncmul(const ex & f1, const ex & f2, const ex & f3,
-             const ex & f4, const ex & f5, const ex & f6) : inherited(f1,f2,f3,f4,f5,f6)
+             const ex & f4, const ex & f5) : inherited{f1,f2,f3,f4,f5}
+{
+}
+
+ncmul::ncmul(const ex & f1, const ex & f2, const ex & f3,
+             const ex & f4, const ex & f5, const ex & f6) : inherited{f1,f2,f3,f4,f5,f6}
 {
 }
 

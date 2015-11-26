@@ -69,7 +69,7 @@ static unsigned exam_powerlaws1()
 		return 1;
 	}
 	
-	ex e4 = e1.subs(lst(a==-1, b==-2.5));
+	ex e4 = e1.subs(lst{a==-1, b==-2.5});
 	if (!(is_exactly_a<power>(e4) &&
 	      is_exactly_a<power>(e4.op(0)) &&
 	      is_exactly_a<symbol>(e4.op(0).op(0)) &&
@@ -81,7 +81,7 @@ static unsigned exam_powerlaws1()
 		return 1;
 	}
 	
-	ex e5 = e1.subs(lst(a==-0.9, b==2.5));
+	ex e5 = e1.subs(lst{a==-0.9, b==2.5});
 	if (!(is_exactly_a<power>(e5) &&
 	      is_exactly_a<symbol>(e5.op(0)) &&
 	      is_exactly_a<numeric>(e5.op(1)) &&
@@ -91,7 +91,7 @@ static unsigned exam_powerlaws1()
 		return 1;
 	}
 	
-	ex e6 = e1.subs(lst(a==numeric(3)+numeric(5.3)*I, b==-5));
+	ex e6 = e1.subs(lst{a==numeric(3)+numeric(5.3)*I, b==-5});
 	if (!(is_exactly_a<power>(e6) &&
 	      is_exactly_a<symbol>(e6.op(0)) &&
 	      is_exactly_a<numeric>(e6.op(1)) &&
@@ -162,7 +162,7 @@ static unsigned exam_powerlaws2()
 		return 1;
 	}
 	
-	ex e5 = e1.subs(lst(a==3.2, b==3+numeric(5)*I));
+	ex e5 = e1.subs(lst{a==3.2, b==3+numeric(5)*I});
 	if (!(is_exactly_a<mul>(e5) &&
 	      (e5.nops()==2) &&
 	      is_exactly_a<power>(e5.op(0)) &&
@@ -174,7 +174,7 @@ static unsigned exam_powerlaws2()
 		return 1;
 	}
 	
-	ex e6 = e1.subs(lst(a==-3.2, b==3+numeric(5)*I));
+	ex e6 = e1.subs(lst{a==-3.2, b==3+numeric(5)*I});
 	if (!(is_exactly_a<mul>(e6) &&
 	      (e6.nops()==2) &&
 	      is_exactly_a<power>(e6.op(0)) &&
@@ -186,7 +186,7 @@ static unsigned exam_powerlaws2()
 		return 1;
 	}
 	
-	ex e7 = e1.subs(lst(a==3+numeric(5)*I, b==3.2));
+	ex e7 = e1.subs(lst{a==3+numeric(5)*I, b==3.2});
 	if (!(is_exactly_a<power>(e7) &&
 	      is_exactly_a<mul>(e7.op(0)) &&
 	      (e7.op(0).nops()==2) &&

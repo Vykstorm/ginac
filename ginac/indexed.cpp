@@ -61,53 +61,53 @@ indexed::indexed() : symtree(not_symmetric())
 // other constructors
 //////////
 
-indexed::indexed(const ex & b) : inherited(b), symtree(not_symmetric())
+indexed::indexed(const ex & b) : inherited{b}, symtree(not_symmetric())
 {
 	validate();
 }
 
-indexed::indexed(const ex & b, const ex & i1) : inherited(b, i1), symtree(not_symmetric())
+indexed::indexed(const ex & b, const ex & i1) : inherited{b, i1}, symtree(not_symmetric())
 {
 	validate();
 }
 
-indexed::indexed(const ex & b, const ex & i1, const ex & i2) : inherited(b, i1, i2), symtree(not_symmetric())
+indexed::indexed(const ex & b, const ex & i1, const ex & i2) : inherited{b, i1, i2}, symtree(not_symmetric())
 {
 	validate();
 }
 
-indexed::indexed(const ex & b, const ex & i1, const ex & i2, const ex & i3) : inherited(b, i1, i2, i3), symtree(not_symmetric())
+indexed::indexed(const ex & b, const ex & i1, const ex & i2, const ex & i3) : inherited{b, i1, i2, i3}, symtree(not_symmetric())
 {
 	validate();
 }
 
-indexed::indexed(const ex & b, const ex & i1, const ex & i2, const ex & i3, const ex & i4) : inherited(b, i1, i2, i3, i4), symtree(not_symmetric())
+indexed::indexed(const ex & b, const ex & i1, const ex & i2, const ex & i3, const ex & i4) : inherited{b, i1, i2, i3, i4}, symtree(not_symmetric())
 {
 	validate();
 }
 
-indexed::indexed(const ex & b, const symmetry & symm, const ex & i1, const ex & i2) : inherited(b, i1, i2), symtree(symm)
+indexed::indexed(const ex & b, const symmetry & symm, const ex & i1, const ex & i2) : inherited{b, i1, i2}, symtree(symm)
 {
 	validate();
 }
 
-indexed::indexed(const ex & b, const symmetry & symm, const ex & i1, const ex & i2, const ex & i3) : inherited(b, i1, i2, i3), symtree(symm)
+indexed::indexed(const ex & b, const symmetry & symm, const ex & i1, const ex & i2, const ex & i3) : inherited{b, i1, i2, i3}, symtree(symm)
 {
 	validate();
 }
 
-indexed::indexed(const ex & b, const symmetry & symm, const ex & i1, const ex & i2, const ex & i3, const ex & i4) : inherited(b, i1, i2, i3, i4), symtree(symm)
+indexed::indexed(const ex & b, const symmetry & symm, const ex & i1, const ex & i2, const ex & i3, const ex & i4) : inherited{b, i1, i2, i3, i4}, symtree(symm)
 {
 	validate();
 }
 
-indexed::indexed(const ex & b, const exvector & v) : inherited(b), symtree(not_symmetric())
+indexed::indexed(const ex & b, const exvector & v) : inherited{b}, symtree(not_symmetric())
 {
 	seq.insert(seq.end(), v.begin(), v.end());
 	validate();
 }
 
-indexed::indexed(const ex & b, const symmetry & symm, const exvector & v) : inherited(b), symtree(symm)
+indexed::indexed(const ex & b, const symmetry & symm, const exvector & v) : inherited{b}, symtree(symm)
 {
 	seq.insert(seq.end(), v.begin(), v.end());
 	validate();
@@ -683,10 +683,10 @@ bool reposition_dummy_indices(ex & e, exvector & variant_dummy_indices, exvector
 					/*
 					 * N.B. we don't want to use
 					 *
-					 *  e = e.subs(lst(
+					 *  e = e.subs(lst{
 					 *  *it2 == ex_to<varidx>(*it2).toggle_variance(),
 					 *  ex_to<varidx>(*it2).toggle_variance() == *it2
-					 *  ), subs_options::no_pattern);
+					 *  }, subs_options::no_pattern);
 					 *
 					 * since this can trigger non-trivial repositioning of indices,
 					 * e.g. due to non-trivial symmetry properties of e, thus
@@ -1464,7 +1464,7 @@ lst rename_dummy_indices_uniquely(const exvector & va, const exvector & vb)
 	exvector common_indices;
 	set_intersection(va.begin(), va.end(), vb.begin(), vb.end(), std::back_insert_iterator<exvector>(common_indices), ex_is_less());
 	if (common_indices.empty()) {
-		return lst(lst(), lst());
+		return lst{lst{}, lst{}};
 	} else {
 		exvector new_indices, old_indices;
 		old_indices.reserve(2*common_indices.size());
@@ -1493,7 +1493,7 @@ lst rename_dummy_indices_uniquely(const exvector & va, const exvector & vb)
 			}
 			++ip;
 		}
-		return lst(lst(old_indices.begin(), old_indices.end()), lst(new_indices.begin(), new_indices.end()));
+		return lst{lst(old_indices.begin(), old_indices.end()), lst(new_indices.begin(), new_indices.end())};
 	}
 }
 
@@ -1563,10 +1563,10 @@ ex expand_dummy_sum(const ex & e, bool subs_idx)
 				for (int i=0; i < idim; i++) {
 					if (subs_idx && is_a<varidx>(nu)) {
 						ex other = ex_to<varidx>(nu).toggle_variance();
-						en += result.subs(lst(
+						en += result.subs(lst{
 							nu == idx(i, idim),
 							other == idx(i, idim)
-						));
+						});
 					} else {
 						en += result.subs( nu.op(0) == i );
 					}

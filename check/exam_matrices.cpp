@@ -224,16 +224,16 @@ static unsigned matrix_evalm()
 {
 	unsigned result = 0;
 
-	matrix S(2, 2, lst(
+	matrix S(2, 2, lst{
 		1, 2,
 		3, 4
-	)), T(2, 2, lst(
+	}), T(2, 2, lst{
 		1, 1,
 		2, -1
-	)), R(2, 2, lst(
+	}), R(2, 2, lst{
 		27, 14,
 		36, 26
-	));
+	});
 
 	ex e = ((S + T) * (S + 2*T));
 	ex f = e.evalm();

@@ -560,7 +560,7 @@ expair expairseq::combine_pair_with_coeff_to_pair(const expair &p,
  *  @see expairseq::split_ex_to_pair() */
 ex expairseq::recombine_pair_to_ex(const expair &p) const
 {
-	return lst(p.rest,p.coeff);
+	return lst{p.rest, p.coeff};
 }
 
 bool expairseq::expair_needs_further_processing(epp it)

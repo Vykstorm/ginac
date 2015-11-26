@@ -1045,7 +1045,7 @@ ex lsolve(const ex &eqns, const ex &symbols, unsigned options)
 	if (eqns.info(info_flags::relation_equal)) {
 		if (!symbols.info(info_flags::symbol))
 			throw(std::invalid_argument("lsolve(): 2nd argument must be a symbol"));
-		const ex sol = lsolve(lst(eqns),lst(symbols));
+		const ex sol = lsolve(lst{eqns}, lst{symbols});
 		
 		GINAC_ASSERT(sol.nops()==1);
 		GINAC_ASSERT(is_exactly_a<relational>(sol.op(0)));
@@ -1103,12 +1103,12 @@ ex lsolve(const ex &eqns, const ex &symbols, unsigned options)
 	} catch (const std::runtime_error & e) {
 		// Probably singular matrix or otherwise overdetermined system:
 		// It is consistent to return an empty list
-		return lst();
+		return lst{};
 	}
 	GINAC_ASSERT(solution.cols()==1);
 	GINAC_ASSERT(solution.rows()==symbols.nops());
 	
-	// return list of equations of the form lst(var1==sol1,var2==sol2,...)
+	// return list of equations of the form lst{var1==sol1,var2==sol2,...}
 	lst sollist;
 	for (size_t i=0; i<symbols.nops(); i++)
 		sollist.append(symbols.op(i)==solution(i,0));

@@ -72,7 +72,7 @@ static unsigned color_check1()
 	for (int i=1; i<9; i++)
 	    for (int j=1; j<9; j++)
 	        for (int k=1; k<9; k++)
-                sum += e.subs(lst(a == i, b == j, c == k));
+			sum += e.subs(lst{a == i, b == j, c == k});
 	if (!sum.is_equal(numeric(-32,3))) {
 		clog << "numeric contraction of " << e << " erroneously returned "
 		     << sum << " instead of -32/3" << endl;
@@ -133,13 +133,13 @@ static unsigned color_check3()
 	result += check_equal(color_trace(e, 0), color_ONE(1) / 3);
 	result += check_equal(color_trace(e, 1), color_ONE(0) / 3);
 	result += check_equal(color_trace(e, 2), e);
-	result += check_equal(color_trace(e, lst(0, 1)), 1);
+	result += check_equal(color_trace(e, lst{0, 1}), 1);
 
 	e = color_T(a, 0) * color_T(a, 1) * color_T(b, 0) * color_T(b, 1);
 	result += check_equal_simplify(color_trace(e, 0), 2 * color_ONE(1) / 3);
 	result += check_equal_simplify(color_trace(e, 1), 2 * color_ONE(0) / 3);
 	result += check_equal_simplify(color_trace(e, 2), e);
-	result += check_equal_simplify(color_trace(e, lst(0, 1)), 2);
+	result += check_equal_simplify(color_trace(e, lst{0, 1}), 2);
 
 	return result;
 }

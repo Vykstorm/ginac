@@ -2035,15 +2035,15 @@ struct normal_map_function : public map_function {
 ex basic::normal(exmap & repl, exmap & rev_lookup, int level) const
 {
 	if (nops() == 0)
-		return (new lst(replace_with_symbol(*this, repl, rev_lookup), _ex1))->setflag(status_flags::dynallocated);
+		return (new lst{replace_with_symbol(*this, repl, rev_lookup), _ex1})->setflag(status_flags::dynallocated);
 	else {
 		if (level == 1)
-			return (new lst(replace_with_symbol(*this, repl, rev_lookup), _ex1))->setflag(status_flags::dynallocated);
+			return (new lst{replace_with_symbol(*this, repl, rev_lookup), _ex1})->setflag(status_flags::dynallocated);
 		else if (level == -max_recursion_level)
 			throw(std::runtime_error("max recursion level reached"));
 		else {
 			normal_map_function map_normal(level - 1);
-			return (new lst(replace_with_symbol(map(map_normal), repl, rev_lookup), _ex1))->setflag(status_flags::dynallocated);
+			return (new lst{replace_with_symbol(map(map_normal), repl, rev_lookup), _ex1})->setflag(status_flags::dynallocated);
 		}
 	}
 }
@@ -2053,7 +2053,7 @@ ex basic::normal(exmap & repl, exmap & rev_lookup, int level) const
  *  @see ex::normal */
 ex symbol::normal(exmap & repl, exmap & rev_lookup, int level) const
 {
-	return (new lst(*this, _ex1))->setflag(status_flags::dynallocated);
+	return (new lst{*this, _ex1})->setflag(status_flags::dynallocated);
 }
 
 
@@ -2077,7 +2077,7 @@ ex numeric::normal(exmap & repl, exmap & rev_lookup, int level) const
 	}
 
 	// Denominator is always a real integer (see numeric::denom())
-	return (new lst(numex, denom()))->setflag(status_flags::dynallocated);
+	return (new lst{numex, denom()})->setflag(status_flags::dynallocated);
 }
 
 
@@ -2095,11 +2095,11 @@ static ex frac_cancel(const ex &n, const ex &d)
 
 	// Handle trivial case where denominator is 1
 	if (den.is_equal(_ex1))
-		return (new lst(num, den))->setflag(status_flags::dynallocated);
+		return (new lst{num, den})->setflag(status_flags::dynallocated);
 
 	// Handle special cases where numerator or denominator is 0
 	if (num.is_zero())
-		return (new lst(num, _ex1))->setflag(status_flags::dynallocated);
+		return (new lst{num, _ex1})->setflag(status_flags::dynallocated);
 	if (den.expand().is_zero())
 		throw(std::overflow_error("frac_cancel: division by zero in frac_cancel"));
 
@@ -2138,7 +2138,7 @@ static ex frac_cancel(const ex &n, const ex &d)
 
 	// Return result as list
 //std::clog << " returns num = " << num << ", den = " << den << ", pre_factor = " << pre_factor << std::endl;
-	return (new lst(num * pre_factor.numer(), den * pre_factor.denom()))->setflag(status_flags::dynallocated);
+	return (new lst{num * pre_factor.numer(), den * pre_factor.denom()})->setflag(status_flags::dynallocated);
 }
 
 
@@ -2148,7 +2148,7 @@ static ex frac_cancel(const ex &n, const ex &d)
 ex add::normal(exmap & repl, exmap & rev_lookup, int level) const
 {
 	if (level == 1)
-		return (new lst(replace_with_symbol(*this, repl, rev_lookup), _ex1))->setflag(status_flags::dynallocated);
+		return (new lst{replace_with_symbol(*this, repl, rev_lookup), _ex1})->setflag(status_flags::dynallocated);
 	else if (level == -max_recursion_level)
 		throw(std::runtime_error("max recursion level reached"));
 
@@ -2205,7 +2205,7 @@ ex add::normal(exmap & repl, exmap & rev_lookup, int level) const
 ex mul::normal(exmap & repl, exmap & rev_lookup, int level) const
 {
 	if (level == 1)
-		return (new lst(replace_with_symbol(*this, repl, rev_lookup), _ex1))->setflag(status_flags::dynallocated);
+		return (new lst{replace_with_symbol(*this, repl, rev_lookup), _ex1})->setflag(status_flags::dynallocated);
 	else if (level == -max_recursion_level)
 		throw(std::runtime_error("max recursion level reached"));
 
@@ -2235,7 +2235,7 @@ ex mul::normal(exmap & repl, exmap & rev_lookup, int level) const
 ex power::normal(exmap & repl, exmap & rev_lookup, int level) const
 {
 	if (level == 1)
-		return (new lst(replace_with_symbol(*this, repl, rev_lookup), _ex1))->setflag(status_flags::dynallocated);
+		return (new lst{replace_with_symbol(*this, repl, rev_lookup), _ex1})->setflag(status_flags::dynallocated);
 	else if (level == -max_recursion_level)
 		throw(std::runtime_error("max recursion level reached"));
 
@@ -2249,12 +2249,12 @@ ex power::normal(exmap & repl, exmap & rev_lookup, int level) const
 		if (n_exponent.info(info_flags::positive)) {
 
 			// (a/b)^n -> {a^n, b^n}
-			return (new lst(power(n_basis.op(0), n_exponent), power(n_basis.op(1), n_exponent)))->setflag(status_flags::dynallocated);
+			return (new lst{power(n_basis.op(0), n_exponent), power(n_basis.op(1), n_exponent)})->setflag(status_flags::dynallocated);
 
 		} else if (n_exponent.info(info_flags::negative)) {
 
 			// (a/b)^-n -> {b^n, a^n}
-			return (new lst(power(n_basis.op(1), -n_exponent), power(n_basis.op(0), -n_exponent)))->setflag(status_flags::dynallocated);
+			return (new lst{power(n_basis.op(1), -n_exponent), power(n_basis.op(0), -n_exponent)})->setflag(status_flags::dynallocated);
 		}
 
 	} else {
@@ -2262,25 +2262,25 @@ ex power::normal(exmap & repl, exmap & rev_lookup, int level) const
 		if (n_exponent.info(info_flags::positive)) {
 
 			// (a/b)^x -> {sym((a/b)^x), 1}
-			return (new lst(replace_with_symbol(power(n_basis.op(0) / n_basis.op(1), n_exponent), repl, rev_lookup), _ex1))->setflag(status_flags::dynallocated);
+			return (new lst{replace_with_symbol(power(n_basis.op(0) / n_basis.op(1), n_exponent), repl, rev_lookup), _ex1})->setflag(status_flags::dynallocated);
 
 		} else if (n_exponent.info(info_flags::negative)) {
 
 			if (n_basis.op(1).is_equal(_ex1)) {
 
 				// a^-x -> {1, sym(a^x)}
-				return (new lst(_ex1, replace_with_symbol(power(n_basis.op(0), -n_exponent), repl, rev_lookup)))->setflag(status_flags::dynallocated);
+				return (new lst{_ex1, replace_with_symbol(power(n_basis.op(0), -n_exponent), repl, rev_lookup)})->setflag(status_flags::dynallocated);
 
 			} else {
 
 				// (a/b)^-x -> {sym((b/a)^x), 1}
-				return (new lst(replace_with_symbol(power(n_basis.op(1) / n_basis.op(0), -n_exponent), repl, rev_lookup), _ex1))->setflag(status_flags::dynallocated);
+				return (new lst{replace_with_symbol(power(n_basis.op(1) / n_basis.op(0), -n_exponent), repl, rev_lookup), _ex1})->setflag(status_flags::dynallocated);
 			}
 		}
 	}
 
 	// (a/b)^x -> {sym((a/b)^x, 1}
-	return (new lst(replace_with_symbol(power(n_basis.op(0) / n_basis.op(1), n_exponent), repl, rev_lookup), _ex1))->setflag(status_flags::dynallocated);
+	return (new lst{replace_with_symbol(power(n_basis.op(0) / n_basis.op(1), n_exponent), repl, rev_lookup), _ex1})->setflag(status_flags::dynallocated);
 }
 
 
@@ -2296,7 +2296,7 @@ ex pseries::normal(exmap & repl, exmap & rev_lookup, int level) const
 			newseq.push_back(expair(restexp, it.coeff));
 	}
 	ex n = pseries(relational(var,point), std::move(newseq));
-	return (new lst(replace_with_symbol(n, repl, rev_lookup), _ex1))->setflag(status_flags::dynallocated);
+	return (new lst{replace_with_symbol(n, repl, rev_lookup), _ex1})->setflag(status_flags::dynallocated);
 }
 
 

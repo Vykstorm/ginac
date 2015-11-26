@@ -279,7 +279,7 @@ exp	: T_NUMBER		{$$ = $1;}
 	| '[' matrix ']'	{$$ = lst_to_matrix(ex_to<lst>($2));}
 	;
 
-exprseq	: exp			{$$ = exprseq($1);}
+exprseq	: exp			{$$ = exprseq{$1};}
 	| exprseq ',' exp	{exprseq es(ex_to<exprseq>($1)); $$ = es.append($3);}
 	;
 
@@ -287,15 +287,15 @@ list_or_empty: /* empty */	{$$ = *new lst;}
 	| list			{$$ = $1;}
 	;
 
-list	: exp			{$$ = lst($1);}
+list	: exp			{$$ = lst{$1};}
 	| list ',' exp		{lst l(ex_to<lst>($1)); $$ = l.append($3);}
 	;
 
-matrix	: '[' row ']'		{$$ = lst($2);}
+matrix	: '[' row ']'		{$$ = lst{$2};}
 	| matrix ',' '[' row ']' {lst l(ex_to<lst>($1)); $$ = l.append($4);}
 	;
 
-row	: exp			{$$ = lst($1);}
+row	: exp			{$$ = lst{$1};}
 	| row ',' exp		{lst l(ex_to<lst>($1)); $$ = l.append($3);}
 	;
 

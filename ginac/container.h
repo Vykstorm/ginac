@@ -27,6 +27,7 @@
 #include "print.h"
 #include "archive.h"
 #include "assertion.h"
+#include "compiler.h"
 
 #include <algorithm>
 #include <iterator>
@@ -45,6 +46,7 @@ protected:
 
 	container_storage() {}
 	container_storage(size_t n, const ex & e) : seq(n, e) {}
+	container_storage(std::initializer_list<ex> il) : seq(il) {}
 
 	template <class In>
 	container_storage(In b, In e) : seq(b, e) {}
@@ -160,195 +162,41 @@ public:
 		setflag(get_default_flags());
 	}
 
-	explicit container(const ex & p1)
-	 : container_storage<C>(1, p1)
+	container(std::initializer_list<ex> il)
+	 : container_storage<C>(il)
 	{
 		setflag(get_default_flags());
 	}
 
-	container(const ex & p1, const ex & p2)
-	{
-		setflag(get_default_flags());
-		this->reserve(this->seq, 2);
-		this->seq.push_back(p1); this->seq.push_back(p2);
-	}
-
-	container(const ex & p1, const ex & p2, const ex & p3)
-	{
-		setflag(get_default_flags());
-		this->reserve(this->seq, 3);
-		this->seq.push_back(p1); this->seq.push_back(p2); this->seq.push_back(p3);
-	}
-
-	container(const ex & p1, const ex & p2, const ex & p3,
-	          const ex & p4)
-	{
-		setflag(get_default_flags());
-		this->reserve(this->seq, 4);
-		this->seq.push_back(p1); this->seq.push_back(p2); this->seq.push_back(p3);
-		this->seq.push_back(p4);
-	}
-
-	container(const ex & p1, const ex & p2, const ex & p3,
-	          const ex & p4, const ex & p5)
-	{
-		setflag(get_default_flags());
-		this->reserve(this->seq, 5);
-		this->seq.push_back(p1); this->seq.push_back(p2); this->seq.push_back(p3);
-		this->seq.push_back(p4); this->seq.push_back(p5);
-	}
-
-	container(const ex & p1, const ex & p2, const ex & p3,
-	          const ex & p4, const ex & p5, const ex & p6)
-	{
-		setflag(get_default_flags());
-		this->reserve(this->seq, 6);
-		this->seq.push_back(p1); this->seq.push_back(p2); this->seq.push_back(p3);
-		this->seq.push_back(p4); this->seq.push_back(p5); this->seq.push_back(p6);
-	}
-
-	container(const ex & p1, const ex & p2, const ex & p3,
-	          const ex & p4, const ex & p5, const ex & p6,
-	          const ex & p7)
-	{
-		setflag(get_default_flags());
-		this->reserve(this->seq, 7);
-		this->seq.push_back(p1); this->seq.push_back(p2); this->seq.push_back(p3);
-		this->seq.push_back(p4); this->seq.push_back(p5); this->seq.push_back(p6);
-		this->seq.push_back(p7);
-	}
-
-	container(const ex & p1, const ex & p2, const ex & p3,
-	          const ex & p4, const ex & p5, const ex & p6,
-	          const ex & p7, const ex & p8)
-	{
-		setflag(get_default_flags());
-		this->reserve(this->seq, 8);
-		this->seq.push_back(p1); this->seq.push_back(p2); this->seq.push_back(p3);
-		this->seq.push_back(p4); this->seq.push_back(p5); this->seq.push_back(p6);
-		this->seq.push_back(p7); this->seq.push_back(p8);
-	}
-
-	container(const ex & p1, const ex & p2, const ex & p3,
-	          const ex & p4, const ex & p5, const ex & p6,
-	          const ex & p7, const ex & p8, const ex & p9)
-	{
-		setflag(get_default_flags());
-		this->reserve(this->seq, 9);
-		this->seq.push_back(p1); this->seq.push_back(p2); this->seq.push_back(p3);
-		this->seq.push_back(p4); this->seq.push_back(p5); this->seq.push_back(p6);
-		this->seq.push_back(p7); this->seq.push_back(p8); this->seq.push_back(p9);
-	}
-
-	container(const ex & p1, const ex & p2, const ex & p3,
-	          const ex & p4, const ex & p5, const ex & p6,
-	          const ex & p7, const ex & p8, const ex & p9,
-	          const ex & p10)
-	{
-		setflag(get_default_flags());
-		this->reserve(this->seq, 10);
-		this->seq.push_back(p1); this->seq.push_back(p2); this->seq.push_back(p3);
-		this->seq.push_back(p4); this->seq.push_back(p5); this->seq.push_back(p6);
-		this->seq.push_back(p7); this->seq.push_back(p8); this->seq.push_back(p9);
-		this->seq.push_back(p10);
-	}
-
-	container(const ex & p1, const ex & p2, const ex & p3,
-	          const ex & p4, const ex & p5, const ex & p6,
-	          const ex & p7, const ex & p8, const ex & p9,
-	          const ex & p10, const ex & p11)
-	{
-		setflag(get_default_flags());
-		this->reserve(this->seq, 11);
-		this->seq.push_back(p1); this->seq.push_back(p2); this->seq.push_back(p3);
-		this->seq.push_back(p4); this->seq.push_back(p5); this->seq.push_back(p6);
-		this->seq.push_back(p7); this->seq.push_back(p8); this->seq.push_back(p9);
-		this->seq.push_back(p10); this->seq.push_back(p11);
-	}
-
-	container(const ex & p1, const ex & p2, const ex & p3,
-	          const ex & p4, const ex & p5, const ex & p6,
-	          const ex & p7, const ex & p8, const ex & p9,
-	          const ex & p10, const ex & p11, const ex & p12)
-	{
-		setflag(get_default_flags());
-		this->reserve(this->seq, 12);
-		this->seq.push_back(p1); this->seq.push_back(p2); this->seq.push_back(p3);
-		this->seq.push_back(p4); this->seq.push_back(p5); this->seq.push_back(p6);
-		this->seq.push_back(p7); this->seq.push_back(p8); this->seq.push_back(p9);
-		this->seq.push_back(p10); this->seq.push_back(p11); this->seq.push_back(p12);
-	}
-
-	container(const ex & p1, const ex & p2, const ex & p3,
-	          const ex & p4, const ex & p5, const ex & p6,
-	          const ex & p7, const ex & p8, const ex & p9,
-	          const ex & p10, const ex & p11, const ex & p12,
-	          const ex & p13)
-	{
-		setflag(get_default_flags());
-		this->reserve(this->seq, 13);
-		this->seq.push_back(p1); this->seq.push_back(p2); this->seq.push_back(p3);
-		this->seq.push_back(p4); this->seq.push_back(p5); this->seq.push_back(p6);
-		this->seq.push_back(p7); this->seq.push_back(p8); this->seq.push_back(p9);
-		this->seq.push_back(p10); this->seq.push_back(p11); this->seq.push_back(p12);
-		this->seq.push_back(p13);
-	}
-
-	container(const ex & p1, const ex & p2, const ex & p3,
-	          const ex & p4, const ex & p5, const ex & p6,
-	          const ex & p7, const ex & p8, const ex & p9,
-	          const ex & p10, const ex & p11, const ex & p12,
-	          const ex & p13, const ex & p14)
-	{
-		setflag(get_default_flags());
-		this->reserve(this->seq, 14);
-		this->seq.push_back(p1); this->seq.push_back(p2); this->seq.push_back(p3);
-		this->seq.push_back(p4); this->seq.push_back(p5); this->seq.push_back(p6);
-		this->seq.push_back(p7); this->seq.push_back(p8); this->seq.push_back(p9);
-		this->seq.push_back(p10); this->seq.push_back(p11); this->seq.push_back(p12);
-		this->seq.push_back(p13); this->seq.push_back(p14);
-	}
-
-	container(const ex & p1, const ex & p2, const ex & p3,
-	          const ex & p4, const ex & p5, const ex & p6,
-	          const ex & p7, const ex & p8, const ex & p9,
-	          const ex & p10, const ex & p11, const ex & p12,
-	          const ex & p13, const ex & p14, const ex & p15)
-	{
-		setflag(get_default_flags());
-		this->reserve(this->seq, 15);
-		this->seq.push_back(p1); this->seq.push_back(p2); this->seq.push_back(p3);
-		this->seq.push_back(p4); this->seq.push_back(p5); this->seq.push_back(p6);
-		this->seq.push_back(p7); this->seq.push_back(p8); this->seq.push_back(p9);
-		this->seq.push_back(p10); this->seq.push_back(p11); this->seq.push_back(p12);
-		this->seq.push_back(p13); this->seq.push_back(p14); this->seq.push_back(p15);
-	}
-
-	container(const ex & p1, const ex & p2, const ex & p3,
-	          const ex & p4, const ex & p5, const ex & p6,
-	          const ex & p7, const ex & p8, const ex & p9,
-	          const ex & p10, const ex & p11, const ex & p12,
-	          const ex & p13, const ex & p14, const ex & p15,
-	          const ex & p16)
-	{
-		setflag(get_default_flags());
-		this->reserve(this->seq, 16);
-		this->seq.push_back(p1); this->seq.push_back(p2); this->seq.push_back(p3);
-		this->seq.push_back(p4); this->seq.push_back(p5); this->seq.push_back(p6);
-		this->seq.push_back(p7); this->seq.push_back(p8); this->seq.push_back(p9);
-		this->seq.push_back(p10); this->seq.push_back(p11); this->seq.push_back(p12);
-		this->seq.push_back(p13); this->seq.push_back(p14); this->seq.push_back(p15);
-		this->seq.push_back(p16);
-	}
+	explicit container(const ex & p1) deprecated;
+	container(const ex & p1, const ex & p2) deprecated;
+	container(const ex & p1, const ex & p2, const ex & p3) deprecated;
+	container(const ex & p1, const ex & p2, const ex & p3, const ex & p4) deprecated;
+	container(const ex & p1, const ex & p2, const ex & p3, const ex & p4, const ex & p5) deprecated;
+	container(const ex & p1, const ex & p2, const ex & p3, const ex & p4, const ex & p5, const ex & p6) deprecated;
+	container(const ex & p1, const ex & p2, const ex & p3, const ex & p4, const ex & p5, const ex & p6, const ex & p7) deprecated;
+	container(const ex & p1, const ex & p2, const ex & p3, const ex & p4, const ex & p5, const ex & p6, const ex & p7, const ex & p8) deprecated;
+	container(const ex & p1, const ex & p2, const ex & p3, const ex & p4, const ex & p5, const ex & p6, const ex & p7, const ex & p8,
+	          const ex & p9) deprecated;
+	container(const ex & p1, const ex & p2, const ex & p3, const ex & p4, const ex & p5, const ex & p6, const ex & p7, const ex & p8,
+	          const ex & p9, const ex & p10) deprecated;
+	container(const ex & p1, const ex & p2, const ex & p3, const ex & p4, const ex & p5, const ex & p6, const ex & p7, const ex & p8,
+	          const ex & p9, const ex & p10, const ex & p11) deprecated;
+	container(const ex & p1, const ex & p2, const ex & p3, const ex & p4, const ex & p5, const ex & p6, const ex & p7, const ex & p8,
+	          const ex & p9, const ex & p10, const ex & p11, const ex & p12) deprecated;
+	container(const ex & p1, const ex & p2, const ex & p3, const ex & p4, const ex & p5, const ex & p6, const ex & p7, const ex & p8,
+	          const ex & p9, const ex & p10, const ex & p11, const ex & p12, const ex & p13) deprecated;
+	container(const ex & p1, const ex & p2, const ex & p3, const ex & p4, const ex & p5, const ex & p6, const ex & p7, const ex & p8,
+	          const ex & p9, const ex & p10, const ex & p11, const ex & p12, const ex & p13, const ex & p14) deprecated;
+	container(const ex & p1, const ex & p2, const ex & p3, const ex & p4, const ex & p5, const ex & p6, const ex & p7, const ex & p8,
+	          const ex & p9, const ex & p10, const ex & p11, const ex & p12, const ex & p13, const ex & p14, const ex & p15) deprecated;
+	container(const ex & p1, const ex & p2, const ex & p3, const ex & p4, const ex & p5, const ex & p6, const ex & p7, const ex & p8,
+	          const ex & p9, const ex & p10, const ex & p11, const ex & p12, const ex & p13, const ex & p14, const ex & p15, const ex & p16) deprecated;
 
 	// First step of initialization of container with a comma-separated
 	// sequence of expressions. Subsequent steps are handled by
 	// container_init<>::operator,().
-	container_init<ex, STLT> operator=(const ex & x)
-	{
-		this->seq.push_back(x);
-		return container_init<ex, STLT>(this->seq);
-	}
+	container_init<ex, STLT> operator=(const ex & x) deprecated;
 
 	// functions overriding virtual functions from base classes
 public:
@@ -499,6 +347,84 @@ container<C>::container()
 	setflag(get_default_flags());
 }
 
+/** Deprecatd constructors (prefer initializer list) */
+template <template <class T, class = std::allocator<T>> class C>
+container<C>::container(const ex & p1)
+  : container_storage<C>(1, p1) { setflag(get_default_flags()); }
+
+template <template <class T, class = std::allocator<T>> class C>
+container<C>::container(const ex & p1, const ex & p2)
+  : container_storage<C>{p1, p2} { setflag(get_default_flags()); }
+
+template <template <class T, class = std::allocator<T>> class C>
+container<C>::container(const ex & p1, const ex & p2, const ex & p3)
+  : container_storage<C>{p1, p2, p3} { setflag(get_default_flags()); }
+
+template <template <class T, class = std::allocator<T>> class C>
+container<C>::container(const ex & p1, const ex & p2, const ex & p3, const ex & p4)
+  : container_storage<C>{p1, p2, p3, p4} { setflag(get_default_flags()); }
+
+template <template <class T, class = std::allocator<T>> class C>
+container<C>::container(const ex & p1, const ex & p2, const ex & p3, const ex & p4, const ex & p5)
+  : container_storage<C>{p1, p2, p3, p4, p5} { setflag(get_default_flags()); }
+
+template <template <class T, class = std::allocator<T>> class C>
+container<C>::container(const ex & p1, const ex & p2, const ex & p3, const ex & p4, const ex & p5, const ex & p6)
+  : container_storage<C>{p1, p2, p3, p4, p5, p6} { setflag(get_default_flags()); }
+
+template <template <class T, class = std::allocator<T>> class C>
+container<C>::container(const ex & p1, const ex & p2, const ex & p3, const ex & p4, const ex & p5, const ex & p6, const ex & p7)
+  : container_storage<C>{p1, p2, p3, p4, p5, p6, p7} { setflag(get_default_flags()); }
+
+template <template <class T, class = std::allocator<T>> class C>
+container<C>::container(const ex & p1, const ex & p2, const ex & p3, const ex & p4, const ex & p5, const ex & p6, const ex & p7, const ex & p8)
+  : container_storage<C>{p1, p2, p3, p4, p5, p6, p7, p8} { setflag(get_default_flags()); }
+
+template <template <class T, class = std::allocator<T>> class C>
+container<C>::container(const ex & p1, const ex & p2, const ex & p3, const ex & p4, const ex & p5, const ex & p6, const ex & p7, const ex & p8,
+                        const ex & p9)
+  : container_storage<C>{p1, p2, p3, p4, p5, p6, p7, p8, p9} { setflag(get_default_flags()); }
+
+template <template <class T, class = std::allocator<T>> class C>
+container<C>::container(const ex & p1, const ex & p2, const ex & p3, const ex & p4, const ex & p5, const ex & p6, const ex & p7, const ex & p8,
+                        const ex & p9, const ex & p10)
+  : container_storage<C>{p1, p2, p3, p4, p5, p6, p7, p8, p9, p10} { setflag(get_default_flags()); }
+
+template <template <class T, class = std::allocator<T>> class C>
+container<C>::container(const ex & p1, const ex & p2, const ex & p3, const ex & p4, const ex & p5, const ex & p6, const ex & p7, const ex & p8,
+                        const ex & p9, const ex & p10, const ex & p11)
+  : container_storage<C>{p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11} { setflag(get_default_flags()); }
+
+template <template <class T, class = std::allocator<T>> class C>
+container<C>::container(const ex & p1, const ex & p2, const ex & p3, const ex & p4, const ex & p5, const ex & p6, const ex & p7, const ex & p8,
+                        const ex & p9, const ex & p10, const ex & p11, const ex & p12)
+  : container_storage<C>{p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12} { setflag(get_default_flags()); }
+
+template <template <class T, class = std::allocator<T>> class C>
+container<C>::container(const ex & p1, const ex & p2, const ex & p3, const ex & p4, const ex & p5, const ex & p6, const ex & p7, const ex & p8,
+                        const ex & p9, const ex & p10, const ex & p11, const ex & p12, const ex & p13)
+  : container_storage<C>{p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13} { setflag(get_default_flags()); }
+
+template <template <class T, class = std::allocator<T>> class C>
+container<C>::container(const ex & p1, const ex & p2, const ex & p3, const ex & p4, const ex & p5, const ex & p6, const ex & p7, const ex & p8,
+                        const ex & p9, const ex & p10, const ex & p11, const ex & p12, const ex & p13, const ex & p14)
+  : container_storage<C>{p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13, p14} { setflag(get_default_flags()); }
+
+template <template <class T, class = std::allocator<T>> class C>
+container<C>::container(const ex & p1, const ex & p2, const ex & p3, const ex & p4, const ex & p5, const ex & p6, const ex & p7, const ex & p8,
+                        const ex & p9, const ex & p10, const ex & p11, const ex & p12, const ex & p13, const ex & p14, const ex & p15)
+  : container_storage<C>{p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13, p14, p15} { setflag(get_default_flags()); }
+template <template <class T, class = std::allocator<T>> class C>
+container<C>::container(const ex & p1, const ex & p2, const ex & p3, const ex & p4, const ex & p5, const ex & p6, const ex & p7, const ex & p8,
+                        const ex & p9, const ex & p10, const ex & p11, const ex & p12, const ex & p13, const ex & p14, const ex & p15, const ex & p16)
+  : container_storage<C>{p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13, p14, p15, p16} { setflag(get_default_flags()); }
+
+template <template <class T, class = std::allocator<T>> class C>
+container_init<ex, typename container_storage<C>::STLT> container<C>::operator=(const ex & x)
+{
+	this->seq.push_back(x);
+	return container_init<ex, typename container_storage<C>::STLT>(this->seq);
+}
 
 template <template <class T, class = std::allocator<T>> class C>
 void container<C>::do_print(const print_context & c, unsigned level) const
