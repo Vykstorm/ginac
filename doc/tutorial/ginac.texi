@@ -1940,9 +1940,17 @@ matrix::matrix(unsigned r, unsigned c);
 creates a matrix with @samp{r} rows and @samp{c} columns with all elements
 set to zero.
 
-The fastest way to create a matrix with preinitialized elements is to assign
-a list of comma-separated expressions to an empty matrix (see below for an
-example). But you can also specify the elements as a (flat) list with
+The easiest way to create a matrix is using an initializer list of
+initializer lists, all of the same size:
+
+@example
+@{
+    matrix m = @{@{1, -a@},
+                @{a,  1@}@};
+@}
+@end example
+
+You can also specify the elements as a (flat) list with
 
 @example
 matrix::matrix(unsigned r, unsigned c, const lst & l);
@@ -1965,6 +1973,7 @@ matrices:
 @cindex @code{symbolic_matrix()}
 @example
 ex diag_matrix(const lst & l);
+ex diag_matrix(initializer_list<ex> l);
 ex unit_matrix(unsigned x);
 ex unit_matrix(unsigned r, unsigned c);
 ex symbolic_matrix(unsigned r, unsigned c, const string & base_name);
@@ -1972,7 +1981,7 @@ ex symbolic_matrix(unsigned r, unsigned c, const string & base_name,
                    const string & tex_base_name);
 @end example
 
-@code{diag_matrix()} constructs a diagonal matrix given the list of diagonal
+@code{diag_matrix()} constructs a square diagonal matrix given the diagonal
 elements. @code{unit_matrix()} creates an @samp{x} by @samp{x} (or @samp{r}
 by @samp{c}) unit matrix. And finally, @code{symbolic_matrix} constructs a
 matrix filled with newly generated symbols made of the specified base name
@@ -1999,10 +2008,9 @@ that specify which row and column to remove:
 
 @example
 @{
-    matrix m(3,3);
-    m = 11, 12, 13,
-        21, 22, 23,
-        31, 32, 33;
+    matrix m = @{@{11, 12, 13@},
+                @{21, 22, 23@},
+                @{31, 32, 33@}@};
     cout << reduced_matrix(m, 1, 1) << endl;
     // -> [[11,13],[31,33]]
     cout << sub_matrix(m, 1, 2, 1, 2) << endl;
@@ -2028,9 +2036,8 @@ Here are a couple of examples for constructing matrices:
 @{
     symbol a("a"), b("b");
 
-    matrix M(2, 2);
-    M = a, 0,
-        0, b;
+    matrix M = @{@{a, 0@},
+                @{0, b@}@};
     cout << M << endl;
      // -> [[a,0],[0,b]]
 
@@ -2082,13 +2089,12 @@ and @math{C}:
 
 @example
 @{
-    matrix A(2, 2), B(2, 2), C(2, 2);
-    A =  1, 2,
-         3, 4;
-    B = -1, 0,
-         2, 1;
-    C =  8, 4,
-         2, 1;
+    matrix A = @{@{ 1, 2@},
+                @{ 3, 4@}@};
+    matrix B = @{@{-1, 0@},
+                @{ 2, 1@}@};
+    matrix C = @{@{ 8, 4@},
+                @{ 2, 1@}@};
 
     matrix result = A.mul(B).sub(C.mul_scalar(2));
     cout << result << endl;
@@ -2928,10 +2934,9 @@ and scalar products):
     symbol x("x"), y("y");
 
     // A is a 2x2 matrix, X is a 2x1 vector
-    matrix A(2, 2), X(2, 1);
-    A = 1, 2,
-        3, 4;
-    X = x, y;
+    matrix A = @{@{1, 2@},
+                @{3, 4@}@};
+    matrix X = @{@{x, y@}@};
 
     cout << indexed(A, i, i) << endl;
      // -> 5
@@ -3413,7 +3418,7 @@ The previous code may be rewritten with the help of @code{lst_to_clifford()} as 
     ...
     idx i(symbol("i"), 4);
     realsymbol s("s");
-    ex M = diag_matrix(lst@{1, -1, 0, s@});
+    ex M = diag_matrix(@{1, -1, 0, s@});
     ex e0 = lst_to_clifford(lst@{1, 0, 0, 0@}, i, M);
     ex e1 = lst_to_clifford(lst@{0, 1, 0, 0@}, i, M);
     ex e2 = lst_to_clifford(lst@{0, 0, 1, 0@}, i, M);

@@ -43,7 +43,7 @@ unsigned exam_archive()
 	  + lorentz_g(
 	      varidx(lst{x, -11*y, acos(2*x).series(x==3-5*I, 3)} * color_ONE()
 	        * metric_tensor(varidx(log(cos(128.0/(x*y))), 5), varidx(2, 5)), zeta(3)),
-	      varidx(diag_matrix(lst{-1, Euler, atan(x/y==-15*I/17)})
+	      varidx(diag_matrix({-1, Euler, atan(x/y==-15*I/17)})
 	        * delta_tensor(idx(x, 2), idx(wild(7), 3)), zeta(3), true),
 	      true
 	    )

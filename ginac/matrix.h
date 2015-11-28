@@ -26,6 +26,7 @@
 #include "basic.h"
 #include "ex.h"
 #include "archive.h"
+#include "compiler.h"
 
 #include <string>
 #include <vector>
@@ -99,15 +100,9 @@ class matrix : public basic
 public:
 	matrix(unsigned r, unsigned c);
 	matrix(unsigned r, unsigned c, const lst & l);
+	matrix(std::initializer_list<std::initializer_list<ex>> l);
 
-	// First step of initialization of matrix with a comma-separated sequence
-	// of expressions. Subsequent steps are handled by matrix_init<>::operator,().
-	matrix_init<ex, exvector::iterator> operator=(const ex & x)
-	{
-		m[0] = x;
-		return matrix_init<ex, exvector::iterator>(++m.begin());
-	}
-
+	matrix_init<ex, exvector::iterator> operator=(const ex & x) deprecated;
 protected:
 	matrix(unsigned r, unsigned c, const exvector & m2);
 	matrix(unsigned r, unsigned c, exvector && m2);
@@ -179,6 +174,13 @@ protected:
 };
 GINAC_DECLARE_UNARCHIVER(matrix); 
 
+// First step of initialization of matrix with a comma-separated sequence
+// of expressions. Subsequent steps are handled by matrix_init<>::operator,().
+inline matrix_init<ex, exvector::iterator> matrix::operator=(const ex & x)
+{
+	m[0] = x;
+	return matrix_init<ex, exvector::iterator>(++m.begin());
+}
 
 // wrapper functions around member functions
 
@@ -225,6 +227,7 @@ extern ex lst_to_matrix(const lst & l);
 
 /** Convert list of diagonal elements to matrix. */
 extern ex diag_matrix(const lst & l);
+extern ex diag_matrix(std::initializer_list<ex> l);
 
 /** Create an r times c unit matrix. */
 extern ex unit_matrix(unsigned r, unsigned c);

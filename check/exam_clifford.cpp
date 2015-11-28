@@ -432,14 +432,13 @@ template <typename IDX> unsigned clifford_check6(const matrix &A)
 	result += check_equal_lst(clifford_to_lst(lst_to_clifford(e, c), c, true), e);
 
 /* Moebius map (both forms) checks for symmetric metrics only */
-	matrix M1(2, 2),  M2(2, 2);
 	c = clifford_unit(nu, A);
 
 	e = clifford_moebius_map(0, dirac_ONE(), 
-							 dirac_ONE(), 0, lst{t, x, y, z}, A);
+	                         dirac_ONE(), 0, lst{t, x, y, z}, A);
 /* this is just the inversion*/
-	M1 = 0, dirac_ONE(),
-		dirac_ONE(), 0;
+	matrix M1 = {{0, dirac_ONE()},
+	             {dirac_ONE(), 0}};
 	e1 = clifford_moebius_map(M1, lst{t, x, y, z}, A);
 /* the inversion again*/
 	result += check_equal_lst(e, e1);
@@ -448,10 +447,10 @@ template <typename IDX> unsigned clifford_check6(const matrix &A)
 	result += check_equal_lst(e, e1);
 
 	e = clifford_moebius_map(dirac_ONE(), lst_to_clifford(lst{1, 2, 3, 4}, nu, A),
-							 0, dirac_ONE(), lst{t, x, y, z}, A);
+	                         0, dirac_ONE(), lst{t, x, y, z}, A);
 /*this is just a shift*/
-	M2 = dirac_ONE(), lst_to_clifford(lst{1, 2, 3, 4}, c),
-		0, dirac_ONE();
+	matrix M2 = {{dirac_ONE(), lst_to_clifford(lst{1, 2, 3, 4}, c),},
+	             {0, dirac_ONE()}};
 	e1 = clifford_moebius_map(M2, lst{t, x, y, z}, c);
 /* the same shift*/
 	result += check_equal_lst(e, e1);
@@ -546,7 +545,7 @@ static unsigned clifford_check8()
 	realsymbol a("a");
 	varidx mu(symbol("mu", "\\mu"), 1);
 
-	ex e = clifford_unit(mu, diag_matrix(lst{-1})), e0 = e.subs(mu==0);
+	ex e = clifford_unit(mu, diag_matrix({-1})), e0 = e.subs(mu==0);
 	result += ( exp(a*e0)*e0*e0 == -exp(e0*a) ) ? 0 : 1;
 
 	return result;
@@ -565,45 +564,45 @@ unsigned exam_clifford()
 	result += clifford_check5(); cout << '.' << flush;
 
 	// anticommuting, symmetric examples
-	result += clifford_check6<varidx>(ex_to<matrix>(diag_matrix(lst{-1, 1, 1, 1})));
-	result += clifford_check6<idx>(ex_to<matrix>(diag_matrix(lst{-1, 1, 1, 1})));; cout << '.' << flush;
-	result += clifford_check6<varidx>(ex_to<matrix>(diag_matrix(lst{-1, -1, -1, -1})))+clifford_check6<idx>(ex_to<matrix>(diag_matrix(lst{-1, -1, -1, -1})));; cout << '.' << flush;
-	result += clifford_check6<idx>(ex_to<matrix>(diag_matrix(lst{-1, 1, 1, -1})))+clifford_check6<idx>(ex_to<matrix>(diag_matrix(lst{-1, 1, 1, -1})));; cout << '.' << flush;
-	result += clifford_check6<varidx>(ex_to<matrix>(diag_matrix(lst{-1, 0, 1, -1})))+clifford_check6<idx>(ex_to<matrix>(diag_matrix(lst{-1, 0, 1, -1})));; cout << '.' << flush;
-	result += clifford_check6<varidx>(ex_to<matrix>(diag_matrix(lst{-3, 0, 2, -1})))+clifford_check6<idx>(ex_to<matrix>(diag_matrix(lst{-3, 0, 2, -1})));; cout << '.' << flush;
+	result += clifford_check6<varidx>(ex_to<matrix>(diag_matrix({-1, 1, 1, 1})));
+	result += clifford_check6<idx>(ex_to<matrix>(diag_matrix({-1, 1, 1, 1})));; cout << '.' << flush;
+	result += clifford_check6<varidx>(ex_to<matrix>(diag_matrix({-1, -1, -1, -1})))+clifford_check6<idx>(ex_to<matrix>(diag_matrix({-1, -1, -1, -1})));; cout << '.' << flush;
+	result += clifford_check6<idx>(ex_to<matrix>(diag_matrix({-1, 1, 1, -1})))+clifford_check6<idx>(ex_to<matrix>(diag_matrix({-1, 1, 1, -1})));; cout << '.' << flush;
+	result += clifford_check6<varidx>(ex_to<matrix>(diag_matrix({-1, 0, 1, -1})))+clifford_check6<idx>(ex_to<matrix>(diag_matrix({-1, 0, 1, -1})));; cout << '.' << flush;
+	result += clifford_check6<varidx>(ex_to<matrix>(diag_matrix({-3, 0, 2, -1})))+clifford_check6<idx>(ex_to<matrix>(diag_matrix({-3, 0, 2, -1})));; cout << '.' << flush;
 
 	realsymbol s("s"), t("t"); // symbolic entries in matric
-	result += clifford_check6<varidx>(ex_to<matrix>(diag_matrix(lst{-1, 1, s, t})))+clifford_check6<idx>(ex_to<matrix>(diag_matrix(lst{-1, 1, s, t})));; cout << '.' << flush;
+	result += clifford_check6<varidx>(ex_to<matrix>(diag_matrix({-1, 1, s, t})))+clifford_check6<idx>(ex_to<matrix>(diag_matrix({-1, 1, s, t})));; cout << '.' << flush;
 
 	matrix A(4, 4);
-	A = 1,  0,  0,  0, // anticommuting, not symmetric, Tr=0
-	    0, -1,  0,  0,
-	    0,  0,  0, -1,
-	    0,  0,  1,  0;
+	A = {{1,  0,  0,  0}, // anticommuting, not symmetric, Tr=0
+	     {0, -1,  0,  0},
+	     {0,  0,  0, -1},
+	     {0,  0,  1,  0}};
 	result += clifford_check6<varidx>(A)+clifford_check6<idx>(A);; cout << '.' << flush;
 
-	A = 1,  0,  0,  0, // anticommuting, not symmetric, Tr=2
-	    0,  1,  0,  0,
-	    0,  0,  0, -1,
-	    0,  0,  1,  0;
+	A = {{1,  0,  0,  0}, // anticommuting, not symmetric, Tr=2
+	     {0,  1,  0,  0},
+	     {0,  0,  0, -1},
+	     {0,  0,  1,  0}};
 	result += clifford_check6<varidx>(A)+clifford_check6<idx>(A);; cout << '.' << flush;
 
-	A = 1,  0,  0,  0, // not anticommuting, symmetric, Tr=0
-	    0, -1,  0,  0,
-	    0,  0,  0, -1,
-	    0,  0, -1,  0;
+	A = {{1,  0,  0,  0}, // not anticommuting, symmetric, Tr=0
+	     {0, -1,  0,  0},
+	     {0,  0,  0, -1},
+	     {0,  0, -1,  0}};
 	result += clifford_check6<varidx>(A)+clifford_check6<idx>(A);; cout << '.' << flush;
 
-	A = 1,  0,  0,  0, // not anticommuting, symmetric, Tr=2
-	    0,  1,  0,  0,
-	    0,  0,  0, -1,
-	    0,  0, -1,  0;
+	A = {{1,  0,  0,  0}, // not anticommuting, symmetric, Tr=2
+	     {0,  1,  0,  0},
+	     {0,  0,  0, -1},
+	     {0,  0, -1,  0}};
 	result += clifford_check6<varidx>(A)+clifford_check6<idx>(A);; cout << '.' << flush;
 
-	A = 1,  1,  0,  0, // not anticommuting, not symmetric, Tr=4
-	    0,  1,  1,  0,
-	    0,  0,  1,  1,
-	    0,  0,  0,  1;
+	A = {{1,  1,  0,  0}, // not anticommuting, not symmetric, Tr=4
+	     {0,  1,  1,  0},
+	     {0,  0,  1,  1},
+	     {0,  0,  0,  1}};
 	result += clifford_check6<varidx>(A)+clifford_check6<idx>(A);; cout << '.' << flush;
 
 	symbol dim("D");

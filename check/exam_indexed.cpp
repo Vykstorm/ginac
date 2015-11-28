@@ -244,18 +244,16 @@ static unsigned edyn_check()
 	symbol Bx("Bx"), By("By"), Bz("Bz");
 
 	// Lorentz transformation matrix (boost along x axis)
-	matrix L(4, 4);
-	L =       gamma, -beta*gamma, 0, 0,
-	    -beta*gamma,       gamma, 0, 0,
-	              0,           0, 1, 0,
-	              0,           0, 0, 1;
+	matrix L = {{      gamma, -beta*gamma, 0, 0},
+		    {-beta*gamma,       gamma, 0, 0},
+		    {          0,           0, 1, 0},
+		    {          0,           0, 0, 1}};
 
 	// Electromagnetic field tensor
-	matrix F(4, 4);
-	F =  0, -Ex, -Ey, -Ez,
-		Ex,   0, -Bz,  By,
-		Ey,  Bz,   0, -Bx,
-		Ez, -By,  Bx,   0;
+	matrix F = {{ 0, -Ex, -Ey, -Ez},
+		    {Ex,   0, -Bz,  By},
+		    {Ey,  Bz,   0, -Bx},
+		    {Ez, -By,  Bx,   0}};
 
 	// Indices
 	symbol s_mu("mu"), s_nu("nu"), s_rho("rho"), s_sigma("sigma");

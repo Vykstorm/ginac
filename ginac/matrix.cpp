@@ -73,20 +73,6 @@ matrix::matrix(unsigned r, unsigned c) : row(r), col(c), m(r*c, _ex0)
 	setflag(status_flags::not_shareable);
 }
 
-// protected
-
-/** Ctor from representation, for internal use only. */
-matrix::matrix(unsigned r, unsigned c, const exvector & m2)
-  : row(r), col(c), m(m2)
-{
-	setflag(status_flags::not_shareable);
-}
-matrix::matrix(unsigned r, unsigned c, exvector && m2)
-  : row(r), col(c), m(std::move(m2))
-{
-	setflag(status_flags::not_shareable);
-}
-
 /** Construct matrix from (flat) list of elements. If the list has fewer
  *  elements than the matrix, the remaining matrix elements are set to zero.
  *  If the list has more elements than the matrix, the excessive elements are
@@ -105,6 +91,40 @@ matrix::matrix(unsigned r, unsigned c, const lst & l)
 		m[y*c+x] = it;
 		++i;
 	}
+}
+
+/** Construct a matrix from an 2 dimensional initializer list.
+ *  Throws an exception if some row has a different length than all the others.
+ */
+matrix::matrix(std::initializer_list<std::initializer_list<ex>> l)
+  : row(l.size()), col(l.begin()->size())
+{
+	setflag(status_flags::not_shareable);
+
+	m.reserve(row*col);
+	for (const auto & r : l) {
+		unsigned c = 0;
+		for (const auto & e : r) {
+			m.push_back(e);
+			++c;
+		}
+		if (c != col)
+			throw std::invalid_argument("matrix::matrix{{}}: wrong dimension");
+	}
+}
+
+// protected
+
+/** Ctor from representation, for internal use only. */
+matrix::matrix(unsigned r, unsigned c, const exvector & m2)
+  : row(r), col(c), m(m2)
+{
+	setflag(status_flags::not_shareable);
+}
+matrix::matrix(unsigned r, unsigned c, exvector && m2)
+  : row(r), col(c), m(std::move(m2))
+{
+	setflag(status_flags::not_shareable);
 }
 
 //////////
@@ -1571,6 +1591,23 @@ ex lst_to_matrix(const lst & l)
 ex diag_matrix(const lst & l)
 {
 	size_t dim = l.nops();
+
+	// Allocate and fill matrix
+	matrix &M = *new matrix(dim, dim);
+	M.setflag(status_flags::dynallocated);
+
+	unsigned i = 0;
+	for (auto & it : l) {
+		M(i, i) = it;
+		++i;
+	}
+
+	return M;
+}
+
+ex diag_matrix(std::initializer_list<ex> l)
+{
+	size_t dim = l.size();
 
 	// Allocate and fill matrix
 	matrix &M = *new matrix(dim, dim);
