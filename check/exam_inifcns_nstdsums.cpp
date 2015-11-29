@@ -55,15 +55,15 @@ using namespace std;
  *          Write[st,Chop[N[PolyLog[i,j,-x[[k]]+I*y[[l]]],25]]],{i,3},{j,3}], {k,4}], {l,3}]
  *    Close[st]
  *
- *    
+ *
  * and postprocessed by the following shell script
  *
  *
  *    #/bin/sh
  *    IFS=$'\n'
  *    cat exam_inifcns_nstdsums_data.raw | sed -e 's/\*\^/E/g' > exam_inifcns_nstdsums_data.raw2
- *    echo 'const char *data[] = {' > exam_inifcns_nstdsums_data.raw3
- *    for i in `cat exam_inifcns_nstdsums_data.raw2`; do echo \"$i\",; done >> exam_inifcns_nstdsums_data.raw3
+ *    echo 'constexpr string polylogdata[] = {' > exam_inifcns_nstdsums.h
+ *    for i in `cat exam_inifcns_nstdsums_data.raw2`; do echo \"$i\",; done >> exam_inifcns_nstdsums.h
  *    echo '"-999"};' >> exam_inifcns_nstdsums.h
  *
  *
@@ -86,13 +86,13 @@ static unsigned inifcns_test_S()
 	
 	int i = 0;
 	while (true) {
-		ex n(data[i++],symbol());
+		ex n(polylogdata[i++],symbol());
 		if (n == ENDMARK) {
 			break;
 		}
-		ex p(data[i++],symbol());
-		ex x(data[i++],symbol());
-		ex res(data[i++],symbol());
+		ex p(polylogdata[i++],symbol());
+		ex x(polylogdata[i++],symbol());
+		ex res(polylogdata[i++],symbol());
 		ex res2 = S(n, p, x).evalf();
 		if (abs(res-res2) > prec) {
 			clog << "S(" << n << "," << p << "," << x << ") seems to be wrong:" << endl;
