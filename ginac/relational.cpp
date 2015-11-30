@@ -171,7 +171,7 @@ ex relational::map(map_function & f) const
 
 	if (!are_ex_trivially_equal(lh, mapped_lh)
 	 || !are_ex_trivially_equal(rh, mapped_rh))
-		return (new relational(mapped_lh, mapped_rh, o))->setflag(status_flags::dynallocated);
+		return dynallocate<relational>(mapped_lh, mapped_rh, o);
 	else
 		return *this;
 }
@@ -184,7 +184,7 @@ ex relational::eval(int level) const
 	if (level == -max_recursion_level)
 		throw(std::runtime_error("max recursion level reached"));
 	
-	return (new relational(lh.eval(level-1),rh.eval(level-1),o))->setflag(status_flags::dynallocated | status_flags::evaluated);
+	return dynallocate<relational>(lh.eval(level-1), rh.eval(level-1), o).setflag(status_flags::evaluated);
 }
 
 ex relational::subs(const exmap & m, unsigned options) const

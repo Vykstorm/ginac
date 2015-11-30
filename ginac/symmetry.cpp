@@ -325,67 +325,67 @@ void symmetry::validate(unsigned n)
 
 static const symmetry & index0()
 {
-	static ex s = (new symmetry(0))->setflag(status_flags::dynallocated);
+	static ex s = dynallocate<symmetry>(0);
 	return ex_to<symmetry>(s);
 }
 
 static const symmetry & index1()
 {
-	static ex s = (new symmetry(1))->setflag(status_flags::dynallocated);
+	static ex s = dynallocate<symmetry>(1);
 	return ex_to<symmetry>(s);
 }
 
 static const symmetry & index2()
 {
-	static ex s = (new symmetry(2))->setflag(status_flags::dynallocated);
+	static ex s = dynallocate<symmetry>(2);
 	return ex_to<symmetry>(s);
 }
 
 static const symmetry & index3()
 {
-	static ex s = (new symmetry(3))->setflag(status_flags::dynallocated);
+	static ex s = dynallocate<symmetry>(3);
 	return ex_to<symmetry>(s);
 }
 
 const symmetry & not_symmetric()
 {
-	static ex s = (new symmetry)->setflag(status_flags::dynallocated);
+	static ex s = dynallocate<symmetry>();
 	return ex_to<symmetry>(s);
 }
 
 const symmetry & symmetric2()
 {
-	static ex s = (new symmetry(symmetry::symmetric, index0(), index1()))->setflag(status_flags::dynallocated);
+	static ex s = dynallocate<symmetry>(symmetry::symmetric, index0(), index1());
 	return ex_to<symmetry>(s);
 }
 
 const symmetry & symmetric3()
 {
-	static ex s = (new symmetry(symmetry::symmetric, index0(), index1()))->add(index2()).setflag(status_flags::dynallocated);
+	static ex s = dynallocate<symmetry>(symmetry::symmetric, index0(), index1()).add(index2());
 	return ex_to<symmetry>(s);
 }
 
 const symmetry & symmetric4()
 {
-	static ex s = (new symmetry(symmetry::symmetric, index0(), index1()))->add(index2()).add(index3()).setflag(status_flags::dynallocated);
+	static ex s = dynallocate<symmetry>(symmetry::symmetric, index0(), index1()).add(index2()).add(index3());
 	return ex_to<symmetry>(s);
 }
 
 const symmetry & antisymmetric2()
 {
-	static ex s = (new symmetry(symmetry::antisymmetric, index0(), index1()))->setflag(status_flags::dynallocated);
+	static ex s = dynallocate<symmetry>(symmetry::antisymmetric, index0(), index1());
 	return ex_to<symmetry>(s);
 }
 
 const symmetry & antisymmetric3()
 {
-	static ex s = (new symmetry(symmetry::antisymmetric, index0(), index1()))->add(index2()).setflag(status_flags::dynallocated);
+	static ex s = dynallocate<symmetry>(symmetry::antisymmetric, index0(), index1()).add(index2());
 	return ex_to<symmetry>(s);
 }
 
 const symmetry & antisymmetric4()
 {
-	static ex s = (new symmetry(symmetry::antisymmetric, index0(), index1()))->add(index2()).add(index3()).setflag(status_flags::dynallocated);
+	static ex s = dynallocate<symmetry>(symmetry::antisymmetric, index0(), index1()).add(index2()).add(index3());
 	return ex_to<symmetry>(s);
 }
 
@@ -513,7 +513,7 @@ static ex symm(const ex & e, exvector::const_iterator first, exvector::const_ite
 		}
 		sum_v.push_back(term);
 	}
-	ex sum = (new add(sum_v))->setflag(status_flags::dynallocated);
+	ex sum = dynallocate<add>(sum_v);
 
 	delete[] iv;
 	delete[] iv2;

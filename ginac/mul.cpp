@@ -435,7 +435,7 @@ ex mul::coeff(const ex & s, int n) const
 		for (auto & it : seq)
 			coeffseq.push_back(recombine_pair_to_ex(it).coeff(s,n));
 		coeffseq.push_back(overall_coeff);
-		return (new mul(coeffseq))->setflag(status_flags::dynallocated);
+		return dynallocate<mul>(coeffseq);
 	}
 	
 	bool coeff_found = false;
@@ -451,7 +451,7 @@ ex mul::coeff(const ex & s, int n) const
 	}
 	if (coeff_found) {
 		coeffseq.push_back(overall_coeff);
-		return (new mul(coeffseq))->setflag(status_flags::dynallocated);
+		return dynallocate<mul>(coeffseq);
 	}
 	
 	return _ex0;
@@ -471,8 +471,7 @@ ex mul::eval(int level) const
 	epvector evaled = evalchildren(level);
 	if (unlikely(!evaled.empty())) {
 		// do more evaluation later
-		return (new mul(std::move(evaled), overall_coeff))->
-		        setflag(status_flags::dynallocated);
+		return dynallocate<mul>(std::move(evaled), overall_coeff);
 	}
 
 	if (flags & status_flags::evaluated) {
@@ -501,10 +500,9 @@ ex mul::eval(int level) const
 		for (auto & it : addref.seq) {
 			distrseq.push_back(addref.combine_pair_with_coeff_to_pair(it, overall_coeff));
 		}
-		return (new add(std::move(distrseq),
-		                ex_to<numeric>(addref.overall_coeff).
-		                mul_dyn(ex_to<numeric>(overall_coeff)))
-		       )->setflag(status_flags::dynallocated | status_flags::evaluated);
+		return dynallocate<add>(std::move(distrseq),
+					 ex_to<numeric>(addref.overall_coeff).mul_dyn(ex_to<numeric>(overall_coeff)))
+			.setflag(status_flags::evaluated);
 	} else if ((seq_size >= 2) && (! (flags & status_flags::expanded))) {
 		// Strip the content and the unit part from each term. Thus
 		// things like (-x+a)*(3*x-3*a) automagically turn into - 3*(x-a)^2
@@ -554,14 +552,13 @@ ex mul::eval(int level) const
 
 			// divide add by the number in place to save at least 2 .eval() calls
 			const add& addref = ex_to<add>(i->rest);
-			add* primitive = new add(addref);
-			primitive->setflag(status_flags::dynallocated);
-			primitive->clearflag(status_flags::hash_calculated);
-			primitive->overall_coeff = ex_to<numeric>(primitive->overall_coeff).div_dyn(c);
-			for (epvector::iterator ai = primitive->seq.begin(); ai != primitive->seq.end(); ++ai)
+			add & primitive = dynallocate<add>(addref);
+			primitive.clearflag(status_flags::hash_calculated);
+			primitive.overall_coeff = ex_to<numeric>(primitive.overall_coeff).div_dyn(c);
+			for (epvector::iterator ai = primitive.seq.begin(); ai != primitive.seq.end(); ++ai)
 				ai->coeff = ex_to<numeric>(ai->coeff).div_dyn(c);
 			
-			s.push_back(expair(*primitive, _ex1));
+			s.push_back(expair(primitive, _ex1));
 
 			++i;
 			++j;
@@ -571,8 +568,7 @@ ex mul::eval(int level) const
 				s.push_back(*j);
 				++j;
 			}
-			return (new mul(std::move(s), ex_to<numeric>(overall_coeff).mul_dyn(oc))
-			       )->setflag(status_flags::dynallocated);
+			return dynallocate<mul>(std::move(s), ex_to<numeric>(overall_coeff).mul_dyn(oc));
 		}
 	}
 
@@ -664,11 +660,11 @@ ex mul::evalm() const
 		// into that matrix.
 		matrix m = ex_to<matrix>(the_matrix->rest);
 		s.erase(the_matrix);
-		ex scalar = (new mul(std::move(s), overall_coeff))->setflag(status_flags::dynallocated);
+		ex scalar = dynallocate<mul>(std::move(s), overall_coeff);
 		return m.mul_scalar(scalar);
 
 	} else
-		return (new mul(std::move(s), overall_coeff))->setflag(status_flags::dynallocated);
+		return dynallocate<mul>(std::move(s), overall_coeff);
 }
 
 ex mul::eval_ncmul(const exvector & v) const
@@ -888,11 +884,11 @@ ex mul::derivative(const symbol & s) const
 		expair ep = split_ex_to_pair(power(i->rest, i->coeff - _ex1) *
 		                             i->rest.diff(s));
 		ep.swap(*i2);
-		addseq.push_back((new mul(mulseq, overall_coeff * i->coeff))->setflag(status_flags::dynallocated));
+		addseq.push_back(dynallocate<mul>(mulseq, overall_coeff * i->coeff));
 		ep.swap(*i2);
 		++i; ++i2;
 	}
-	return (new add(addseq))->setflag(status_flags::dynallocated);
+	return dynallocate<add>(addseq);
 }
 
 int mul::compare_same_type(const basic & other) const
@@ -949,12 +945,12 @@ return_type_t mul::return_type_tinfo() const
 
 ex mul::thisexpairseq(const epvector & v, const ex & oc, bool do_index_renaming) const
 {
-	return (new mul(v, oc, do_index_renaming))->setflag(status_flags::dynallocated);
+	return dynallocate<mul>(v, oc, do_index_renaming);
 }
 
 ex mul::thisexpairseq(epvector && vp, const ex & oc, bool do_index_renaming) const
 {
-	return (new mul(std::move(vp), oc, do_index_renaming))->setflag(status_flags::dynallocated);
+	return dynallocate<mul>(std::move(vp), oc, do_index_renaming);
 }
 
 expair mul::split_ex_to_pair(const ex & e) const
@@ -998,7 +994,7 @@ ex mul::recombine_pair_to_ex(const expair & p) const
 	if (ex_to<numeric>(p.coeff).is_equal(*_num1_p)) 
 		return p.rest;
 	else
-		return (new power(p.rest,p.coeff))->setflag(status_flags::dynallocated);
+		return dynallocate<power>(p.rest, p.coeff);
 }
 
 bool mul::expair_needs_further_processing(epp it)
@@ -1134,7 +1130,7 @@ ex mul::expand(unsigned options) const
 				}
 
 				// Compute the new overall coefficient and put it together:
-				ex tmp_accu = (new add(distrseq, add1.overall_coeff*add2.overall_coeff))->setflag(status_flags::dynallocated);
+				ex tmp_accu = dynallocate<add>(distrseq, add1.overall_coeff*add2.overall_coeff);
 
 				exvector add1_dummy_indices, add2_dummy_indices, add_indices;
 				lst dummy_subs;
@@ -1168,14 +1164,14 @@ ex mul::expand(unsigned options) const
 					for (const auto & i1 : add1.seq) {
 						// Don't push_back expairs which might have a rest that evaluates to a numeric,
 						// since that would violate an invariant of expairseq:
-						const ex rest = (new mul(i1.rest, i2_new))->setflag(status_flags::dynallocated);
+						const ex rest = dynallocate<mul>(i1.rest, i2_new);
 						if (is_exactly_a<numeric>(rest)) {
 							oc += ex_to<numeric>(rest).mul(ex_to<numeric>(i1.coeff).mul(ex_to<numeric>(i2.coeff)));
 						} else {
 							distrseq2.push_back(expair(rest, ex_to<numeric>(i1.coeff).mul_dyn(ex_to<numeric>(i2.coeff))));
 						}
 					}
-					tmp_accu += (new add(distrseq2, oc))->setflag(status_flags::dynallocated);
+					tmp_accu += dynallocate<add>(std::move(distrseq2), oc);
 				}
 				last_expanded = tmp_accu;
 			} else {
@@ -1207,7 +1203,7 @@ ex mul::expand(unsigned options) const
 				factors.push_back(split_ex_to_pair(last_expanded.op(i)));
 			else
 				factors.push_back(split_ex_to_pair(rename_dummy_indices_uniquely(va, last_expanded.op(i))));
-			ex term = (new mul(factors, overall_coeff))->setflag(status_flags::dynallocated);
+			ex term = dynallocate<mul>(factors, overall_coeff);
 			if (can_be_further_expanded(term)) {
 				distrseq.push_back(term.expand());
 			} else {
@@ -1217,12 +1213,11 @@ ex mul::expand(unsigned options) const
 			}
 		}
 
-		return ((new add(distrseq))->
-		        setflag(status_flags::dynallocated | (options == 0 ? status_flags::expanded : 0)));
+		return dynallocate<add>(distrseq).setflag(options == 0 ? status_flags::expanded : 0);
 	}
 
 	non_adds.push_back(split_ex_to_pair(last_expanded));
-	ex result = (new mul(non_adds, overall_coeff))->setflag(status_flags::dynallocated);
+	ex result = dynallocate<mul>(non_adds, overall_coeff);
 	if (can_be_further_expanded(result)) {
 		return result.expand();
 	} else {

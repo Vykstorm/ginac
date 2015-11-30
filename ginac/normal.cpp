@@ -280,13 +280,13 @@ static ex multiply_lcm(const ex &e, const numeric &lcm)
 			lcm_accum *= op_lcm;
 		}
 		v.push_back(lcm / lcm_accum);
-		return (new mul(v))->setflag(status_flags::dynallocated);
+		return dynallocate<mul>(v);
 	} else if (is_exactly_a<add>(e)) {
 		size_t num = e.nops();
 		exvector v; v.reserve(num);
 		for (size_t i=0; i<num; i++)
 			v.push_back(multiply_lcm(e.op(i), lcm));
-		return (new add(v))->setflag(status_flags::dynallocated);
+		return dynallocate<add>(v);
 	} else if (is_exactly_a<power>(e)) {
 		if (is_a<symbol>(e.op(0)))
 			return e * lcm;
@@ -386,7 +386,7 @@ ex quo(const ex &a, const ex &b, const ex &x, bool check_args)
 			term = rcoeff / blcoeff;
 		else {
 			if (!divide(rcoeff, blcoeff, term, false))
-				return (new fail())->setflag(status_flags::dynallocated);
+				return dynallocate<fail>();
 		}
 		term *= power(x, rdeg - bdeg);
 		v.push_back(term);
@@ -395,7 +395,7 @@ ex quo(const ex &a, const ex &b, const ex &x, bool check_args)
 			break;
 		rdeg = r.degree(x);
 	}
-	return (new add(v))->setflag(status_flags::dynallocated);
+	return dynallocate<add>(v);
 }
 
 
@@ -439,7 +439,7 @@ ex rem(const ex &a, const ex &b, const ex &x, bool check_args)
 			term = rcoeff / blcoeff;
 		else {
 			if (!divide(rcoeff, blcoeff, term, false))
-				return (new fail())->setflag(status_flags::dynallocated);
+				return dynallocate<fail>();
 		}
 		term *= power(x, rdeg - bdeg);
 		r -= (term * b).expand();
@@ -653,7 +653,7 @@ bool divide(const ex &a, const ex &b, ex &q, bool check_args)
 				else
 					resv.push_back(a.op(j));
 			}
-			q = (new mul(resv))->setflag(status_flags::dynallocated);
+			q = dynallocate<mul>(resv);
 			return true;
 		}
 	} else if (is_exactly_a<power>(a)) {
@@ -697,7 +697,7 @@ bool divide(const ex &a, const ex &b, ex &q, bool check_args)
 		v.push_back(term);
 		r -= (term * b).expand();
 		if (r.is_zero()) {
-			q = (new add(v))->setflag(status_flags::dynallocated);
+			q = dynallocate<add>(v);
 			return true;
 		}
 		rdeg = r.degree(x);
@@ -880,7 +880,7 @@ static bool divide_in_z(const ex &a, const ex &b, ex &q, sym_desc_vec::const_ite
 		v.push_back(term);
 		r -= (term * eb).expand();
 		if (r.is_zero()) {
-			q = (new add(v))->setflag(status_flags::dynallocated);
+			q = dynallocate<add>(v);
 #if USE_REMEMBER
 			dr_remember[ex2(a, b)] = exbool(q, true);
 #endif
@@ -1210,7 +1210,7 @@ ex add::smod(const numeric &xi) const
 	}
 	GINAC_ASSERT(is_exactly_a<numeric>(overall_coeff));
 	numeric coeff = GiNaC::smod(ex_to<numeric>(overall_coeff), xi);
-	return (new add(std::move(newseq), coeff))->setflag(status_flags::dynallocated);
+	return dynallocate<add>(std::move(newseq), coeff);
 }
 
 ex mul::smod(const numeric &xi) const
@@ -1220,12 +1220,12 @@ ex mul::smod(const numeric &xi) const
 		GINAC_ASSERT(!is_exactly_a<numeric>(recombine_pair_to_ex(it)));
 	}
 #endif // def DO_GINAC_ASSERT
-	mul * mulcopyp = new mul(*this);
+	mul & mulcopy = dynallocate<mul>(*this);
 	GINAC_ASSERT(is_exactly_a<numeric>(overall_coeff));
-	mulcopyp->overall_coeff = GiNaC::smod(ex_to<numeric>(overall_coeff),xi);
-	mulcopyp->clearflag(status_flags::evaluated);
-	mulcopyp->clearflag(status_flags::hash_calculated);
-	return mulcopyp->setflag(status_flags::dynallocated);
+	mulcopy.overall_coeff = GiNaC::smod(ex_to<numeric>(overall_coeff),xi);
+	mulcopy.clearflag(status_flags::evaluated);
+	mulcopy.clearflag(status_flags::hash_calculated);
+	return mulcopy;
 }
 
 
@@ -1240,7 +1240,7 @@ static ex interpolate(const ex &gamma, const numeric &xi, const ex &x, int degre
 		g.push_back(gi * power(x, i));
 		e = (e - gi) * rxi;
 	}
-	return (new add(g))->setflag(status_flags::dynallocated);
+	return dynallocate<add>(g);
 }
 
 /** Exception thrown by heur_gcd() to signal failure. */
@@ -1737,10 +1737,10 @@ static ex gcd_pf_mul(const ex& a, const ex& b, ex* ca, ex* cb)
 		part_b = part_cb;
 	}
 	if (ca)
-		*ca = (new mul(acc_ca))->setflag(status_flags::dynallocated);
+		*ca = dynallocate<mul>(acc_ca);
 	if (cb)
 		*cb = part_b;
-	return (new mul(g))->setflag(status_flags::dynallocated);
+	return dynallocate<mul>(g);
 }
 
 /** Compute LCM (Least Common Multiple) of multivariate polynomials in Z[X].
@@ -1992,7 +1992,7 @@ static ex replace_with_symbol(const ex & e, exmap & repl, exmap & rev_lookup)
 	// Otherwise create new symbol and add to list, taking care that the
 	// replacement expression doesn't itself contain symbols from repl,
 	// because subs() is not recursive
-	ex es = (new symbol)->setflag(status_flags::dynallocated);
+	ex es = dynallocate<symbol>();
 	repl.insert(std::make_pair(es, e_replaced));
 	rev_lookup.insert(std::make_pair(e_replaced, es));
 	return es;
@@ -2016,7 +2016,7 @@ static ex replace_with_symbol(const ex & e, exmap & repl)
 	// Otherwise create new symbol and add to list, taking care that the
 	// replacement expression doesn't itself contain symbols from repl,
 	// because subs() is not recursive
-	ex es = (new symbol)->setflag(status_flags::dynallocated);
+	ex es = dynallocate<symbol>();
 	repl.insert(std::make_pair(es, e_replaced));
 	return es;
 }
@@ -2035,15 +2035,15 @@ struct normal_map_function : public map_function {
 ex basic::normal(exmap & repl, exmap & rev_lookup, int level) const
 {
 	if (nops() == 0)
-		return (new lst{replace_with_symbol(*this, repl, rev_lookup), _ex1})->setflag(status_flags::dynallocated);
+		return dynallocate<lst>({replace_with_symbol(*this, repl, rev_lookup), _ex1});
 	else {
 		if (level == 1)
-			return (new lst{replace_with_symbol(*this, repl, rev_lookup), _ex1})->setflag(status_flags::dynallocated);
+			return dynallocate<lst>({replace_with_symbol(*this, repl, rev_lookup), _ex1});
 		else if (level == -max_recursion_level)
 			throw(std::runtime_error("max recursion level reached"));
 		else {
 			normal_map_function map_normal(level - 1);
-			return (new lst{replace_with_symbol(map(map_normal), repl, rev_lookup), _ex1})->setflag(status_flags::dynallocated);
+			return dynallocate<lst>({replace_with_symbol(map(map_normal), repl, rev_lookup), _ex1});
 		}
 	}
 }
@@ -2053,7 +2053,7 @@ ex basic::normal(exmap & repl, exmap & rev_lookup, int level) const
  *  @see ex::normal */
 ex symbol::normal(exmap & repl, exmap & rev_lookup, int level) const
 {
-	return (new lst{*this, _ex1})->setflag(status_flags::dynallocated);
+	return dynallocate<lst>({*this, _ex1});
 }
 
 
@@ -2077,7 +2077,7 @@ ex numeric::normal(exmap & repl, exmap & rev_lookup, int level) const
 	}
 
 	// Denominator is always a real integer (see numeric::denom())
-	return (new lst{numex, denom()})->setflag(status_flags::dynallocated);
+	return dynallocate<lst>({numex, denom()});
 }
 
 
@@ -2095,11 +2095,11 @@ static ex frac_cancel(const ex &n, const ex &d)
 
 	// Handle trivial case where denominator is 1
 	if (den.is_equal(_ex1))
-		return (new lst{num, den})->setflag(status_flags::dynallocated);
+		return dynallocate<lst>({num, den});
 
 	// Handle special cases where numerator or denominator is 0
 	if (num.is_zero())
-		return (new lst{num, _ex1})->setflag(status_flags::dynallocated);
+		return dynallocate<lst>({num, _ex1});
 	if (den.expand().is_zero())
 		throw(std::overflow_error("frac_cancel: division by zero in frac_cancel"));
 
@@ -2138,7 +2138,7 @@ static ex frac_cancel(const ex &n, const ex &d)
 
 	// Return result as list
 //std::clog << " returns num = " << num << ", den = " << den << ", pre_factor = " << pre_factor << std::endl;
-	return (new lst{num * pre_factor.numer(), den * pre_factor.denom()})->setflag(status_flags::dynallocated);
+	return dynallocate<lst>({num * pre_factor.numer(), den * pre_factor.denom()});
 }
 
 
@@ -2148,7 +2148,7 @@ static ex frac_cancel(const ex &n, const ex &d)
 ex add::normal(exmap & repl, exmap & rev_lookup, int level) const
 {
 	if (level == 1)
-		return (new lst{replace_with_symbol(*this, repl, rev_lookup), _ex1})->setflag(status_flags::dynallocated);
+		return dynallocate<lst>({replace_with_symbol(*this, repl, rev_lookup), _ex1});
 	else if (level == -max_recursion_level)
 		throw(std::runtime_error("max recursion level reached"));
 
@@ -2205,7 +2205,7 @@ ex add::normal(exmap & repl, exmap & rev_lookup, int level) const
 ex mul::normal(exmap & repl, exmap & rev_lookup, int level) const
 {
 	if (level == 1)
-		return (new lst{replace_with_symbol(*this, repl, rev_lookup), _ex1})->setflag(status_flags::dynallocated);
+		return dynallocate<lst>({replace_with_symbol(*this, repl, rev_lookup), _ex1});
 	else if (level == -max_recursion_level)
 		throw(std::runtime_error("max recursion level reached"));
 
@@ -2223,8 +2223,7 @@ ex mul::normal(exmap & repl, exmap & rev_lookup, int level) const
 	den.push_back(n.op(1));
 
 	// Perform fraction cancellation
-	return frac_cancel((new mul(num))->setflag(status_flags::dynallocated),
-	                   (new mul(den))->setflag(status_flags::dynallocated));
+	return frac_cancel(dynallocate<mul>(num), dynallocate<mul>(den));
 }
 
 
@@ -2235,7 +2234,7 @@ ex mul::normal(exmap & repl, exmap & rev_lookup, int level) const
 ex power::normal(exmap & repl, exmap & rev_lookup, int level) const
 {
 	if (level == 1)
-		return (new lst{replace_with_symbol(*this, repl, rev_lookup), _ex1})->setflag(status_flags::dynallocated);
+		return dynallocate<lst>({replace_with_symbol(*this, repl, rev_lookup), _ex1});
 	else if (level == -max_recursion_level)
 		throw(std::runtime_error("max recursion level reached"));
 
@@ -2249,12 +2248,12 @@ ex power::normal(exmap & repl, exmap & rev_lookup, int level) const
 		if (n_exponent.info(info_flags::positive)) {
 
 			// (a/b)^n -> {a^n, b^n}
-			return (new lst{power(n_basis.op(0), n_exponent), power(n_basis.op(1), n_exponent)})->setflag(status_flags::dynallocated);
+			return dynallocate<lst>({power(n_basis.op(0), n_exponent), power(n_basis.op(1), n_exponent)});
 
 		} else if (n_exponent.info(info_flags::negative)) {
 
 			// (a/b)^-n -> {b^n, a^n}
-			return (new lst{power(n_basis.op(1), -n_exponent), power(n_basis.op(0), -n_exponent)})->setflag(status_flags::dynallocated);
+			return dynallocate<lst>({power(n_basis.op(1), -n_exponent), power(n_basis.op(0), -n_exponent)});
 		}
 
 	} else {
@@ -2262,25 +2261,25 @@ ex power::normal(exmap & repl, exmap & rev_lookup, int level) const
 		if (n_exponent.info(info_flags::positive)) {
 
 			// (a/b)^x -> {sym((a/b)^x), 1}
-			return (new lst{replace_with_symbol(power(n_basis.op(0) / n_basis.op(1), n_exponent), repl, rev_lookup), _ex1})->setflag(status_flags::dynallocated);
+			return dynallocate<lst>({replace_with_symbol(power(n_basis.op(0) / n_basis.op(1), n_exponent), repl, rev_lookup), _ex1});
 
 		} else if (n_exponent.info(info_flags::negative)) {
 
 			if (n_basis.op(1).is_equal(_ex1)) {
 
 				// a^-x -> {1, sym(a^x)}
-				return (new lst{_ex1, replace_with_symbol(power(n_basis.op(0), -n_exponent), repl, rev_lookup)})->setflag(status_flags::dynallocated);
+				return dynallocate<lst>({_ex1, replace_with_symbol(power(n_basis.op(0), -n_exponent), repl, rev_lookup)});
 
 			} else {
 
 				// (a/b)^-x -> {sym((b/a)^x), 1}
-				return (new lst{replace_with_symbol(power(n_basis.op(1) / n_basis.op(0), -n_exponent), repl, rev_lookup), _ex1})->setflag(status_flags::dynallocated);
+				return dynallocate<lst>({replace_with_symbol(power(n_basis.op(1) / n_basis.op(0), -n_exponent), repl, rev_lookup), _ex1});
 			}
 		}
 	}
 
 	// (a/b)^x -> {sym((a/b)^x, 1}
-	return (new lst{replace_with_symbol(power(n_basis.op(0) / n_basis.op(1), n_exponent), repl, rev_lookup), _ex1})->setflag(status_flags::dynallocated);
+	return dynallocate<lst>({replace_with_symbol(power(n_basis.op(0) / n_basis.op(1), n_exponent), repl, rev_lookup), _ex1});
 }
 
 
@@ -2296,7 +2295,7 @@ ex pseries::normal(exmap & repl, exmap & rev_lookup, int level) const
 			newseq.push_back(expair(restexp, it.coeff));
 	}
 	ex n = pseries(relational(var,point), std::move(newseq));
-	return (new lst{replace_with_symbol(n, repl, rev_lookup), _ex1})->setflag(status_flags::dynallocated);
+	return dynallocate<lst>({replace_with_symbol(n, repl, rev_lookup), _ex1});
 }
 
 
@@ -2628,7 +2627,7 @@ static ex find_common_factor(const ex & e, ex & factor, exmap & repl)
 							else
 								v.push_back(t.op(k));
 						}
-						t = (new mul(v))->setflag(status_flags::dynallocated);
+						t = dynallocate<mul>(v);
 						goto term_done;
 					}
 				}
@@ -2638,7 +2637,7 @@ static ex find_common_factor(const ex & e, ex & factor, exmap & repl)
 			t = x;
 term_done:	;
 		}
-		return (new add(terms))->setflag(status_flags::dynallocated);
+		return dynallocate<add>(terms);
 
 	} else if (is_exactly_a<mul>(e)) {
 
@@ -2648,7 +2647,7 @@ term_done:	;
 		for (size_t i=0; i<num; i++)
 			v.push_back(find_common_factor(e.op(i), factor, repl));
 
-		return (new mul(v))->setflag(status_flags::dynallocated);
+		return dynallocate<mul>(v);
 
 	} else if (is_exactly_a<power>(e)) {
 		const ex e_exp(e.op(1));

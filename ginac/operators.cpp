@@ -37,7 +37,7 @@ namespace GiNaC {
 /** Used internally by operator+() to add two ex objects together. */
 static inline const ex exadd(const ex & lh, const ex & rh)
 {
-	return (new add(lh,rh))->setflag(status_flags::dynallocated);
+	return dynallocate<add>(lh, rh);
 }
 
 /** Used internally by operator*() to multiply two ex objects together. */
@@ -48,16 +48,16 @@ static inline const ex exmul(const ex & lh, const ex & rh)
 	// only one of the elements.
 	if (rh.return_type()==return_types::commutative ||
 	    lh.return_type()==return_types::commutative) {
-		return (new mul(lh,rh))->setflag(status_flags::dynallocated);
+		return dynallocate<mul>(lh, rh);
 	} else {
-		return (new ncmul(lh,rh))->setflag(status_flags::dynallocated);
+		return dynallocate<ncmul>(lh, rh);
 	}
 }
 
 /** Used internally by operator-() and friends to change the sign of an argument. */
 static inline const ex exminus(const ex & lh)
 {
-	return (new mul(lh,_ex_1))->setflag(status_flags::dynallocated);
+	return dynallocate<mul>(lh, _ex_1);
 }
 
 // binary arithmetic operators ex with ex

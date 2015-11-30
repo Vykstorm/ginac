@@ -246,7 +246,7 @@ ex expairseq::eval(int level) const
 
 	epvector evaled = evalchildren(level);
 	if (!evaled.empty())
-		return (new expairseq(std::move(evaled), overall_coeff))->setflag(status_flags::dynallocated | status_flags::evaluated);
+		return dynallocate<expairseq>(std::move(evaled), overall_coeff).setflag(status_flags::evaluated);
 	else
 		return this->hold();
 }

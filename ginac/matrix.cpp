@@ -245,8 +245,7 @@ ex matrix::eval(int level) const
 		for (unsigned c=0; c<col; ++c)
 			m2[r*col+c] = m[r*col+c].eval(level);
 	
-	return (new matrix(row, col, std::move(m2)))->setflag(status_flags::dynallocated |
-	                                                      status_flags::evaluated);
+	return dynallocate<matrix>(row, col, std::move(m2)).setflag(status_flags::evaluated);
 }
 
 ex matrix::subs(const exmap & mp, unsigned options) const
@@ -1572,8 +1571,7 @@ ex lst_to_matrix(const lst & l)
 	}
 
 	// Allocate and fill matrix
-	matrix &M = *new matrix(rows, cols);
-	M.setflag(status_flags::dynallocated);
+	matrix & M = dynallocate<matrix>(rows, cols);
 
 	unsigned i = 0;
 	for (auto & itr : l) {
@@ -1593,8 +1591,7 @@ ex diag_matrix(const lst & l)
 	size_t dim = l.nops();
 
 	// Allocate and fill matrix
-	matrix &M = *new matrix(dim, dim);
-	M.setflag(status_flags::dynallocated);
+	matrix & M = dynallocate<matrix>(dim, dim);
 
 	unsigned i = 0;
 	for (auto & it : l) {
@@ -1610,8 +1607,7 @@ ex diag_matrix(std::initializer_list<ex> l)
 	size_t dim = l.size();
 
 	// Allocate and fill matrix
-	matrix &M = *new matrix(dim, dim);
-	M.setflag(status_flags::dynallocated);
+	matrix & M = dynallocate<matrix>(dim, dim);
 
 	unsigned i = 0;
 	for (auto & it : l) {
@@ -1624,8 +1620,8 @@ ex diag_matrix(std::initializer_list<ex> l)
 
 ex unit_matrix(unsigned r, unsigned c)
 {
-	matrix &Id = *new matrix(r, c);
-	Id.setflag(status_flags::dynallocated | status_flags::evaluated);
+	matrix & Id = dynallocate<matrix>(r, c);
+	Id.setflag(status_flags::evaluated);
 	for (unsigned i=0; i<r && i<c; i++)
 		Id(i,i) = _ex1;
 
@@ -1634,8 +1630,8 @@ ex unit_matrix(unsigned r, unsigned c)
 
 ex symbolic_matrix(unsigned r, unsigned c, const std::string & base_name, const std::string & tex_base_name)
 {
-	matrix &M = *new matrix(r, c);
-	M.setflag(status_flags::dynallocated | status_flags::evaluated);
+	matrix & M = dynallocate<matrix>(r, c);
+	M.setflag(status_flags::evaluated);
 
 	bool long_format = (r > 10 || c > 10);
 	bool single_row = (r == 1 || c == 1);
@@ -1676,8 +1672,8 @@ ex reduced_matrix(const matrix& m, unsigned r, unsigned c)
 
 	const unsigned rows = m.rows()-1;
 	const unsigned cols = m.cols()-1;
-	matrix &M = *new matrix(rows, cols);
-	M.setflag(status_flags::dynallocated | status_flags::evaluated);
+	matrix & M = dynallocate<matrix>(rows, cols);
+	M.setflag(status_flags::evaluated);
 
 	unsigned ro = 0;
 	unsigned ro2 = 0;
@@ -1705,8 +1701,8 @@ ex sub_matrix(const matrix&m, unsigned r, unsigned nr, unsigned c, unsigned nc)
 	if (r+nr>m.rows() || c+nc>m.cols())
 		throw std::runtime_error("sub_matrix(): index out of bounds");
 
-	matrix &M = *new matrix(nr, nc);
-	M.setflag(status_flags::dynallocated | status_flags::evaluated);
+	matrix & M = dynallocate<matrix>(nr, nc);
+	M.setflag(status_flags::evaluated);
 
 	for (unsigned ro=0; ro<nr; ++ro) {
 		for (unsigned co=0; co<nc; ++co) {

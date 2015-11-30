@@ -929,9 +929,8 @@ const numeric &numeric::add_dyn(const numeric &other) const
 		return other;
 	else if (&other==_num0_p)
 		return *this;
-	
-	return static_cast<const numeric &>((new numeric(value + other.value))->
-	                                    setflag(status_flags::dynallocated));
+
+	return dynallocate<numeric>(value + other.value);
 }
 
 
@@ -945,9 +944,8 @@ const numeric &numeric::sub_dyn(const numeric &other) const
 	// hack is supposed to keep the number of distinct numeric objects low.
 	if (&other==_num0_p || cln::zerop(other.value))
 		return *this;
-	
-	return static_cast<const numeric &>((new numeric(value - other.value))->
-	                                    setflag(status_flags::dynallocated));
+
+	return dynallocate<numeric>(value - other.value);
 }
 
 
@@ -964,8 +962,7 @@ const numeric &numeric::mul_dyn(const numeric &other) const
 	else if (&other==_num1_p)
 		return *this;
 	
-	return static_cast<const numeric &>((new numeric(value * other.value))->
-	                                    setflag(status_flags::dynallocated));
+	return dynallocate<numeric>(value * other.value);
 }
 
 
@@ -983,8 +980,8 @@ const numeric &numeric::div_dyn(const numeric &other) const
 		return *this;
 	if (cln::zerop(cln::the<cln::cl_N>(other.value)))
 		throw std::overflow_error("division by zero");
-	return static_cast<const numeric &>((new numeric(value / other.value))->
-	                                    setflag(status_flags::dynallocated));
+
+	return dynallocate<numeric>(value / other.value);
 }
 
 
@@ -1010,8 +1007,8 @@ const numeric &numeric::power_dyn(const numeric &other) const
 		else
 			return *_num0_p;
 	}
-	return static_cast<const numeric &>((new numeric(cln::expt(value, other.value)))->
-	                                     setflag(status_flags::dynallocated));
+
+	return dynallocate<numeric>(cln::expt(value, other.value));
 }
 
 

@@ -48,8 +48,7 @@ GINAC_IMPLEMENT_REGISTERED_CLASS_OPT(integral, basic,
 //////////
 
 integral::integral()
-		: 
-		x((new symbol())->setflag(status_flags::dynallocated))
+		: x(dynallocate<symbol>())
 {}
 
 //////////
@@ -162,8 +161,7 @@ ex integral::eval(int level) const
 	if (are_ex_trivially_equal(eintvar,x) && are_ex_trivially_equal(ea,a) &&
 	    are_ex_trivially_equal(eb,b) && are_ex_trivially_equal(ef,f))
 		return this->hold();
-	return (new integral(eintvar, ea, eb, ef))
-		->setflag(status_flags::dynallocated | status_flags::evaluated);
+	return dynallocate<integral>(eintvar, ea, eb, ef).setflag(status_flags::evaluated);
 }
 
 ex integral::evalf(int level) const
@@ -195,8 +193,7 @@ ex integral::evalf(int level) const
 	    are_ex_trivially_equal(f, ef))
 			return *this;
 		else
-			return (new integral(x, ea, eb, ef))
-				->setflag(status_flags::dynallocated);
+			return dynallocate<integral>(x, ea, eb, ef);
 }
 
 int integral::max_integration_level = 15;
@@ -414,8 +411,7 @@ ex integral::expand(unsigned options) const
 		return *this;
 	}
 
-	const basic & newint = (new integral(x, newa, newb, newf))
-		->setflag(status_flags::dynallocated);
+	const integral & newint = dynallocate<integral>(x, newa, newb, newf);
 	if (options == 0)
 		newint.setflag(status_flags::expanded);
 	return newint;
@@ -448,8 +444,7 @@ ex integral::conjugate() const
 	    are_ex_trivially_equal(f, conjf))
 		return *this;
 
-	return (new integral(x, conja, conjb, conjf))
-		->setflag(status_flags::dynallocated);
+	return dynallocate<integral>(x, conja, conjb, conjf);
 }
 
 ex integral::eval_integ() const

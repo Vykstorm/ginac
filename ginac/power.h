@@ -115,12 +115,12 @@ GINAC_DECLARE_UNARCHIVER(power);
  *  @param e the exponent expression */
 inline ex pow(const ex & b, const ex & e)
 {
-	return power(b, e);
+	return dynallocate<power>(b, e);
 }
 template<typename T1, typename T2>
 inline ex pow(const T1 & b, const T2 & e)
 {
-	return power(ex(b), ex(e));
+	return dynallocate<power>(ex(b), ex(e));
 }
 
 /** Square root expression.  Returns a power-object with exponent 1/2. */

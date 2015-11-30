@@ -401,10 +401,7 @@ basic & ex::construct_from_int(int i)
 	case 12:
 		return *const_cast<numeric *>(_num12_p);
 	default:
-		basic *bp = new numeric(i);
-		bp->setflag(status_flags::dynallocated);
-		GINAC_ASSERT(bp->get_refcount() == 0);
-		return *bp;
+		return dynallocate<numeric>(i);
 	}
 }
 	
@@ -438,10 +435,7 @@ basic & ex::construct_from_uint(unsigned int i)
 	case 12:
 		return *const_cast<numeric *>(_num12_p);
 	default:
-		basic *bp = new numeric(i);
-		bp->setflag(status_flags::dynallocated);
-		GINAC_ASSERT(bp->get_refcount() == 0);
-		return *bp;
+		return dynallocate<numeric>(i);
 	}
 }
 	
@@ -499,10 +493,7 @@ basic & ex::construct_from_long(long i)
 	case 12:
 		return *const_cast<numeric *>(_num12_p);
 	default:
-		basic *bp = new numeric(i);
-		bp->setflag(status_flags::dynallocated);
-		GINAC_ASSERT(bp->get_refcount() == 0);
-		return *bp;
+		return dynallocate<numeric>(i);
 	}
 }
 	
@@ -536,19 +527,13 @@ basic & ex::construct_from_ulong(unsigned long i)
 	case 12:
 		return *const_cast<numeric *>(_num12_p);
 	default:
-		basic *bp = new numeric(i);
-		bp->setflag(status_flags::dynallocated);
-		GINAC_ASSERT(bp->get_refcount() == 0);
-		return *bp;
+		return dynallocate<numeric>(i);
 	}
 }
 	
 basic & ex::construct_from_double(double d)
 {
-	basic *bp = new numeric(d);
-	bp->setflag(status_flags::dynallocated);
-	GINAC_ASSERT(bp->get_refcount() == 0);
-	return *bp;
+	return dynallocate<numeric>(d);
 }
 
 //////////

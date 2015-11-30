@@ -317,8 +317,8 @@ ex add::coeff(const ex & s, int n) const
 		}
 	}
 
-	return (new add(nonscalar ? std::move(coeffseq_cliff) : std::move(coeffseq),
-	                n==0 ? overall_coeff : _ex0))->setflag(status_flags::dynallocated);
+	return dynallocate<add>(nonscalar ? std::move(coeffseq_cliff) : std::move(coeffseq),
+	                        n==0 ? overall_coeff : _ex0);
 }
 
 /** Perform automatic term rewriting rules in this class.  In the following
@@ -333,8 +333,7 @@ ex add::eval(int level) const
 	epvector evaled = evalchildren(level);
 	if (unlikely(!evaled.empty())) {
 		// do more evaluation later
-		return (new add(std::move(evaled), overall_coeff))->
-			setflag(status_flags::dynallocated);
+		return dynallocate<add>(std::move(evaled), overall_coeff);
 	}
 
 #ifdef DO_GINAC_ASSERT
@@ -377,8 +376,7 @@ ex add::eval(int level) const
 			else
 				s.push_back(it);
 		}
-		return (new add(std::move(s), ex_to<numeric>(overall_coeff).add_dyn(oc)))
-		        ->setflag(status_flags::dynallocated);
+		return dynallocate<add>(std::move(s), ex_to<numeric>(overall_coeff).add_dyn(oc));
 	}
 	
 	return this->hold();
@@ -411,7 +409,7 @@ ex add::evalm() const
 	if (all_matrices)
 		return sum + overall_coeff;
 	else
-		return (new add(std::move(s), overall_coeff))->setflag(status_flags::dynallocated);
+		return dynallocate<add>(std::move(s), overall_coeff);
 }
 
 ex add::conjugate() const
@@ -452,8 +450,7 @@ ex add::real_part() const
 			if (!rp.is_zero())
 				v.push_back(split_ex_to_pair(rp));
 		}
-	return (new add(std::move(v), overall_coeff.real_part()))
-		-> setflag(status_flags::dynallocated);
+	return dynallocate<add>(std::move(v), overall_coeff.real_part());
 }
 
 ex add::imag_part() const
@@ -470,8 +467,7 @@ ex add::imag_part() const
 			if (!ip.is_zero())
 				v.push_back(split_ex_to_pair(ip));
 		}
-	return (new add(std::move(v), overall_coeff.imag_part()))
-		-> setflag(status_flags::dynallocated);
+	return dynallocate<add>(std::move(v), overall_coeff.imag_part());
 }
 
 ex add::eval_ncmul(const exvector & v) const
@@ -497,7 +493,7 @@ ex add::derivative(const symbol & y) const
 	for (auto & it : seq)
 		s.push_back(combine_ex_with_coeff_to_pair(it.rest.diff(y), it.coeff));
 
-	return (new add(std::move(s), _ex0))->setflag(status_flags::dynallocated);
+	return dynallocate<add>(std::move(s), _ex0);
 }
 
 int add::compare_same_type(const basic & other) const
@@ -524,13 +520,13 @@ return_type_t add::return_type_tinfo() const
 // Note: do_index_renaming is ignored because it makes no sense for an add.
 ex add::thisexpairseq(const epvector & v, const ex & oc, bool do_index_renaming) const
 {
-	return (new add(v,oc))->setflag(status_flags::dynallocated);
+	return dynallocate<add>(v, oc);
 }
 
 // Note: do_index_renaming is ignored because it makes no sense for an add.
 ex add::thisexpairseq(epvector && vp, const ex & oc, bool do_index_renaming) const
 {
-	return (new add(std::move(vp), oc))->setflag(status_flags::dynallocated);
+	return dynallocate<add>(std::move(vp), oc);
 }
 
 expair add::split_ex_to_pair(const ex & e) const
@@ -540,12 +536,10 @@ expair add::split_ex_to_pair(const ex & e) const
 		const ex &numfactor = mulref.overall_coeff;
 		if (numfactor.is_equal(_ex1))
 			return expair(e, _ex1);
-		mul *mulcopyp = new mul(mulref);
-		mulcopyp->overall_coeff = _ex1;
-		mulcopyp->clearflag(status_flags::evaluated);
-		mulcopyp->clearflag(status_flags::hash_calculated);
-		mulcopyp->setflag(status_flags::dynallocated);
-		return expair(*mulcopyp,numfactor);
+		mul & mulcopy = dynallocate<mul>(mulref);
+		mulcopy.overall_coeff = _ex1;
+		mulcopy.clearflag(status_flags::evaluated | status_flags::hash_calculated);
+		return expair(mulcopy, numfactor);
 	}
 	return expair(e,_ex1);
 }
@@ -559,15 +553,13 @@ expair add::combine_ex_with_coeff_to_pair(const ex & e,
 		const ex &numfactor = mulref.overall_coeff;
 		if (numfactor.is_equal(_ex1))
 			return expair(e, c);
-		mul *mulcopyp = new mul(mulref);
-		mulcopyp->overall_coeff = _ex1;
-		mulcopyp->clearflag(status_flags::evaluated);
-		mulcopyp->clearflag(status_flags::hash_calculated);
-		mulcopyp->setflag(status_flags::dynallocated);
+		mul & mulcopy = dynallocate<mul>(mulref);
+		mulcopy.overall_coeff = _ex1;
+		mulcopy.clearflag(status_flags::evaluated | status_flags::hash_calculated);
 		if (c.is_equal(_ex1))
-			return expair(*mulcopyp, numfactor);
+			return expair(mulcopy, numfactor);
 		else
-			return expair(*mulcopyp, ex_to<numeric>(numfactor).mul_dyn(ex_to<numeric>(c)));
+			return expair(mulcopy, ex_to<numeric>(numfactor).mul_dyn(ex_to<numeric>(c)));
 	} else if (is_exactly_a<numeric>(e)) {
 		if (c.is_equal(_ex1))
 			return expair(e, _ex1);
@@ -597,7 +589,7 @@ ex add::recombine_pair_to_ex(const expair & p) const
 	if (ex_to<numeric>(p.coeff).is_equal(*_num1_p))
 		return p.rest;
 	else
-		return (new mul(p.rest,p.coeff))->setflag(status_flags::dynallocated);
+		return dynallocate<mul>(p.rest, p.coeff);
 }
 
 ex add::expand(unsigned options) const
@@ -606,8 +598,7 @@ ex add::expand(unsigned options) const
 	if (expanded.empty())
 		return (options == 0) ? setflag(status_flags::expanded) : *this;
 
-	return (new add(std::move(expanded), overall_coeff))->setflag(status_flags::dynallocated |
-	                                                              (options == 0 ? status_flags::expanded : 0));
+	return dynallocate<add>(std::move(expanded), overall_coeff).setflag(options == 0 ? status_flags::expanded : 0);
 }
 
 } // namespace GiNaC

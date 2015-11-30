@@ -1232,7 +1232,7 @@ ex simplify_indexed(const ex & e, exvector & free_indices, exvector & dummy_indi
 		}
 
 		// Add all resulting terms
-		ex sum_symm = (new add(result))->setflag(status_flags::dynallocated);
+		ex sum_symm = dynallocate<add>(result);
 		if (sum_symm.is_zero())
 			free_indices.clear();
 		return sum_symm;
@@ -1471,20 +1471,17 @@ lst rename_dummy_indices_uniquely(const exvector & va, const exvector & vb)
 		new_indices.reserve(2*common_indices.size());
 		exvector::const_iterator ip = common_indices.begin(), ipend = common_indices.end();
 		while (ip != ipend) {
-			ex newsym=(new symbol)->setflag(status_flags::dynallocated);
+			ex newsym = dynallocate<symbol>();
 			ex newidx;
 			if(is_exactly_a<spinidx>(*ip))
-				newidx = (new spinidx(newsym, ex_to<spinidx>(*ip).get_dim(),
-						ex_to<spinidx>(*ip).is_covariant(),
-						ex_to<spinidx>(*ip).is_dotted()))
-					-> setflag(status_flags::dynallocated);
+				newidx = dynallocate<spinidx>(newsym, ex_to<spinidx>(*ip).get_dim(),
+				                              ex_to<spinidx>(*ip).is_covariant(),
+				                              ex_to<spinidx>(*ip).is_dotted());
 			else if (is_exactly_a<varidx>(*ip))
-				newidx = (new varidx(newsym, ex_to<varidx>(*ip).get_dim(),
-						ex_to<varidx>(*ip).is_covariant()))
-					-> setflag(status_flags::dynallocated);
+				newidx = dynallocate<varidx>(newsym, ex_to<varidx>(*ip).get_dim(),
+				                             ex_to<varidx>(*ip).is_covariant());
 			else
-				newidx = (new idx(newsym, ex_to<idx>(*ip).get_dim()))
-					-> setflag(status_flags::dynallocated);
+				newidx = dynallocate<idx>(newsym, ex_to<idx>(*ip).get_dim());
 			old_indices.push_back(*ip);
 			new_indices.push_back(newidx);
 			if(is_a<varidx>(*ip)) {

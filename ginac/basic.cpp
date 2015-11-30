@@ -309,7 +309,6 @@ ex basic::map(map_function & f) const
 	}
 
 	if (copy) {
-		copy->setflag(status_flags::dynallocated);
 		copy->clearflag(status_flags::hash_calculated | status_flags::expanded);
 		return *copy;
 	} else
@@ -384,7 +383,7 @@ ex basic::collect(const ex & s, bool distributed) const
 			exvector resv;
 			for (auto & mi : cmap)
 				resv.push_back((mi.first)*(mi.second));
-			return (new add(resv))->setflag(status_flags::dynallocated);
+			return dynallocate<add>(resv);
 
 		} else {
 
@@ -625,7 +624,6 @@ ex basic::subs(const exmap & m, unsigned options) const
 
 				// Something changed, clone the object
 				basic *copy = duplicate();
-				copy->setflag(status_flags::dynallocated);
 				copy->clearflag(status_flags::hash_calculated | status_flags::expanded);
 
 				// Substitute the changed operand

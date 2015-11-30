@@ -321,7 +321,7 @@ static void base_and_index(const ex & c, ex & b, ex & i)
 		i = _ex0;
 		b = _ex1;
 	} else { // slash object, generate new dummy index
-		varidx ix((new symbol)->setflag(status_flags::dynallocated), ex_to<idx>(c.op(1)).get_dim());
+		varidx ix(dynallocate<symbol>(), ex_to<idx>(c.op(1)).get_dim());
 		b = indexed(c.op(0), ix.toggle_variance());
 		i = ix;
 	}
@@ -661,7 +661,7 @@ ex clifford::eval_ncmul(const exvector & v) const
 			} else if (!a_is_cliffordunit && !b_is_cliffordunit && ag.is_equal(bg)) {
 
 				// a\ a\ -> a^2
-				varidx ix((new symbol)->setflag(status_flags::dynallocated), ex_to<idx>(a.op(1)).minimal_dim(ex_to<idx>(b.op(1))));
+				varidx ix(dynallocate<symbol>(), ex_to<idx>(a.op(1)).minimal_dim(ex_to<idx>(b.op(1))));
 				
 				a = indexed(ag, ix) * indexed(ag, ix.toggle_variance());
 				b = dirac_ONE(representation_label);
@@ -695,12 +695,12 @@ ex diracgamma5::conjugate() const
 
 ex diracgammaL::conjugate() const
 {
-	return (new diracgammaR)->setflag(status_flags::dynallocated);
+	return dynallocate<diracgammaR>();
 }
 
 ex diracgammaR::conjugate() const
 {
-	return (new diracgammaL)->setflag(status_flags::dynallocated);
+	return dynallocate<diracgammaL>();
 }
 
 //////////
@@ -709,7 +709,7 @@ ex diracgammaR::conjugate() const
 
 ex dirac_ONE(unsigned char rl)
 {
-	static ex ONE = (new diracone)->setflag(status_flags::dynallocated);
+	static ex ONE = dynallocate<diracone>();
 	return clifford(ONE, rl);
 }
 
@@ -726,8 +726,7 @@ static unsigned get_dim_uint(const ex& e)
 
 ex clifford_unit(const ex & mu, const ex & metr, unsigned char rl)
 {
-	//static ex unit = (new cliffordunit)->setflag(status_flags::dynallocated);
-	ex unit = (new cliffordunit)->setflag(status_flags::dynallocated);
+	ex unit = dynallocate<cliffordunit>();
 
 	if (!is_a<idx>(mu))
 		throw(std::invalid_argument("clifford_unit(): index of Clifford unit must be of type idx or varidx"));
@@ -741,10 +740,10 @@ ex clifford_unit(const ex & mu, const ex & metr, unsigned char rl)
 		unsigned n = M.rows();
 		bool symmetric = true;
 
-		//static idx xi((new symbol)->setflag(status_flags::dynallocated), n),
-		//	chi((new symbol)->setflag(status_flags::dynallocated), n);
-		idx xi((new symbol)->setflag(status_flags::dynallocated), n),
-			chi((new symbol)->setflag(status_flags::dynallocated), n);
+		//static idx xi(dynallocate<symbol>(), n),
+		//           chi(dynallocate<symbol>(), n);
+		idx xi(dynallocate<symbol>(), n),
+		    chi(dynallocate<symbol>(), n);
 		if ((n ==  M.cols()) && (n == get_dim_uint(mu))) {
 			for (unsigned i = 0; i < n; i++) {
 				for (unsigned j = i+1; j < n; j++) {
@@ -758,10 +757,10 @@ ex clifford_unit(const ex & mu, const ex & metr, unsigned char rl)
 			throw(std::invalid_argument("clifford_unit(): metric for Clifford unit must be a square matrix with the same dimensions as index"));
 		}
 	} else if (indices.size() == 0) { // a tensor or other expression without indices
-		//static varidx xi((new symbol)->setflag(status_flags::dynallocated), ex_to<idx>(mu).get_dim()),
-		//	chi((new symbol)->setflag(status_flags::dynallocated), ex_to<idx>(mu).get_dim());
-		varidx xi((new symbol)->setflag(status_flags::dynallocated), ex_to<idx>(mu).get_dim()),
-			chi((new symbol)->setflag(status_flags::dynallocated), ex_to<idx>(mu).get_dim());
+		//static varidx xi(dynallocate<symbol>(), ex_to<idx>(mu).get_dim()),
+		//              chi(dynallocate<symbol>(), ex_to<idx>(mu).get_dim());
+		varidx xi(dynallocate<symbol>(), ex_to<idx>(mu).get_dim()),
+		       chi(dynallocate<symbol>(), ex_to<idx>(mu).get_dim());
 		return clifford(unit, mu, indexed(metr, xi, chi), rl);
 	}  else 
 		throw(std::invalid_argument("clifford_unit(): metric for Clifford unit must be of type tensor, matrix or an expression with two free indices"));
@@ -769,31 +768,31 @@ ex clifford_unit(const ex & mu, const ex & metr, unsigned char rl)
 
 ex dirac_gamma(const ex & mu, unsigned char rl)
 {
-	static ex gamma = (new diracgamma)->setflag(status_flags::dynallocated);
+	static ex gamma = dynallocate<diracgamma>();
 
 	if (!is_a<varidx>(mu))
 		throw(std::invalid_argument("dirac_gamma(): index of Dirac gamma must be of type varidx"));
 
-	static varidx xi((new symbol)->setflag(status_flags::dynallocated), ex_to<varidx>(mu).get_dim()),
-		chi((new symbol)->setflag(status_flags::dynallocated), ex_to<varidx>(mu).get_dim());
-	return clifford(gamma, mu, indexed((new minkmetric)->setflag(status_flags::dynallocated), symmetric2(), xi, chi), rl);
+	static varidx xi(dynallocate<symbol>(), ex_to<varidx>(mu).get_dim()),
+	              chi(dynallocate<symbol>(), ex_to<varidx>(mu).get_dim());
+	return clifford(gamma, mu, indexed(dynallocate<minkmetric>(), symmetric2(), xi, chi), rl);
 }
 
 ex dirac_gamma5(unsigned char rl)
 {
-	static ex gamma5 = (new diracgamma5)->setflag(status_flags::dynallocated);
+	static ex gamma5 = dynallocate<diracgamma5>();
 	return clifford(gamma5, rl);
 }
 
 ex dirac_gammaL(unsigned char rl)
 {
-	static ex gammaL = (new diracgammaL)->setflag(status_flags::dynallocated);
+	static ex gammaL = dynallocate<diracgammaL>();
 	return clifford(gammaL, rl);
 }
 
 ex dirac_gammaR(unsigned char rl)
 {
-	static ex gammaR = (new diracgammaR)->setflag(status_flags::dynallocated);
+	static ex gammaR = dynallocate<diracgammaR>();
 	return clifford(gammaR, rl);
 }
 
@@ -803,9 +802,9 @@ ex dirac_slash(const ex & e, const ex & dim, unsigned char rl)
 	// vector as its base expression and a (dummy) index that just serves
 	// for storing the space dimensionality
 
-	static varidx xi((new symbol)->setflag(status_flags::dynallocated), dim),
-		chi((new symbol)->setflag(status_flags::dynallocated), dim);
-   return clifford(e, varidx(0, dim), indexed((new minkmetric)->setflag(status_flags::dynallocated), symmetric2(), xi, chi), rl);
+	static varidx xi(dynallocate<symbol>(), dim),
+	              chi(dynallocate<symbol>(), dim);
+	return clifford(e, varidx(0, dim), indexed(dynallocate<minkmetric>(), symmetric2(), xi, chi), rl);
 }
 
 /** Extract representation label from tinfo key (as returned by
@@ -1335,11 +1334,11 @@ ex clifford_moebius_map(const ex & a, const ex & b, const ex & c, const ex & d, 
 	} else {
 		if (is_a<indexed>(G)) {
 			D = ex_to<idx>(G.op(1)).get_dim();
-			varidx mu((new symbol)->setflag(status_flags::dynallocated), D);
+			varidx mu(dynallocate<symbol>(), D);
 			cu = clifford_unit(mu, G, rl);
 		} else if (is_a<matrix>(G)) {
 			D = ex_to<matrix>(G).rows(); 
-			idx mu((new symbol)->setflag(status_flags::dynallocated), D);
+			idx mu(dynallocate<symbol>(), D);
 			cu = clifford_unit(mu, G, rl);
 		} else throw(std::invalid_argument("clifford_moebius_map(): metric should be an indexed object, matrix, or a Clifford unit"));
 		

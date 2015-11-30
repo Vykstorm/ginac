@@ -158,10 +158,10 @@ ex_collect_to_ex(const ex_collect_t& ec, const exvector& vars)
 				tv.push_back(power(vars[j], exp_vector[j]));
 		}
 		tv.push_back(ec[i].second);
-		ex tmp = (new mul(tv))->setflag(status_flags::dynallocated);
+		ex tmp = dynallocate<mul>(tv);
 		ev.push_back(tmp);
 	}
-	ex ret = (new add(ev))->setflag(status_flags::dynallocated);
+	ex ret = dynallocate<add>(ev);
 	return ret;
 }
 

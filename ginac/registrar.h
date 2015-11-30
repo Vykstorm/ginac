@@ -149,9 +149,14 @@ public: \
  *  registry (mainly needed for archiving). */
 #define GINAC_DECLARE_REGISTERED_CLASS(classname, supername) \
 	GINAC_DECLARE_REGISTERED_CLASS_NO_CTORS(classname, supername) \
+	template<class B, typename... Args> friend B & dynallocate(Args &&... args); \
 public: \
 	classname(); \
-	classname * duplicate() const override { return new classname(*this); } \
+	classname * duplicate() const override { \
+		classname * bp = new classname(*this); \
+		bp->setflag(status_flags::dynallocated); \
+		return bp; \
+	} \
 	\
 	void accept(GiNaC::visitor & v) const override \
 	{ \

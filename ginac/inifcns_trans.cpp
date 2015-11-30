@@ -98,7 +98,7 @@ static ex exp_expand(const ex & arg, unsigned options)
 		for (const_iterator i = exp_arg.begin(); i != exp_arg.end(); ++i)
 			prodseq.push_back(exp(*i));
 
-		return (new mul(prodseq))->setflag(status_flags::dynallocated | status_flags::expanded);
+		return dynallocate<mul>(prodseq).setflag(status_flags::expanded);
 	}
 
 	return exp(exp_arg).hold();
@@ -243,7 +243,7 @@ static ex log_series(const ex &arg,
 			// (sadly, to generate them, we have to start from the beginning)
 			if (n == 0 && coeff == 1) {
 				epvector epv;
-				ex acc = (new pseries(rel, epv))->setflag(status_flags::dynallocated);
+				ex acc = dynallocate<pseries>(rel, epv);
 				epv.reserve(2);
 				epv.push_back(expair(-1, _ex0));
 				epv.push_back(expair(Order(_ex1), order));

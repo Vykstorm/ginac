@@ -59,7 +59,7 @@ static ex umodpoly2ex(const umodpoly& a, const ex& var, const long p)
 		const ex term = numeric(c)*power(var, i);
 		ev.push_back(term);
 	}
-	ex ret = (new add(ev))->setflag(status_flags::dynallocated);
+	ex ret = dynallocate<add>(ev);
 	return ret;
 }
 	

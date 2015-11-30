@@ -310,7 +310,7 @@ static ex abs_expand(const ex & arg, unsigned options)
 			else
 				prodseq.push_back(abs(*i));
 		}
-		return (new mul(prodseq))->setflag(status_flags::dynallocated | status_flags::expanded);
+		return dynallocate<mul>(prodseq).setflag(status_flags::expanded);
 	}
 
 	if (options & expand_options::expand_function_args)

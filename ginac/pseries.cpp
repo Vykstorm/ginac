@@ -400,7 +400,7 @@ ex pseries::eval(int level) const
 		new_seq.push_back(expair(it->rest.eval(level-1), it->coeff));
 		++it;
 	}
-	return (new pseries(relational(var,point), std::move(new_seq)))->setflag(status_flags::dynallocated | status_flags::evaluated);
+	return dynallocate<pseries>(relational(var,point), std::move(new_seq)).setflag(status_flags::evaluated);
 }
 
 /** Evaluate coefficients numerically. */
@@ -420,7 +420,7 @@ ex pseries::evalf(int level) const
 		new_seq.push_back(expair(it->rest.evalf(level-1), it->coeff));
 		++it;
 	}
-	return (new pseries(relational(var,point), std::move(new_seq)))->setflag(status_flags::dynallocated | status_flags::evaluated);
+	return dynallocate<pseries>(relational(var,point), std::move(new_seq)).setflag(status_flags::evaluated);
 }
 
 ex pseries::conjugate() const
@@ -435,7 +435,7 @@ ex pseries::conjugate() const
 		return *this;
 	}
 
-	return (new pseries(var==newpoint, newseq ? std::move(*newseq) : seq))->setflag(status_flags::dynallocated);
+	return dynallocate<pseries>(var==newpoint, newseq ? std::move(*newseq) : seq);
 }
 
 ex pseries::real_part() const
@@ -450,7 +450,7 @@ ex pseries::real_part() const
 	v.reserve(seq.size());
 	for (auto & it : seq)
 		v.push_back(expair((it.rest).real_part(), it.coeff));
-	return (new pseries(var==point, std::move(v)))->setflag(status_flags::dynallocated);
+	return dynallocate<pseries>(var==point, std::move(v));
 }
 
 ex pseries::imag_part() const
@@ -465,7 +465,7 @@ ex pseries::imag_part() const
 	v.reserve(seq.size());
 	for (auto & it : seq)
 		v.push_back(expair((it.rest).imag_part(), it.coeff));
-	return (new pseries(var==point, std::move(v)))->setflag(status_flags::dynallocated);
+	return dynallocate<pseries>(var==point, std::move(v));
 }
 
 ex pseries::eval_integ() const
@@ -488,8 +488,7 @@ ex pseries::eval_integ() const
 
 	ex newpoint = point.eval_integ();
 	if (newseq || !are_ex_trivially_equal(newpoint, point))
-		return (new pseries(var==newpoint, std::move(*newseq)))
-		       ->setflag(status_flags::dynallocated);
+		return dynallocate<pseries>(var==newpoint, std::move(*newseq));
 	return *this;
 }
 
@@ -516,7 +515,7 @@ ex pseries::evalm() const
 		}
 	}
 	if (something_changed)
-		return (new pseries(var==point, std::move(newseq)))->setflag(status_flags::dynallocated);
+		return dynallocate<pseries>(var==point, std::move(newseq));
 	else
 		return *this;
 }
@@ -535,7 +534,7 @@ ex pseries::subs(const exmap & m, unsigned options) const
 	newseq.reserve(seq.size());
 	for (auto & it : seq)
 		newseq.push_back(expair(it.rest.subs(m, options), it.coeff));
-	return (new pseries(relational(var,point.subs(m, options)), std::move(newseq)))->setflag(status_flags::dynallocated);
+	return dynallocate<pseries>(relational(var,point.subs(m, options)), std::move(newseq));
 }
 
 /** Implementation of ex::expand() for a power series.  It expands all the
@@ -548,8 +547,7 @@ ex pseries::expand(unsigned options) const
 		if (!restexp.is_zero())
 			newseq.push_back(expair(restexp, it.coeff));
 	}
-	return (new pseries(relational(var,point), std::move(newseq)))
-	        ->setflag(status_flags::dynallocated | (options == 0 ? status_flags::expanded : 0));
+	return dynallocate<pseries>(relational(var,point), std::move(newseq)).setflag(options == 0 ? status_flags::expanded : 0);
 }
 
 /** Implementation of ex::diff() for a power series.
@@ -823,8 +821,7 @@ ex pseries::mul_series(const pseries &other) const
 	}
 
 	if (seq.empty() || other.seq.empty()) {
-		return (new pseries(var==point, epvector()))
-		       ->setflag(status_flags::dynallocated);
+		return dynallocate<pseries>(var==point, epvector());
 	}
 	
 	// Series multiplication
@@ -955,7 +952,7 @@ ex mul::series(const relational & r, int order, unsigned options) const
 
 	if (degsum >= order) {
 		epvector epv { expair(Order(_ex1), order) };
-		return (new pseries(r, std::move(epv)))->setflag(status_flags::dynallocated);
+		return dynallocate<pseries>(r, std::move(epv));
 	}
 
 	// Multiply with remaining terms
@@ -1022,8 +1019,7 @@ ex pseries::power_const(const numeric &p, int deg) const
 	int numcoeff = deg - (p*ldeg).to_int();
 	if (numcoeff <= 0) {
 		epvector epv { expair(Order(_ex1), deg) };
-		return (new pseries(relational(var,point), std::move(epv)))
-		       ->setflag(status_flags::dynallocated);
+		return dynallocate<pseries>(relational(var,point), std::move(epv));
 	}
 	
 	// O(x^n)^(-m) is undefined
@@ -1219,7 +1215,7 @@ ex integral::series(const relational & r, int order, unsigned options) const
 	}
 
 	// Expanding lower boundary
-	ex result = (new pseries(r, std::move(fexpansion)))->setflag(status_flags::dynallocated);
+	ex result = dynallocate<pseries>(r, std::move(fexpansion));
 	ex aseries = (a-a.subs(r)).series(r, order, options);
 	fseries = f.series(x == (a.subs(r)), order, options);
 	for (size_t i=0; i<fseries.nops(); ++i) {

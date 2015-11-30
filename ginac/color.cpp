@@ -474,13 +474,13 @@ bool su3f::contract_with(exvector::iterator self, exvector::iterator other, exve
 
 ex color_ONE(unsigned char rl)
 {
-	static ex ONE = (new su3one)->setflag(status_flags::dynallocated);
+	static ex ONE = dynallocate<su3one>();
 	return color(ONE, rl);
 }
 
 ex color_T(const ex & a, unsigned char rl)
 {
-	static ex t = (new su3t)->setflag(status_flags::dynallocated);
+	static ex t = dynallocate<su3t>();
 
 	if (!is_a<idx>(a))
 		throw(std::invalid_argument("indices of color_T must be of type idx"));
@@ -492,7 +492,7 @@ ex color_T(const ex & a, unsigned char rl)
 
 ex color_f(const ex & a, const ex & b, const ex & c)
 {
-	static ex f = (new su3f)->setflag(status_flags::dynallocated);
+	static ex f = dynallocate<su3f>();
 
 	if (!is_a<idx>(a) || !is_a<idx>(b) || !is_a<idx>(c))
 		throw(std::invalid_argument("indices of color_f must be of type idx"));
@@ -504,7 +504,7 @@ ex color_f(const ex & a, const ex & b, const ex & c)
 
 ex color_d(const ex & a, const ex & b, const ex & c)
 {
-	static ex d = (new su3d)->setflag(status_flags::dynallocated);
+	static ex d = dynallocate<su3d>();
 
 	if (!is_a<idx>(a) || !is_a<idx>(b) || !is_a<idx>(c))
 		throw(std::invalid_argument("indices of color_d must be of type idx"));
@@ -595,7 +595,7 @@ ex color_trace(const ex & e, const std::set<unsigned char> & rls)
 			//   + 1/2 h_a(n-1)_an_k Tr T_a1 .. T_a(n-2) T_k
 			const ex &last_index = e.op(num - 1).op(1);
 			const ex &next_to_last_index = e.op(num - 2).op(1);
-			idx summation_index((new symbol)->setflag(status_flags::dynallocated), 8);
+			idx summation_index(dynallocate<symbol>(), 8);
 
 			exvector v1;
 			v1.reserve(num - 2);

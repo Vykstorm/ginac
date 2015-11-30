@@ -146,8 +146,7 @@ ex ncmul::expand(unsigned options) const
 	// If there are no sums, we are done
 	if (number_of_adds == 0) {
 		if (!v.empty())
-			return (new ncmul(std::move(v)))->
-			        setflag(status_flags::dynallocated | (options == 0 ? status_flags::expanded : 0));
+			return dynallocate<ncmul>(std::move(v)).setflag(options == 0 ? status_flags::expanded : 0);
 		else
 			return *this;
 	}
@@ -179,8 +178,7 @@ ex ncmul::expand(unsigned options) const
 			term[positions_of_adds[i]] = rename_dummy_indices_uniquely(va, expanded_seq[positions_of_adds[i]].op(k[i]), true);
 		}
 
-		distrseq.push_back((new ncmul(std::move(term)))->
-		                    setflag(status_flags::dynallocated | (options == 0 ? status_flags::expanded : 0)));
+		distrseq.push_back(dynallocate<ncmul>(std::move(term)).setflag(options == 0 ? status_flags::expanded : 0));
 
 		// increment k[]
 		int l = number_of_adds-1;
@@ -192,8 +190,7 @@ ex ncmul::expand(unsigned options) const
 			break;
 	}
 
-	return (new add(distrseq))->
-	        setflag(status_flags::dynallocated | (options == 0 ? status_flags::expanded : 0));
+	return dynallocate<add>(distrseq).setflag(options == 0 ? status_flags::expanded : 0);
 }
 
 int ncmul::degree(const ex & s) const
@@ -233,7 +230,7 @@ ex ncmul::coeff(const ex & s, int n) const
 		// if a non-zero power of s is found, the resulting product will be 0
 		for (auto & it : seq)
 			coeffseq.push_back(it.coeff(s,n));
-		return (new ncmul(std::move(coeffseq)))->setflag(status_flags::dynallocated);
+		return dynallocate<ncmul>(std::move(coeffseq));
 	}
 		 
 	bool coeff_found = false;
@@ -248,7 +245,7 @@ ex ncmul::coeff(const ex & s, int n) const
 	}
 
 	if (coeff_found)
-		return (new ncmul(std::move(coeffseq)))->setflag(status_flags::dynallocated);
+		return dynallocate<ncmul>(std::move(coeffseq));
 	
 	return _ex0;
 }
@@ -364,8 +361,8 @@ ex ncmul::eval(int level) const
 			else
 				noncommutativeseq.push_back(assocseq[i]);
 		}
-		commutativeseq.push_back((new ncmul(std::move(noncommutativeseq)))->setflag(status_flags::dynallocated));
-		return (new mul(std::move(commutativeseq)))->setflag(status_flags::dynallocated);
+		commutativeseq.push_back(dynallocate<ncmul>(std::move(noncommutativeseq)));
+		return dynallocate<mul>(std::move(commutativeseq));
 	}
 		
 	// ncmul(x1,y1,x2,y2) -> *(ncmul(x1,x2),ncmul(y1,y2))
@@ -419,13 +416,12 @@ ex ncmul::eval(int level) const
 		exvector splitseq;
 		splitseq.reserve(evv_num);
 		for (i=0; i<evv_num; ++i)
-			splitseq.push_back((new ncmul(evv[i]))->setflag(status_flags::dynallocated));
+			splitseq.push_back(dynallocate<ncmul>(evv[i]));
 		
-		return (new mul(splitseq))->setflag(status_flags::dynallocated);
+		return dynallocate<mul>(splitseq);
 	}
 	
-	return (new ncmul(assocseq))->setflag(status_flags::dynallocated |
-										  status_flags::evaluated);
+	return dynallocate<ncmul>(assocseq).setflag(status_flags::evaluated);
 }
 
 ex ncmul::evalm() const
@@ -451,17 +447,17 @@ ex ncmul::evalm() const
 	}
 
 no_matrix:
-	return (new ncmul(std::move(s)))->setflag(status_flags::dynallocated);
+	return dynallocate<ncmul>(std::move(s));
 }
 
 ex ncmul::thiscontainer(const exvector & v) const
 {
-	return (new ncmul(v))->setflag(status_flags::dynallocated);
+	return dynallocate<ncmul>(v);
 }
 
 ex ncmul::thiscontainer(exvector && v) const
 {
-	return (new ncmul(std::move(v)))->setflag(status_flags::dynallocated);
+	return dynallocate<ncmul>(std::move(v));
 }
 
 ex ncmul::conjugate() const
@@ -480,7 +476,7 @@ ex ncmul::conjugate() const
 		--i;
 		ev.push_back(i->conjugate());
 	}
-	return (new ncmul(std::move(ev)))->setflag(status_flags::dynallocated).eval();
+	return dynallocate<ncmul>(std::move(ev)).eval();
 }
 
 ex ncmul::real_part() const
@@ -509,10 +505,10 @@ ex ncmul::derivative(const symbol & s) const
 	for (size_t i=0; i<num; ++i) {
 		ex e = seq[i].diff(s);
 		e.swap(ncmulseq[i]);
-		addseq.push_back((new ncmul(ncmulseq))->setflag(status_flags::dynallocated));
+		addseq.push_back(dynallocate<ncmul>(ncmulseq));
 		e.swap(ncmulseq[i]);
 	}
-	return (new add(addseq))->setflag(status_flags::dynallocated);
+	return dynallocate<add>(addseq);
 }
 
 int ncmul::compare_same_type(const basic & other) const
@@ -615,7 +611,7 @@ const exvector & ncmul::get_factors() const
 
 ex reeval_ncmul(const exvector & v)
 {
-	return (new ncmul(v))->setflag(status_flags::dynallocated);
+	return dynallocate<ncmul>(v);
 }
 
 ex hold_ncmul(const exvector & v)
@@ -625,8 +621,7 @@ ex hold_ncmul(const exvector & v)
 	else if (v.size() == 1)
 		return v[0];
 	else
-		return (new ncmul(v))->setflag(status_flags::dynallocated |
-		                               status_flags::evaluated);
+		return dynallocate<ncmul>(v).setflag(status_flags::evaluated);
 }
 
 GINAC_BIND_UNARCHIVER(ncmul);

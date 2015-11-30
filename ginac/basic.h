@@ -33,6 +33,7 @@
 #include <set>
 #include <typeinfo> // for typeid
 #include <vector>
+#include <utility>
 
 namespace GiNaC {
 
@@ -126,7 +127,12 @@ public: // only const functions please (may break reference counting)
 	/** Create a clone of this object on the heap.  One can think of this as
 	 *  simulating a virtual copy constructor which is needed for instance by
 	 *  the refcounted construction of an ex from a basic. */
-	virtual basic * duplicate() const { return new basic(*this); }
+	virtual basic * duplicate() const
+	{
+		basic * bp = new basic(*this);
+		bp->setflag(status_flags::dynallocated);
+		return bp;
+	}
 
 	// evaluation
 	virtual ex eval(int level = 0) const;
@@ -296,7 +302,6 @@ protected:
 	mutable unsigned hashvalue;         ///< hash value
 };
 
-
 // global variables
 
 extern int max_recursion_level;
@@ -316,6 +321,31 @@ template <class T>
 inline bool is_exactly_a(const basic & obj)
 {
 	return typeid(T) == typeid(obj);
+}
+
+/** Constructs a new (class basic or derived) B object on the heap.
+ *
+ *  This function picks the object's ctor based on the given argument types.
+ *
+ *  This helps the constructor of ex from basic (or a derived class B) because
+ *  then the constructor doesn't have to duplicate the object onto the heap.
+ *  See ex::construct_from_basic(const basic &) for more information.
+ */
+template<class B, typename... Args>
+inline B & dynallocate(Args &&... args)
+{
+	return const_cast<B &>(static_cast<const B &>((new B(std::forward<Args>(args)...))->setflag(status_flags::dynallocated)));
+}
+/** Constructs a new (class basic or derived) B object on the heap.
+ *
+ *  This function is needed for GiNaC classes which have public ctors from
+ *  initializer lists of expressions (which are not a type and not captured
+ *  by the variadic template version).
+ */
+template<class B>
+inline B & dynallocate(std::initializer_list<ex> il)
+{
+	return const_cast<B &>(static_cast<const B &>((new B(il))->setflag(status_flags::dynallocated)));
 }
 
 } // namespace GiNaC

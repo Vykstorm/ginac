@@ -184,7 +184,7 @@ static unsigned exam_factor3()
 
 static unsigned check_factorization(const exvector& factors)
 {
-	ex e = (new mul(factors))->setflag(status_flags::dynallocated);
+	ex e = dynallocate<mul>(factors);
 	ex ef = factor(e.expand());
 	if (ef.nops() != factors.size()) {
 		clog << "wrong number of factors, expected " << factors.size() <<

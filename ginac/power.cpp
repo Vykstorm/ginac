@@ -282,7 +282,7 @@ ex power::map(map_function & f) const
 
 	if (!are_ex_trivially_equal(basis, mapped_basis)
 	 || !are_ex_trivially_equal(exponent, mapped_exponent))
-		return (new power(mapped_basis, mapped_exponent))->setflag(status_flags::dynallocated);
+		return dynallocate<power>(mapped_basis, mapped_exponent);
 	else
 		return *this;
 }
@@ -438,9 +438,7 @@ ex power::eval(int level) const
 			const bool exponent_is_crational = num_exponent->is_crational();
 			if (!basis_is_crational || !exponent_is_crational) {
 				// return a plain float
-				return (new numeric(num_basis->power(*num_exponent)))->setflag(status_flags::dynallocated |
-				                                                               status_flags::evaluated |
-				                                                               status_flags::expanded);
+				return dynallocate<numeric>(num_basis->power(*num_exponent));
 			}
 
 			const numeric res = num_basis->power(*num_exponent);
@@ -470,9 +468,9 @@ ex power::eval(int level) const
 						const numeric res_bnum = bnum.power(*num_exponent);
 						const numeric res_bden = bden.power(*num_exponent);
 						if (res_bnum.is_integer())
-							return (new mul(power(bden,-*num_exponent),res_bnum))->setflag(status_flags::dynallocated | status_flags::evaluated);
+							return dynallocate<mul>(dynallocate<power>(bden,-*num_exponent),res_bnum).setflag(status_flags::evaluated);
 						if (res_bden.is_integer())
-							return (new mul(power(bnum,*num_exponent),res_bden.inverse()))->setflag(status_flags::dynallocated | status_flags::evaluated);
+							return dynallocate<mul>(dynallocate<power>(bnum,*num_exponent),res_bden.inverse()).setflag(status_flags::evaluated);
 					}
 					return this->hold();
 				} else {
@@ -521,18 +519,17 @@ ex power::eval(int level) const
 			
 			if (canonicalizable && (icont != *_num1_p)) {
 				const add& addref = ex_to<add>(ebasis);
-				add* addp = new add(addref);
-				addp->setflag(status_flags::dynallocated);
-				addp->clearflag(status_flags::hash_calculated);
-				addp->overall_coeff = ex_to<numeric>(addp->overall_coeff).div_dyn(icont);
-				for (auto & i : addp->seq)
+				add & addp = dynallocate<add>(addref);
+				addp.clearflag(status_flags::hash_calculated);
+				addp.overall_coeff = ex_to<numeric>(addp.overall_coeff).div_dyn(icont);
+				for (auto & i : addp.seq)
 					i.coeff = ex_to<numeric>(i.coeff).div_dyn(icont);
 
 				const numeric c = icont.power(*num_exponent);
 				if (likely(c != *_num1_p))
-					return (new mul(power(*addp, *num_exponent), c))->setflag(status_flags::dynallocated);
+					return dynallocate<mul>(dynallocate<power>(addp, *num_exponent), c);
 				else
-					return power(*addp, *num_exponent);
+					return dynallocate<power>(addp, *num_exponent);
 			}
 		}
 
@@ -545,23 +542,19 @@ ex power::eval(int level) const
 				const numeric & num_coeff = ex_to<numeric>(mulref.overall_coeff);
 				if (num_coeff.is_real()) {
 					if (num_coeff.is_positive()) {
-						mul *mulp = new mul(mulref);
-						mulp->overall_coeff = _ex1;
-						mulp->setflag(status_flags::dynallocated);
-						mulp->clearflag(status_flags::evaluated);
-						mulp->clearflag(status_flags::hash_calculated);
-						return (new mul(power(*mulp,exponent),
-						                power(num_coeff,*num_exponent)))->setflag(status_flags::dynallocated);
+						mul & mulp = dynallocate<mul>(mulref);
+						mulp.overall_coeff = _ex1;
+						mulp.clearflag(status_flags::evaluated | status_flags::hash_calculated);
+						return dynallocate<mul>(dynallocate<power>(mulp, exponent),
+						                        dynallocate<power>(num_coeff, *num_exponent));
 					} else {
 						GINAC_ASSERT(num_coeff.compare(*_num0_p)<0);
 						if (!num_coeff.is_equal(*_num_1_p)) {
-							mul *mulp = new mul(mulref);
-							mulp->overall_coeff = _ex_1;
-							mulp->setflag(status_flags::dynallocated);
-							mulp->clearflag(status_flags::evaluated);
-							mulp->clearflag(status_flags::hash_calculated);
-							return (new mul(power(*mulp,exponent),
-							                power(abs(num_coeff),*num_exponent)))->setflag(status_flags::dynallocated);
+							mul & mulp = dynallocate<mul>(mulref);
+							mulp.overall_coeff = _ex_1;
+							mulp.clearflag(status_flags::evaluated | status_flags::hash_calculated);
+							return dynallocate<mul>(dynallocate<power>(mulp, exponent),
+							                        dynallocate<power>(abs(num_coeff), *num_exponent));
 						}
 					}
 				}
@@ -580,8 +573,7 @@ ex power::eval(int level) const
 	    are_ex_trivially_equal(eexponent,exponent)) {
 		return this->hold();
 	}
-	return (new power(ebasis, eexponent))->setflag(status_flags::dynallocated |
-	                                               status_flags::evaluated);
+	return dynallocate<power>(ebasis, eexponent).setflag(status_flags::evaluated);
 }
 
 ex power::evalf(int level) const
@@ -611,10 +603,10 @@ ex power::evalm() const
 	const ex eexponent = exponent.evalm();
 	if (is_a<matrix>(ebasis)) {
 		if (is_exactly_a<numeric>(eexponent)) {
-			return (new matrix(ex_to<matrix>(ebasis).pow(eexponent)))->setflag(status_flags::dynallocated);
+			return dynallocate<matrix>(ex_to<matrix>(ebasis).pow(eexponent));
 		}
 	}
-	return (new power(ebasis, eexponent))->setflag(status_flags::dynallocated);
+	return dynallocate<power>(ebasis, eexponent);
 }
 
 bool power::has(const ex & other, unsigned options) const
@@ -682,14 +674,14 @@ ex power::conjugate() const
 		if (are_ex_trivially_equal(exponent, newexponent)) {
 			return *this;
 		}
-		return (new power(basis, newexponent))->setflag(status_flags::dynallocated);
+		return dynallocate<power>(basis, newexponent);
 	}
 	if (exponent.info(info_flags::integer)) {
 		ex newbasis = basis.conjugate();
 		if (are_ex_trivially_equal(basis, newbasis)) {
 			return *this;
 		}
-		return (new power(newbasis, exponent))->setflag(status_flags::dynallocated);
+		return dynallocate<power>(newbasis, exponent);
 	}
 	return conjugate_function(*this).hold();
 }
@@ -852,7 +844,7 @@ ex power::expand(unsigned options) const
 		if (prodseq.size() > 0) {
 			ex newbasis = coeff*mul(std::move(powseq));
 			ex_to<basic>(newbasis).setflag(status_flags::purely_indefinite);
-			return ((new mul(std::move(prodseq)))->setflag(status_flags::dynallocated)*(new power(newbasis, exponent))->setflag(status_flags::dynallocated).expand(options)).expand(options);
+			return dynallocate<mul>(std::move(prodseq)) * pow(newbasis, exponent);
 		} else
 			ex_to<basic>(basis).setflag(status_flags::purely_indefinite);
 	}
@@ -881,7 +873,7 @@ ex power::expand(unsigned options) const
 			distrseq.push_back(power(expanded_basis, a.overall_coeff));
 		
 		// Make sure that e.g. (x+y)^(1+a) -> x*(x+y)^a + y*(x+y)^a
-		ex r = (new mul(distrseq))->setflag(status_flags::dynallocated);
+		ex r = dynallocate<mul>(distrseq);
 		return r.expand(options);
 	}
 	
@@ -890,7 +882,7 @@ ex power::expand(unsigned options) const
 		if (are_ex_trivially_equal(basis,expanded_basis) && are_ex_trivially_equal(exponent,expanded_exponent)) {
 			return this->hold();
 		} else {
-			return (new power(expanded_basis,expanded_exponent))->setflag(status_flags::dynallocated | (options == 0 ? status_flags::expanded : 0));
+			return dynallocate<power>(expanded_basis, expanded_exponent).setflag(options == 0 ? status_flags::expanded : 0);
 		}
 	}
 	
@@ -910,7 +902,7 @@ ex power::expand(unsigned options) const
 	if (are_ex_trivially_equal(basis,expanded_basis) && are_ex_trivially_equal(exponent,expanded_exponent))
 		return this->hold();
 	else
-		return (new power(expanded_basis,expanded_exponent))->setflag(status_flags::dynallocated | (options == 0 ? status_flags::expanded : 0));
+		return dynallocate<power>(expanded_basis, expanded_exponent).setflag(options == 0 ? status_flags::expanded : 0);
 }
 
 //////////
@@ -1228,7 +1220,7 @@ ex power::expand_add(const add & a, long n, unsigned options)
 						if (c != *_num1_p)
 							factor = factor.mul(c);
 					} else { // general case exponent[i] > 1
-						monomial.push_back((new power(r, exponent[i]))->setflag(status_flags::dynallocated));
+						monomial.push_back(dynallocate<power>(r, exponent[i]));
 						if (c != *_num1_p)
 							factor = factor.mul(c.power(exponent[i]));
 					}
@@ -1241,11 +1233,9 @@ ex power::expand_add(const add & a, long n, unsigned options)
 	GINAC_ASSERT(result.size() == result_size);
 
 	if (a.overall_coeff.is_zero()) {
-		return (new add(std::move(result)))->setflag(status_flags::dynallocated |
-		                                             status_flags::expanded);
+		return dynallocate<add>(std::move(result)).setflag(status_flags::expanded);
 	} else {
-		return (new add(std::move(result), ex_to<numeric>(a.overall_coeff).power(n)))->setflag(status_flags::dynallocated |
-		                                                                                       status_flags::expanded);
+		return dynallocate<add>(std::move(result), ex_to<numeric>(a.overall_coeff).power(n)).setflag(status_flags::expanded);
 	}
 }
 
@@ -1283,7 +1273,7 @@ ex power::expand_add_2(const add & a, unsigned options)
 				result.push_back(a.combine_ex_with_coeff_to_pair(expand_mul(ex_to<mul>(r), *_num2_p, options, true),
 				                                                 _ex1));
 			} else {
-				result.push_back(a.combine_ex_with_coeff_to_pair((new power(r,_ex2))->setflag(status_flags::dynallocated),
+				result.push_back(a.combine_ex_with_coeff_to_pair(dynallocate<power>(r, _ex2),
 				                                                 _ex1));
 			}
 		} else {
@@ -1291,7 +1281,7 @@ ex power::expand_add_2(const add & a, unsigned options)
 				result.push_back(a.combine_ex_with_coeff_to_pair(expand_mul(ex_to<mul>(r), *_num2_p, options, true),
 				                                                 ex_to<numeric>(c).power_dyn(*_num2_p)));
 			} else {
-				result.push_back(a.combine_ex_with_coeff_to_pair((new power(r,_ex2))->setflag(status_flags::dynallocated),
+				result.push_back(a.combine_ex_with_coeff_to_pair(dynallocate<power>(r, _ex2),
 				                                                 ex_to<numeric>(c).power_dyn(*_num2_p)));
 			}
 		}
@@ -1313,11 +1303,9 @@ ex power::expand_add_2(const add & a, unsigned options)
 	GINAC_ASSERT(result.size() == result_size);
 
 	if (a.overall_coeff.is_zero()) {
-		return (new add(std::move(result)))->setflag(status_flags::dynallocated |
-		                                             status_flags::expanded);
+		return dynallocate<add>(std::move(result)).setflag(status_flags::expanded);
 	} else {
-		return (new add(std::move(result), ex_to<numeric>(a.overall_coeff).power(2)))->setflag(status_flags::dynallocated |
-		                                                                                       status_flags::expanded);
+		return dynallocate<add>(std::move(result), ex_to<numeric>(a.overall_coeff).power(2)).setflag(status_flags::expanded);
 	}
 }
 
@@ -1361,7 +1349,7 @@ ex power::expand_mul(const mul & m, const numeric & n, unsigned options, bool fr
 		distrseq.push_back(p);
 	}
 
-	const mul & result = static_cast<const mul &>((new mul(distrseq, ex_to<numeric>(m.overall_coeff).power_dyn(n)))->setflag(status_flags::dynallocated));
+	const mul & result = dynallocate<mul>(std::move(distrseq), ex_to<numeric>(m.overall_coeff).power_dyn(n));
 	if (need_reexpand)
 		return ex(result).expand(options);
 	if (from_expand)

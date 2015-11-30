@@ -792,8 +792,7 @@ ex function::power(const ex & power_param) const // power of function
 		}
 	}
 	// No power function defined? Fall back to returning a power object.
-	return (new GiNaC::power(*this, power_param))->setflag(status_flags::dynallocated |
-	                                                       status_flags::evaluated);
+	return dynallocate<GiNaC::power>(*this, power_param).setflag(status_flags::evaluated);
 }
 
 ex function::expand(unsigned options) const

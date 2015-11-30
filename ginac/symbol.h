@@ -107,7 +107,12 @@ public:
 	ex real_part() const override { return *this; }
 	ex imag_part() const override { return 0; }
 
-	realsymbol* duplicate() const override { return new realsymbol(*this); }
+	realsymbol* duplicate() const override
+	{
+		realsymbol * bp = new realsymbol(*this);
+		bp->setflag(status_flags::dynallocated);
+		return bp;
+	}
 };
 GINAC_DECLARE_UNARCHIVER(realsymbol);
 
@@ -122,7 +127,12 @@ public:
 
 	unsigned get_domain() const override { return domain::positive; }
 
-	possymbol* duplicate() const override { return new possymbol(*this); }
+	possymbol* duplicate() const override
+	{
+		possymbol * bp = new possymbol(*this);
+		bp->setflag(status_flags::dynallocated);
+		return bp;
+	}
 };
 GINAC_DECLARE_UNARCHIVER(possymbol);
 

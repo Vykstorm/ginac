@@ -260,7 +260,6 @@ ex idx::map(map_function & f) const
 		return *this;
 	else {
 		idx *copy = duplicate();
-		copy->setflag(status_flags::dynallocated);
 		copy->clearflag(status_flags::hash_calculated);
 		copy->value = mapped_value;
 		return *copy;
@@ -385,7 +384,7 @@ ex idx::subs(const exmap & m, unsigned options) const
 		idx *i_copy = duplicate();
 		i_copy->value = it->second;
 		i_copy->clearflag(status_flags::hash_calculated);
-		return i_copy->setflag(status_flags::dynallocated);
+		return *i_copy;
 	}
 
 	// None, substitute objects in value (not in dimension)
@@ -396,7 +395,7 @@ ex idx::subs(const exmap & m, unsigned options) const
 	idx *i_copy = duplicate();
 	i_copy->value = subsed_value;
 	i_copy->clearflag(status_flags::hash_calculated);
-	return i_copy->setflag(status_flags::dynallocated);
+	return *i_copy;
 }
 
 /** Implementation of ex::diff() for an index always returns 0.
@@ -463,7 +462,7 @@ ex idx::replace_dim(const ex & new_dim) const
 	idx *i_copy = duplicate();
 	i_copy->dim = new_dim;
 	i_copy->clearflag(status_flags::hash_calculated);
-	return i_copy->setflag(status_flags::dynallocated);
+	return *i_copy;
 }
 
 ex idx::minimal_dim(const idx & other) const
@@ -476,7 +475,7 @@ ex varidx::toggle_variance() const
 	varidx *i_copy = duplicate();
 	i_copy->covariant = !i_copy->covariant;
 	i_copy->clearflag(status_flags::hash_calculated);
-	return i_copy->setflag(status_flags::dynallocated);
+	return *i_copy;
 }
 
 ex spinidx::toggle_dot() const
@@ -484,7 +483,7 @@ ex spinidx::toggle_dot() const
 	spinidx *i_copy = duplicate();
 	i_copy->dotted = !i_copy->dotted;
 	i_copy->clearflag(status_flags::hash_calculated);
-	return i_copy->setflag(status_flags::dynallocated);
+	return *i_copy;
 }
 
 ex spinidx::toggle_variance_dot() const
@@ -493,7 +492,7 @@ ex spinidx::toggle_variance_dot() const
 	i_copy->covariant = !i_copy->covariant;
 	i_copy->dotted = !i_copy->dotted;
 	i_copy->clearflag(status_flags::hash_calculated);
-	return i_copy->setflag(status_flags::dynallocated);
+	return *i_copy;
 }
 
 //////////
