@@ -373,42 +373,36 @@ ex power::coeff(const ex & s, int n) const
  *  - ^(*(x,y,z),c) -> *(x^c,y^c,z^c)  (if c integer)
  *  - ^(*(x,c1),c2) -> ^(x,c2)*c1^c2  (c1>0)
  *  - ^(*(x,c1),c2) -> ^(-x,c2)*c1^c2  (c1<0)
- *
- *  @param level cut-off in recursive evaluation */
-ex power::eval(int level) const
+ */
+ex power::eval() const
 {
-	if ((level==1) && (flags & status_flags::evaluated))
+	if (flags & status_flags::evaluated)
 		return *this;
-	else if (level == -max_recursion_level)
-		throw(std::runtime_error("max recursion level reached"));
-	
-	const ex & ebasis    = level==1 ? basis    : basis.eval(level-1);
-	const ex & eexponent = level==1 ? exponent : exponent.eval(level-1);
-	
+
 	const numeric *num_basis = nullptr;
 	const numeric *num_exponent = nullptr;
-	
-	if (is_exactly_a<numeric>(ebasis)) {
-		num_basis = &ex_to<numeric>(ebasis);
+
+	if (is_exactly_a<numeric>(basis)) {
+		num_basis = &ex_to<numeric>(basis);
 	}
-	if (is_exactly_a<numeric>(eexponent)) {
-		num_exponent = &ex_to<numeric>(eexponent);
+	if (is_exactly_a<numeric>(exponent)) {
+		num_exponent = &ex_to<numeric>(exponent);
 	}
 	
 	// ^(x,0) -> 1  (0^0 also handled here)
-	if (eexponent.is_zero()) {
-		if (ebasis.is_zero())
+	if (exponent.is_zero()) {
+		if (basis.is_zero())
 			throw (std::domain_error("power::eval(): pow(0,0) is undefined"));
 		else
 			return _ex1;
 	}
 	
 	// ^(x,1) -> x
-	if (eexponent.is_equal(_ex1))
-		return ebasis;
+	if (exponent.is_equal(_ex1))
+		return basis;
 
 	// ^(0,c1) -> 0 or exception  (depending on real value of c1)
-	if ( ebasis.is_zero() && num_exponent ) {
+	if (basis.is_zero() && num_exponent) {
 		if ((num_exponent->real()).is_zero())
 			throw (std::domain_error("power::eval(): pow(0,I) is undefined"));
 		else if ((num_exponent->real()).is_negative())
@@ -418,16 +412,16 @@ ex power::eval(int level) const
 	}
 
 	// ^(1,x) -> 1
-	if (ebasis.is_equal(_ex1))
+	if (basis.is_equal(_ex1))
 		return _ex1;
 
 	// power of a function calculated by separate rules defined for this function
-	if (is_exactly_a<function>(ebasis))
-		return ex_to<function>(ebasis).power(eexponent);
+	if (is_exactly_a<function>(basis))
+		return ex_to<function>(basis).power(exponent);
 
 	// Turn (x^c)^d into x^(c*d) in the case that x is positive and c is real.
-	if (is_exactly_a<power>(ebasis) && ebasis.op(0).info(info_flags::positive) && ebasis.op(1).info(info_flags::real))
-		return power(ebasis.op(0), ebasis.op(1) * eexponent);
+	if (is_exactly_a<power>(basis) && basis.op(0).info(info_flags::positive) && basis.op(1).info(info_flags::real))
+		return power(basis.op(0), basis.op(1) * exponent);
 
 	if ( num_exponent ) {
 
@@ -487,8 +481,8 @@ ex power::eval(int level) const
 		// ^(^(x,c1),c2) -> ^(x,c1*c2)
 		// (c1, c2 numeric(), c2 integer or -1 < c1 <= 1 or (c1=-1 and c2>0),
 		// case c1==1 should not happen, see below!)
-		if (is_exactly_a<power>(ebasis)) {
-			const power & sub_power = ex_to<power>(ebasis);
+		if (is_exactly_a<power>(basis)) {
+			const power & sub_power = ex_to<power>(basis);
 			const ex & sub_basis = sub_power.basis;
 			const ex & sub_exponent = sub_power.exponent;
 			if (is_exactly_a<numeric>(sub_exponent)) {
@@ -502,15 +496,15 @@ ex power::eval(int level) const
 		}
 	
 		// ^(*(x,y,z),c1) -> *(x^c1,y^c1,z^c1) (c1 integer)
-		if (num_exponent->is_integer() && is_exactly_a<mul>(ebasis)) {
-			return expand_mul(ex_to<mul>(ebasis), *num_exponent, 0);
+		if (num_exponent->is_integer() && is_exactly_a<mul>(basis)) {
+			return expand_mul(ex_to<mul>(basis), *num_exponent, 0);
 		}
 
 		// (2*x + 6*y)^(-4) -> 1/16*(x + 3*y)^(-4)
-		if (num_exponent->is_integer() && is_exactly_a<add>(ebasis)) {
-			numeric icont = ebasis.integer_content();
+		if (num_exponent->is_integer() && is_exactly_a<add>(basis)) {
+			numeric icont = basis.integer_content();
 			const numeric lead_coeff = 
-				ex_to<numeric>(ex_to<add>(ebasis).seq.begin()->coeff).div(icont);
+				ex_to<numeric>(ex_to<add>(basis).seq.begin()->coeff).div(icont);
 
 			const bool canonicalizable = lead_coeff.is_integer();
 			const bool unit_normal = lead_coeff.is_pos_integer();
@@ -518,7 +512,7 @@ ex power::eval(int level) const
 				icont = icont.mul(*_num_1_p);
 			
 			if (canonicalizable && (icont != *_num1_p)) {
-				const add& addref = ex_to<add>(ebasis);
+				const add& addref = ex_to<add>(basis);
 				add & addp = dynallocate<add>(addref);
 				addp.clearflag(status_flags::hash_calculated);
 				addp.overall_coeff = ex_to<numeric>(addp.overall_coeff).div_dyn(icont);
@@ -535,9 +529,9 @@ ex power::eval(int level) const
 
 		// ^(*(...,x;c1),c2) -> *(^(*(...,x;1),c2),c1^c2)  (c1, c2 numeric(), c1>0)
 		// ^(*(...,x;c1),c2) -> *(^(*(...,x;-1),c2),(-c1)^c2)  (c1, c2 numeric(), c1<0)
-		if (is_exactly_a<mul>(ebasis)) {
+		if (is_exactly_a<mul>(basis)) {
 			GINAC_ASSERT(!num_exponent->is_integer()); // should have been handled above
-			const mul & mulref = ex_to<mul>(ebasis);
+			const mul & mulref = ex_to<mul>(basis);
 			if (!mulref.overall_coeff.is_equal(_ex1)) {
 				const numeric & num_coeff = ex_to<numeric>(mulref.overall_coeff);
 				if (num_coeff.is_real()) {
@@ -563,17 +557,13 @@ ex power::eval(int level) const
 
 		// ^(nc,c1) -> ncmul(nc,nc,...) (c1 positive integer, unless nc is a matrix)
 		if (num_exponent->is_pos_integer() &&
-		    ebasis.return_type() != return_types::commutative &&
-		    !is_a<matrix>(ebasis)) {
-			return ncmul(exvector(num_exponent->to_int(), ebasis));
+		    basis.return_type() != return_types::commutative &&
+		    !is_a<matrix>(basis)) {
+			return ncmul(exvector(num_exponent->to_int(), basis));
 		}
 	}
-	
-	if (are_ex_trivially_equal(ebasis,basis) &&
-	    are_ex_trivially_equal(eexponent,exponent)) {
-		return this->hold();
-	}
-	return dynallocate<power>(ebasis, eexponent).setflag(status_flags::evaluated);
+
+	return this->hold();
 }
 
 ex power::evalf(int level) const

@@ -205,7 +205,6 @@ public:
 	size_t nops() const override { return this->seq.size(); }
 	ex op(size_t i) const override;
 	ex & let_op(size_t i) override;
-	ex eval(int level = 0) const override;
 	ex subs(const exmap & m, unsigned options = 0) const override;
 
 	void read_archive(const archive_node &n, lst &sym_lst) override
@@ -336,7 +335,6 @@ protected:
 	void do_print_tree(const print_tree & c, unsigned level) const;
 	void do_print_python(const print_python & c, unsigned level) const;
 	void do_print_python_repr(const print_python_repr & c, unsigned level) const;
-	STLT evalchildren(int level) const;
 	STLT subschildren(const exmap & m, unsigned options = 0) const;
 };
 
@@ -480,15 +478,6 @@ ex & container<C>::let_op(size_t i)
 	typename STLT::iterator it = this->seq.begin();
 	advance(it, i);
 	return *it;
-}
-
-template <template <class T, class = std::allocator<T>> class C>
-ex container<C>::eval(int level) const
-{
-	if (level == 1)
-		return hold();
-	else
-		return thiscontainer(evalchildren(level));
 }
 
 template <template <class T, class = std::allocator<T>> class C>
@@ -647,27 +636,6 @@ void container<C>::printseq(const print_context & c, char openbracket, char deli
 
 	if (this_precedence <= upper_precedence)
 		c.s << closebracket;
-}
-
-template <template <class T, class = std::allocator<T>> class C>
-typename container<C>::STLT container<C>::evalchildren(int level) const
-{
-	if (level == 1)
-		return this->seq;
-	else if (level == -max_recursion_level)
-		throw std::runtime_error("max recursion level reached");
-
-	STLT s;
-	this->reserve(s, this->seq.size());
-
-	--level;
-	const_iterator it = this->seq.begin(), itend = this->seq.end();
-	while (it != itend) {
-		s.push_back(it->eval(level));
-		++it;
-	}
-
-	return s;
 }
 
 template <template <class T, class = std::allocator<T>> class C>

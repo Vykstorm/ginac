@@ -140,28 +140,18 @@ int integral::compare_same_type(const basic & other) const
 	return f.compare(o.f);
 }
 
-ex integral::eval(int level) const
+ex integral::eval() const
 {
-	if ((level==1) && (flags & status_flags::evaluated))
+	if (flags & status_flags::evaluated)
 		return *this;
-	if (level == -max_recursion_level)
-		throw(std::runtime_error("max recursion level reached"));
 
-	ex eintvar = (level==1) ? x : x.eval(level-1);
-	ex ea      = (level==1) ? a : a.eval(level-1);
-	ex eb      = (level==1) ? b : b.eval(level-1);
-	ex ef      = (level==1) ? f : f.eval(level-1);
+	if (!f.has(x) && !haswild(f))
+		return b*f-a*f;
 
-	if (!ef.has(eintvar) && !haswild(ef))
-		return eb*ef-ea*ef;
-
-	if (ea==eb)
+	if (a==b)
 		return _ex0;
 
-	if (are_ex_trivially_equal(eintvar,x) && are_ex_trivially_equal(ea,a) &&
-	    are_ex_trivially_equal(eb,b) && are_ex_trivially_equal(ef,f))
-		return this->hold();
-	return dynallocate<integral>(eintvar, ea, eb, ef).setflag(status_flags::evaluated);
+	return this->hold();
 }
 
 ex integral::evalf(int level) const

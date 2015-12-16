@@ -126,7 +126,7 @@ public:
 	// All these are just defaults that can be specialized by the user
 public:
 	// evaluation
-	ex eval(int level = 0) const override { return hold(); }
+	ex eval() const override { return hold(); }
 	ex evalf(int level = 0) const override { return inherited::evalf(level); }
 	ex evalm() const override { return inherited::evalm(); }
 protected:

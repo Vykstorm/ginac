@@ -239,12 +239,12 @@ ex expairseq::map(map_function &f) const
 }
 
 /** Perform coefficient-wise automatic term rewriting rules in this class. */
-ex expairseq::eval(int level) const
+ex expairseq::eval() const
 {
-	if ((level==1) && (flags &status_flags::evaluated))
+	if (flags &status_flags::evaluated)
 		return *this;
 
-	const epvector evaled = evalchildren(level);
+	const epvector evaled = evalchildren();
 	if (!evaled.empty())
 		return dynallocate<expairseq>(std::move(evaled), overall_coeff).setflag(status_flags::evaluated);
 	else
@@ -1048,15 +1048,11 @@ epvector expairseq::expandchildren(unsigned options) const
  *  @see expairseq::eval()
  *  @return epvector containing evaluated pairs, empty if no members
  *    had to be changed. */
-epvector expairseq::evalchildren(int level) const
+epvector expairseq::evalchildren() const
 {
-	if (level == -max_recursion_level)
-		throw(std::runtime_error("max recursion level reached"));
-
 	auto cit = seq.begin(), last = seq.end();
 	while (cit!=last) {
-		const ex evaled_rest = level==1 ? cit->rest : cit->rest.eval(level-1);
-		const expair evaled_pair = combine_ex_with_coeff_to_pair(evaled_rest, cit->coeff);
+		const expair evaled_pair = combine_ex_with_coeff_to_pair(cit->rest, cit->coeff);
 		if (unlikely(!evaled_pair.is_equal(*cit))) {
 
 			// something changed: copy seq, eval and return it
@@ -1072,8 +1068,7 @@ epvector expairseq::evalchildren(int level) const
 
 			// copy rest
 			while (cit != last) {
-				const ex evaled_rest = level==1 ? cit->rest : cit->rest.eval(level-1);
-				s.push_back(combine_ex_with_coeff_to_pair(evaled_rest, cit->coeff));
+				s.push_back(combine_ex_with_coeff_to_pair(cit->rest, cit->coeff));
 				++cit;
 			}
 			return s;

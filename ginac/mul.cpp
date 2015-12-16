@@ -464,17 +464,16 @@ ex mul::coeff(const ex & s, int n) const
  *  - *(+(x1,x2,...);c) -> *(+(*(x1,c),*(x2,c),...))
  *  - *(x;1) -> x
  *  - *(;c) -> c
- *
- *  @param level cut-off in recursive evaluation */
-ex mul::eval(int level) const
+ */
+ex mul::eval() const
 {
-	if ((level == 1) && (flags & status_flags::evaluated)) {
+	if (flags & status_flags::evaluated) {
 		GINAC_ASSERT(seq.size()>0);
 		GINAC_ASSERT(seq.size()>1 || !overall_coeff.is_equal(_ex1));
 		return *this;
 	}
 
-	const epvector evaled = evalchildren(level);
+	const epvector evaled = evalchildren();
 	if (unlikely(!evaled.empty())) {
 		// start over evaluating a new object
 		return dynallocate<mul>(std::move(evaled), overall_coeff);

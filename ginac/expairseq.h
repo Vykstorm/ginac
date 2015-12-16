@@ -64,7 +64,7 @@ public:
 	size_t nops() const override;
 	ex op(size_t i) const override;
 	ex map(map_function & f) const override;
-	ex eval(int level=0) const override;
+	ex eval() const override;
 	ex to_rational(exmap & repl) const override;
 	ex to_polynomial(exmap & repl) const override;
 	bool match(const ex & pattern, exmap& repl_lst) const override;
@@ -119,7 +119,7 @@ protected:
 	void combine_same_terms_sorted_seq();
 	bool is_canonical() const;
 	epvector expandchildren(unsigned options) const;
-	epvector evalchildren(int level) const;
+	epvector evalchildren() const;
 	epvector subschildren(const exmap & m, unsigned options = 0) const;
 	
 // member variables

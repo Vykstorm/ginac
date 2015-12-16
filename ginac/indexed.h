@@ -145,7 +145,7 @@ public:
 public:
 	unsigned precedence() const override {return 55;}
 	bool info(unsigned inf) const override;
-	ex eval(int level = 0) const override;
+	ex eval() const override;
 	ex real_part() const override;
 	ex imag_part() const override;
 	exvector get_free_indices() const override;

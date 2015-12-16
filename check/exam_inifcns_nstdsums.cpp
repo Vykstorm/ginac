@@ -146,7 +146,7 @@ static unsigned inifcns_test_HLi()
 	res.append(H(lst{-2,1,3},numeric(1)/3).hold() - -Li(lst{2,1,3},lst{-numeric(1)/3,-1,1}).hold());
 	res.append(H(lst{-2,1,3},numeric(98)/100).hold() - -Li(lst{2,1,3},lst{-numeric(98)/100,-1,1}).hold());
 	res.append(H(lst{-2,1,3},numeric(245)/100).hold() - -Li(lst{2,1,3},lst{-numeric(245)/100,-1,1}).hold());
-	res.append(H(lst{-3,1,-2,0,0},numeric(3)/10).hold() - convert_H_to_Li(lst{-3,1,-2,0,0},numeric(3)/10).eval());
+	res.append(H(lst{-3,1,-2,0,0},numeric(3)/10).hold() - convert_H_to_Li(lst{-3,1,-2,0,0},numeric(3)/10));
 	
 	for (lst::const_iterator it = res.begin(); it != res.end(); it++) {
 		ex diff = abs((*it).evalf());

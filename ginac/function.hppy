@@ -228,7 +228,7 @@ public:
 	void print(const print_context & c, unsigned level = 0) const override;
 	unsigned precedence() const override {return 70;}
 	ex expand(unsigned options=0) const override;
-	ex eval(int level=0) const override;
+	ex eval() const override;
 	ex evalf(int level=0) const override;
 	ex eval_ncmul(const exvector & v) const override;
 	unsigned calchash() const override;

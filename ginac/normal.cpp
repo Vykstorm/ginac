@@ -196,8 +196,8 @@ static void collect_symbols(const ex &e, sym_desc_vec &v)
  *  @param v  vector of sym_desc structs (filled in) */
 static void get_symbol_stats(const ex &a, const ex &b, sym_desc_vec &v)
 {
-	collect_symbols(a.eval(), v);   // eval() to expand assigned symbols
-	collect_symbols(b.eval(), v);
+	collect_symbols(a, v);
+	collect_symbols(b, v);
 	for (auto & it : v) {
 		int deg_a = a.degree(it.sym);
 		int deg_b = b.degree(it.sym);

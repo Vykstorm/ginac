@@ -838,8 +838,8 @@ some immediate simplifications.
 Internally, the anonymous evaluator in GiNaC is implemented by the methods
 
 @example
-ex ex::eval(int level = 0) const;
-ex basic::eval(int level = 0) const;
+ex ex::eval() const;
+ex basic::eval() const;
 @end example
 
 but unless you are extending GiNaC with your own classes or functions, there
@@ -8241,11 +8241,11 @@ class mystring : public basic
 @{
     ...
 public:
-    ex eval(int level = 0) const;
+    ex eval() const override;
     ...
 @};
 
-ex mystring::eval(int level) const
+ex mystring::eval() const
 @{
     string new_str;
     for (size_t i=0; i<str.length(); i++) @{
@@ -8258,19 +8258,19 @@ ex mystring::eval(int level) const
 
     if (new_str.length() == 0)
         return 0;
-    else
-        return mystring(new_str).hold();
+
+    return mystring(new_str).hold();
 @}
 @end example
 
-The @code{level} argument is used to limit the recursion depth of the
-evaluation.  We don't have any subexpressions in the @code{mystring}
-class so we are not concerned with this.  If we had, we would call the
-@code{eval()} functions of the subexpressions with @code{level - 1} as
-the argument if @code{level != 1}.  The @code{hold()} member function
-sets a flag in the object that prevents further evaluation.  Otherwise
-we might end up in an endless loop.  When you want to return the object
-unmodified, use @code{return this->hold();}.
+The @code{hold()} member function sets a flag in the object that prevents
+further evaluation.  Otherwise we might end up in an endless loop.  When you
+want to return the object unmodified, use @code{return this->hold();}.
+
+If our class had subobjects, we would have to evaluate them first (unless
+they are all of type @code{ex}, which are automatically evaluated). We don't
+have any subexpressions in the @code{mystring} class, so we are not concerned
+with this.
 
 Let's confirm that it works:
 
@@ -8293,8 +8293,8 @@ required but will make operations with objects of the class more efficient:
 @cindex @code{calchash()}
 @cindex @code{is_equal_same_type()}
 @example
-unsigned calchash() const;
-bool is_equal_same_type(const basic & other) const;
+unsigned calchash() const override;
+bool is_equal_same_type(const basic & other) const override;
 @end example
 
 The @code{calchash()} method returns an @code{unsigned} hash value for the
@@ -8315,10 +8315,10 @@ For a real algebraic class, there are probably some more functions that you
 might want to provide:
 
 @example
-bool info(unsigned inf) const;
-ex evalf(int level = 0) const;
-ex series(const relational & r, int order, unsigned options = 0) const;
-ex derivative(const symbol & s) const;
+bool info(unsigned inf) const override;
+ex evalf(int level = 0) const override;
+ex series(const relational & r, int order, unsigned options = 0) const override;
+ex derivative(const symbol & s) const override;
 @end example
 
 If your class stores sub-expressions (see the scalar product example in the
@@ -8326,11 +8326,11 @@ previous section) you will probably want to override
 
 @cindex @code{let_op()}
 @example
-size_t nops() cont;
-ex op(size_t i) const;
-ex & let_op(size_t i);
-ex subs(const lst & ls, const lst & lr, unsigned options = 0) const;
-ex map(map_function & f) const;
+size_t nops() const override;
+ex op(size_t i) const override;
+ex & let_op(size_t i) override;
+ex subs(const lst & ls, const lst & lr, unsigned options = 0) const override;
+ex map(map_function & f) const override;
 @end example
 
 @code{let_op()} is a variant of @code{op()} that allows write access. The

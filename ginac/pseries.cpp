@@ -384,20 +384,18 @@ ex pseries::collect(const ex &s, bool distributed) const
 }
 
 /** Perform coefficient-wise automatic term rewriting rules in this class. */
-ex pseries::eval(int level) const
+ex pseries::eval() const
 {
-	if (level == 1)
-		return this->hold();
-	
-	if (level == -max_recursion_level)
-		throw (std::runtime_error("pseries::eval(): recursion limit exceeded"));
+	if (flags & status_flags::evaluated) {
+		return *this;
+	}
 	
 	// Construct a new series with evaluated coefficients
 	epvector new_seq;
 	new_seq.reserve(seq.size());
 	epvector::const_iterator it = seq.begin(), itend = seq.end();
 	while (it != itend) {
-		new_seq.push_back(expair(it->rest.eval(level-1), it->coeff));
+		new_seq.push_back(expair(it->rest, it->coeff));
 		++it;
 	}
 	return dynallocate<pseries>(relational(var,point), std::move(new_seq)).setflag(status_flags::evaluated);

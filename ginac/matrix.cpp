@@ -227,27 +227,6 @@ ex & matrix::let_op(size_t i)
 	return m[i];
 }
 
-/** Evaluate matrix entry by entry. */
-ex matrix::eval(int level) const
-{
-	// check if we have to do anything at all
-	if ((level==1)&&(flags & status_flags::evaluated))
-		return *this;
-	
-	// emergency break
-	if (level == -max_recursion_level)
-		throw (std::runtime_error("matrix::eval(): recursion limit exceeded"));
-	
-	// eval() entry by entry
-	exvector m2(row*col);
-	--level;
-	for (unsigned r=0; r<row; ++r)
-		for (unsigned c=0; c<col; ++c)
-			m2[r*col+c] = m[r*col+c].eval(level);
-	
-	return dynallocate<matrix>(row, col, std::move(m2)).setflag(status_flags::evaluated);
-}
-
 ex matrix::subs(const exmap & mp, unsigned options) const
 {
 	exvector m2(row * col);

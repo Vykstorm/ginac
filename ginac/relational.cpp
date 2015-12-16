@@ -176,17 +176,6 @@ ex relational::map(map_function & f) const
 		return *this;
 }
 
-ex relational::eval(int level) const
-{
-	if (level==1)
-		return this->hold();
-	
-	if (level == -max_recursion_level)
-		throw(std::runtime_error("max recursion level reached"));
-	
-	return dynallocate<relational>(lh.eval(level-1), rh.eval(level-1), o).setflag(status_flags::evaluated);
-}
-
 ex relational::subs(const exmap & m, unsigned options) const
 {
 	const ex & subsed_lh = lh.subs(m, options);

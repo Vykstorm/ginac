@@ -362,15 +362,10 @@ next_context:
 	}
 }
 
-ex function::eval(int level) const
+ex function::eval() const
 {
-	if ((level == 1) && (flags & status_flags::evaluated)) {
+	if (flags & status_flags::evaluated) {
 		return *this;
-	}
-
-	if (level>1) {
-		// first evaluate children, then we will end up here again
-		return function(serial,evalchildren(level));
 	}
 
 	GINAC_ASSERT(serial<registered_functions().size());

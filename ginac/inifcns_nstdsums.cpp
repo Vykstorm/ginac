@@ -1136,7 +1136,7 @@ G_do_trafo(const std::vector<cln::cl_N>& x, const std::vector<int>& s,
 	Gparameter pendint;
 	ex result = G_transform(pendint, a, scale, gsyms, flag_trailing_zeros_only);
 	// replace dummy symbols with their values
-	result = result.eval().expand();
+	result = result.expand();
 	result = result.subs(subslst).evalf();
 	if (!is_a<numeric>(result))
 		throw std::logic_error("G_do_trafo: G_transform returned non-numeric result");

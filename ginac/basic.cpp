@@ -410,7 +410,7 @@ ex basic::collect(const ex & s, bool distributed) const
 }
 
 /** Perform automatic non-interruptive term rewriting rules. */
-ex basic::eval(int level) const
+ex basic::eval() const
 {
 	// There is nothing to do for basic objects:
 	return hold();

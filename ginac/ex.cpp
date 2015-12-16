@@ -306,7 +306,7 @@ ptr<basic> ex::construct_from_basic(const basic & other)
 		// apply eval() once more. The recursion stops when eval() calls
 		// hold() or returns an object that already has its "evaluated"
 		// flag set, such as a symbol or a numeric.
-		const ex & tmpex = other.eval(1);
+		const ex & tmpex = other.eval();
 
 		// Eventually, the eval() recursion goes through the "else" branch
 		// below, which assures that the object pointed to by tmpex.bp is

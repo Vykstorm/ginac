@@ -139,13 +139,8 @@ void fderivative::do_print_tree(const print_tree & c, unsigned level) const
 	c.s << std::string(level + c.delta_indent, ' ') << "=====" << std::endl;
 }
 
-ex fderivative::eval(int level) const
+ex fderivative::eval() const
 {
-	if (level > 1) {
-		// first evaluate children, then we will end up here again
-		return fderivative(serial, parameter_set, evalchildren(level));
-	}
-
 	// No parameters specified? Then return the function itself
 	if (parameter_set.empty())
 		return function(serial, seq);

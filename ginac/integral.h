@@ -41,7 +41,7 @@ public:
 	// functions overriding virtual functions from base classes
 public:
 	unsigned precedence() const override {return 45;}
-	ex eval(int level=0) const override;
+	ex eval() const override;
 	ex evalf(int level=0) const override;
 	int degree(const ex & s) const override;
 	int ldegree(const ex & s) const override;

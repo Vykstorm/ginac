@@ -58,7 +58,6 @@ public:
 	ex op(size_t i) const override;
 	ex map(map_function & f) const override;
 	ex subs(const exmap & m, unsigned options = 0) const override;
-	ex eval(int level=0) const override;
 
 	/** Save (a.k.a. serialize) object into archive. */
 	void archive(archive_node& n) const override;

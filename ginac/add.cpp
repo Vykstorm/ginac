@@ -326,17 +326,16 @@ ex add::coeff(const ex & s, int n) const
  *  an expression that contain a plain number.
  *  - +(;c) -> c
  *  - +(x;0) -> x
- *
- *  @param level cut-off in recursive evaluation */
-ex add::eval(int level) const
+ */
+ex add::eval() const
 {
-	if ((level == 1) && (flags & status_flags::evaluated)) {
+	if (flags & status_flags::evaluated) {
 		GINAC_ASSERT(seq.size()>0);
 		GINAC_ASSERT(seq.size()>1 || !overall_coeff.is_zero());
 		return *this;
 	}
 
-	const epvector evaled = evalchildren(level);
+	const epvector evaled = evalchildren();
 	if (unlikely(!evaled.empty())) {
 		// start over evaluating a new object
 		return dynallocate<add>(std::move(evaled), overall_coeff);

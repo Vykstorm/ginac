@@ -260,12 +260,8 @@ int indexed::compare_same_type(const basic & other) const
 	return inherited::compare_same_type(other);
 }
 
-ex indexed::eval(int level) const
+ex indexed::eval() const
 {
-	// First evaluate children, then we will end up here again
-	if (level > 1)
-		return indexed(ex_to<symmetry>(symtree), evalchildren(level));
-
 	const ex &base = seq[0];
 
 	// If the base object is 0, the whole object is 0

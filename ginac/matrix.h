@@ -111,7 +111,6 @@ public:
 	size_t nops() const override;
 	ex op(size_t i) const override;
 	ex & let_op(size_t i) override;
-	ex eval(int level=0) const override;
 	ex evalm() const override {return *this;}
 	ex subs(const exmap & m, unsigned options = 0) const override;
 	ex eval_indexed(const basic & i) const override;
@@ -189,9 +188,6 @@ inline size_t nops(const matrix & m)
 
 inline ex expand(const matrix & m, unsigned options = 0)
 { return m.expand(options); }
-
-inline ex eval(const matrix & m, int level = 0)
-{ return m.eval(level); }
 
 inline ex evalf(const matrix & m, int level = 0)
 { return m.evalf(level); }

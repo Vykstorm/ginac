@@ -73,23 +73,10 @@ static unsigned exam_paranoia2()
 	f = e*y;
 	g = f - e*y;
 
-	// After .expand(), g should be zero:
-	if (!g.expand().is_zero()) {
-		clog << "e = (x + z*x); f = e*y; expand(f - e*y) erroneously returned "
-		     << g.expand() << endl;
-		++result;
-	}
 	// After .eval(), g should be zero:
-	if (!g.eval().is_zero()) {
-		clog << "e = (x + z*x); f = e*y; eval(f - e*y) erroneously returned "
-		     << g.eval() << endl;
-		++result;
-	}
-	// This actually worked already back in April 1999.
-	// But we are *very* paranoic!
-	if (!g.expand().eval().is_zero()) {
-		clog << "e = (x + z*x); f = e*y; eval(expand(f - e*y)) erroneously returned "
-		     << g.expand().eval() << endl;
+	if (!g.is_zero()) {
+		clog << "e = (x + z*x); f = e*y; g = (f - e*y) erroneously returned g == "
+		     << g << endl;
 		++result;
 	}
 
@@ -113,16 +100,6 @@ static unsigned exam_paranoia3()
 		     << f << endl;
 		++result;
 	}
-	if (!f.eval().is_equal(y)) {
-		clog << "e = x*y - y; eval(e.subs(x == 2)) erroneously returned "
-		     << f.eval() << endl;
-		++result;
-	}
-	if (!f.expand().is_equal(y)) {
-		clog << "e = x*y - y; expand(e.subs(x == 2)) erroneously returned "
-		     << f.expand() << endl;
-		++result;
-	}
 
 	return result;
 }
@@ -141,11 +118,6 @@ static unsigned exam_paranoia4()
 	if (!g.is_zero()) {
 		clog << "e = pow(x,2) + x + 1; f = pow(x,2) + x + 1; g = e-f; g erroneously returned "
 		     << g << endl;
-		++result;
-	}
-	if (!g.is_zero()) {
-		clog << "e = pow(x,2) + x + 1; f = pow(x,2) + x + 1; g = e-f; g.eval() erroneously returned "
-		     << g.eval() << endl;
 		++result;
 	}
 
@@ -264,7 +236,7 @@ static unsigned exam_paranoia10()
 	ex r;
 	
 	try {
-		r = pow(b,e).eval();
+		r = pow(b, e);
 		if (!(r-2*sqrt(ex(2))).is_zero()) {
 			clog << "2^(3/2) erroneously returned " << r << " instead of 2*sqrt(2)" << endl;
 			++result;

@@ -285,9 +285,8 @@ typedef std::vector<exvector> exvectorvector;
  *  - ncmul(...,c1,...,c2,...) -> *(c1,c2,ncmul(...))  (pull out commutative elements)
  *  - ncmul(x1,y1,x2,y2) -> *(ncmul(x1,x2),ncmul(y1,y2))  (collect elements of same type)
  *  - ncmul(x1,x2,x3,...) -> x::eval_ncmul(x1,x2,x3,...)
- *
- *  @param level cut-off in recursive evaluation */
-ex ncmul::eval(int level) const
+ */
+ex ncmul::eval() const
 {
 	// The following additional rule would be nice, but produces a recursion,
 	// which must be trapped by introducing a flag that the sub-ncmuls()
@@ -296,22 +295,20 @@ ex ncmul::eval(int level) const
 	//                      ncmul(ncmul(x1,x2,...),X,ncmul(y1,y2,...)
 	//                      (X noncommutative_composite)
 
-	if ((level==1) && (flags & status_flags::evaluated)) {
+	if (flags & status_flags::evaluated) {
 		return *this;
 	}
-
-	exvector evaledseq=evalchildren(level);
 
 	// ncmul(...,*(x1,x2),...,ncmul(x3,x4),...) ->
 	//     ncmul(...,x1,x2,...,x3,x4,...)  (associativity)
 	size_t factors = 0;
-	for (auto & it : evaledseq)
+	for (auto & it : seq)
 		factors += count_factors(it);
 	
 	exvector assocseq;
 	assocseq.reserve(factors);
-	make_flat_inserter mf(evaledseq, true);
-	for (auto & it : evaledseq) {
+	make_flat_inserter mf(seq, true);
+	for (auto & it : seq) {
 		ex factor = mf.handle_factor(it, 1);
 		append_factors(assocseq, factor);
 	}
@@ -476,7 +473,7 @@ ex ncmul::conjugate() const
 		--i;
 		ev.push_back(i->conjugate());
 	}
-	return dynallocate<ncmul>(std::move(ev)).eval();
+	return dynallocate<ncmul>(std::move(ev));
 }
 
 ex ncmul::real_part() const

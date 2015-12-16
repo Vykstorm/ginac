@@ -115,7 +115,7 @@ public:
 	const_postorder_iterator postorder_end() const noexcept;
 
 	// evaluation
-	ex eval(int level = 0) const { return bp->eval(level); }
+	ex eval() const { return bp->eval(); }
 	ex evalf(int level = 0) const { return bp->evalf(level); }
 	ex evalm() const { return bp->evalm(); }
 	ex eval_ncmul(const exvector & v) const { return bp->eval_ncmul(v); }
@@ -755,8 +755,8 @@ inline ex to_polynomial(const ex & thisex, lst & repl_lst)
 inline ex collect(const ex & thisex, const ex & s, bool distributed = false)
 { return thisex.collect(s, distributed); }
 
-inline ex eval(const ex & thisex, int level = 0)
-{ return thisex.eval(level); }
+inline ex eval(const ex & thisex)
+{ return thisex.eval(); }
 
 inline ex evalf(const ex & thisex, int level = 0)
 { return thisex.evalf(level); }

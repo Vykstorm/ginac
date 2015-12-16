@@ -775,10 +775,8 @@ bool numeric::has(const ex &other, unsigned options) const
 
 
 /** Evaluation of numbers doesn't do anything at all. */
-ex numeric::eval(int level) const
+ex numeric::eval() const
 {
-	// Warning: if this is ever gonna do something, the ex ctors from all kinds
-	// of numbers should be checking for status_flags::evaluated.
 	return this->hold();
 }
 

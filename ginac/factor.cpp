@@ -2519,8 +2519,6 @@ struct apply_factor_map : public map_function {
 					s2 += e.op(i);
 				}
 			}
-			s1 = s1.eval();
-			s2 = s2.eval();
 			return factor(s1, options) + s2.map(*this);
 		}
 		return e.map(*this);

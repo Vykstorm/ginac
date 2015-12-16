@@ -50,7 +50,7 @@ public:
 	int ldegree(const ex &s) const override;
 	ex coeff(const ex &s, int n = 1) const override;
 	ex collect(const ex &s, bool distributed = false) const override;
-	ex eval(int level=0) const override;
+	ex eval() const override;
 	ex evalf(int level=0) const override;
 	ex series(const relational & r, int order, unsigned options = 0) const override;
 	ex subs(const exmap & m, unsigned options = 0) const override;
