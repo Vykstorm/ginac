@@ -601,11 +601,8 @@ bool expairseq::can_make_flat(const expair &p) const
 
 void expairseq::construct_from_2_ex_via_exvector(const ex &lh, const ex &rh)
 {
-	exvector v;
-	v.reserve(2);
-	v.push_back(lh);
-	v.push_back(rh);
-	construct_from_exvector(v);
+	const exvector v = {lh, rh};
+	construct_from_exvector(std::move(v));
 }
 
 void expairseq::construct_from_2_ex(const ex &lh, const ex &rh)

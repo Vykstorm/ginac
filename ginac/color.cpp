@@ -400,9 +400,7 @@ bool su3d::contract_with(exvector::iterator self, exvector::iterator other, exve
 		 && ex_to<indexed>(*self).has_dummy_index_for(other[1].op(1))) {
 
 			exvector self_indices = ex_to<indexed>(*self).get_indices();
-			exvector dummy_indices;
-			dummy_indices.push_back(other[0].op(1));
-			dummy_indices.push_back(other[1].op(1));
+			exvector dummy_indices = {other[0].op(1), other[1].op(1)};
 			int sig;
 			ex a = permute_free_index_to_front(self_indices, dummy_indices, sig);
 			*self = numeric(5, 6);
@@ -453,9 +451,7 @@ bool su3f::contract_with(exvector::iterator self, exvector::iterator other, exve
 		 && ex_to<indexed>(*self).has_dummy_index_for(other[1].op(1))) {
 
 			exvector self_indices = ex_to<indexed>(*self).get_indices();
-			exvector dummy_indices;
-			dummy_indices.push_back(other[0].op(1));
-			dummy_indices.push_back(other[1].op(1));
+			exvector dummy_indices = {other[0].op(1), other[1].op(1)};
 			int sig;
 			ex a = permute_free_index_to_front(self_indices, dummy_indices, sig);
 			*self = numeric(3, 2) * sig * I;

@@ -500,7 +500,7 @@ ex mul::eval() const
 			distrseq.push_back(addref.combine_pair_with_coeff_to_pair(it, overall_coeff));
 		}
 		return dynallocate<add>(std::move(distrseq),
-					 ex_to<numeric>(addref.overall_coeff).mul_dyn(ex_to<numeric>(overall_coeff)))
+		                        ex_to<numeric>(addref.overall_coeff).mul_dyn(ex_to<numeric>(overall_coeff)))
 			.setflag(status_flags::evaluated);
 	} else if ((seq_size >= 2) && (! (flags & status_flags::expanded))) {
 		// Strip the content and the unit part from each term. Thus
@@ -554,9 +554,9 @@ ex mul::eval() const
 			add & primitive = dynallocate<add>(addref);
 			primitive.clearflag(status_flags::hash_calculated);
 			primitive.overall_coeff = ex_to<numeric>(primitive.overall_coeff).div_dyn(c);
-			for (epvector::iterator ai = primitive.seq.begin(); ai != primitive.seq.end(); ++ai)
-				ai->coeff = ex_to<numeric>(ai->coeff).div_dyn(c);
-			
+			for (auto & ai : primitive.seq)
+				ai.coeff = ex_to<numeric>(ai.coeff).div_dyn(c);
+
 			s.push_back(expair(primitive, _ex1));
 
 			++i;
@@ -577,7 +577,7 @@ ex mul::eval() const
 ex mul::evalf(int level) const
 {
 	if (level==1)
-		return mul(seq,overall_coeff);
+		return mul(seq, overall_coeff);
 	
 	if (level==-max_recursion_level)
 		throw(std::runtime_error("max recursion level reached"));
@@ -797,10 +797,10 @@ retry1:
 					subsed[j] = true;
 			ex subsed_pattern
 				= it.first.subs(repls, subs_options::no_pattern);
-			divide_by *= power(subsed_pattern, nummatches);
+			divide_by *= pow(subsed_pattern, nummatches);
 			ex subsed_result
 				= it.second.subs(repls, subs_options::no_pattern);
-			multiply_by *= power(subsed_result, nummatches);
+			multiply_by *= pow(subsed_result, nummatches);
 			goto retry1;
 
 		} else {
@@ -812,10 +812,10 @@ retry1:
 					subsed[j] = true;
 					ex subsed_pattern
 						= it.first.subs(repls, subs_options::no_pattern);
-					divide_by *= power(subsed_pattern, nummatches);
+					divide_by *= pow(subsed_pattern, nummatches);
 					ex subsed_result
 						= it.second.subs(repls, subs_options::no_pattern);
-					multiply_by *= power(subsed_result, nummatches);
+					multiply_by *= pow(subsed_result, nummatches);
 				}
 			}
 		}
@@ -879,7 +879,7 @@ ex mul::derivative(const symbol & s) const
 	auto i = seq.begin(), end = seq.end();
 	auto i2 = mulseq.begin();
 	while (i != end) {
-		expair ep = split_ex_to_pair(power(i->rest, i->coeff - _ex1) *
+		expair ep = split_ex_to_pair(pow(i->rest, i->coeff - _ex1) *
 		                             i->rest.diff(s));
 		ep.swap(*i2);
 		addseq.push_back(dynallocate<mul>(mulseq, overall_coeff * i->coeff));
@@ -977,7 +977,7 @@ expair mul::combine_ex_with_coeff_to_pair(const ex & e,
 	if (c.is_equal(_ex1))
 		return split_ex_to_pair(e);
 
-	return split_ex_to_pair(power(e,c));
+	return split_ex_to_pair(pow(e,c));
 }
 
 expair mul::combine_pair_with_coeff_to_pair(const expair & p,
@@ -993,7 +993,7 @@ expair mul::combine_pair_with_coeff_to_pair(const expair & p,
 	if (c.is_equal(_ex1))
 		return p;
 
-	return split_ex_to_pair(power(recombine_pair_to_ex(p),c));
+	return split_ex_to_pair(pow(recombine_pair_to_ex(p),c));
 }
 
 ex mul::recombine_pair_to_ex(const expair & p) const
@@ -1071,20 +1071,22 @@ bool mul::can_be_further_expanded(const ex & e)
 
 ex mul::expand(unsigned options) const
 {
-	{
-	// trivial case: expanding the monomial (~ 30% of all calls)
-		epvector::const_iterator i = seq.begin(), seq_end = seq.end();
-		while ((i != seq.end()) &&  is_a<symbol>(i->rest) && i->coeff.info(info_flags::integer))
-			++i;
-		if (i == seq_end) {
-			setflag(status_flags::expanded);
-			return *this;
+	// Check for trivial case: expanding the monomial (~ 30% of all calls)
+	bool monomial_case = true;
+	for (const auto & i : seq) {
+		if (!is_a<symbol>(i.rest) || !i.coeff.info(info_flags::integer)) {
+			monomial_case = false;
+			break;
 		}
+	}
+	if (monomial_case) {
+		setflag(status_flags::expanded);
+		return *this;
 	}
 
 	// do not rename indices if the object has no indices at all
 	if ((!(options & expand_options::expand_rename_idx)) && 
-			this->info(info_flags::has_indices))
+	    this->info(info_flags::has_indices))
 		options |= expand_options::expand_rename_idx;
 
 	const bool skip_idx_rename = !(options & expand_options::expand_rename_idx);

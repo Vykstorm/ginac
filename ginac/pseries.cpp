@@ -177,7 +177,7 @@ void pseries::print_series(const print_context & c, const char *openbrace, const
 				}
 			}
 		} else
-			Order(power(var-point,i->coeff)).print(c);
+			Order(pow(var - point, i->coeff)).print(c);
 		++i;
 	}
 
@@ -281,8 +281,8 @@ ex pseries::op(size_t i) const
 		throw (std::out_of_range("op() out of range"));
 
 	if (is_order_function(seq[i].rest))
-		return Order(power(var-point, seq[i].coeff));
-	return seq[i].rest * power(var - point, seq[i].coeff);
+		return Order(pow(var-point, seq[i].coeff));
+	return seq[i].rest * pow(var - point, seq[i].coeff);
 }
 
 /** Return degree of highest power of the series.  This is usually the exponent
@@ -500,8 +500,7 @@ ex pseries::evalm() const
 			ex newcoeff = i->rest.evalm();
 			if (!newcoeff.is_zero())
 				newseq.push_back(expair(newcoeff, i->coeff));
-		}
-		else {
+		} else {
 			ex newcoeff = i->rest.evalm();
 			if (!are_ex_trivially_equal(newcoeff, i->rest)) {
 				something_changed = true;
@@ -589,9 +588,9 @@ ex pseries::convert_to_poly(bool no_order) const
 	for (auto & it : seq) {
 		if (is_order_function(it.rest)) {
 			if (!no_order)
-				e += Order(power(var - point, it.coeff));
+				e += Order(pow(var - point, it.coeff));
 		} else
-			e += it.rest * power(var - point, it.coeff);
+			e += it.rest * pow(var - point, it.coeff);
 	}
 	return e;
 }
@@ -644,7 +643,7 @@ ex basic::series(const relational & r, int order, unsigned options) const
 
 	int n;
 	for (n=1; n<order; ++n) {
-		fac = fac.mul(n);
+		fac = fac.div(n);
 		// We need to test for zero in order to see if the series terminates.
 		// The problem is that there is no such thing as a perfect test for
 		// zero.  Expanding the term occasionally helps a little...
@@ -654,7 +653,7 @@ ex basic::series(const relational & r, int order, unsigned options) const
 
 		coeff = deriv.subs(r, subs_options::no_pattern);
 		if (!coeff.is_zero())
-			seq.push_back(expair(fac.inverse() * coeff, n));
+			seq.push_back(expair(fac * coeff, n));
 	}
 	
 	// Higher-order terms, if present
@@ -1027,7 +1026,7 @@ ex pseries::power_const(const numeric &p, int deg) const
 	// Compute coefficients of the powered series
 	exvector co;
 	co.reserve(numcoeff);
-	co.push_back(power(coeff(var, ldeg), p));
+	co.push_back(pow(coeff(var, ldeg), p));
 	for (int i=1; i<numcoeff; ++i) {
 		ex sum = _ex0;
 		for (int j=1; j<=i; ++j) {

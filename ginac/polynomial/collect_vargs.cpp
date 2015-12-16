@@ -155,7 +155,7 @@ ex_collect_to_ex(const ex_collect_t& ec, const exvector& vars)
 				"expression has " << exp_vector.size() << " instead");
 
 			if (exp_vector[j] != 0)
-				tv.push_back(power(vars[j], exp_vector[j]));
+				tv.push_back(pow(vars[j], exp_vector[j]));
 		}
 		tv.push_back(ec[i].second);
 		ex tmp = dynallocate<mul>(tv);

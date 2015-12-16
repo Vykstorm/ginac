@@ -5,7 +5,7 @@ GiNaC requires the CLN library by Bruno Haible installed on your system.
 It is available from <ftp://ftpthep.physik.uni-mainz.de/pub/gnu/>.
 
 You will also need a decent ISO C++-11 compiler. We recommend the C++
-compiler from the GNU compiler collection, GCC >= 4.9. If you have a
+compiler from the GNU compiler collection, GCC >= 4.8. If you have a
 different or older compiler you are on your own. Note that you may have to
 use the same compiler you compiled CLN with because of differing
 name-mangling schemes.
@@ -20,7 +20,7 @@ TeX are necessary.
 
 Known to work with:
  - Linux on x86 and x86_64 using 
-   - GCC 4.8, 4.9, 5.1, and 5.2
+   - GCC 4.8, 4.9, 5.1, 5.2, and 5.3
    - Clang 3.5.0
 
 Known not to work with:

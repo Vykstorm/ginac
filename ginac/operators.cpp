@@ -34,13 +34,13 @@
 
 namespace GiNaC {
 
-/** Used internally by operator+() to add two ex objects together. */
+/** Used internally by operator+() to add two ex objects. */
 static inline const ex exadd(const ex & lh, const ex & rh)
 {
 	return dynallocate<add>(lh, rh);
 }
 
-/** Used internally by operator*() to multiply two ex objects together. */
+/** Used internally by operator*() to multiply two ex objects. */
 static inline const ex exmul(const ex & lh, const ex & rh)
 {
 	// Check if we are constructing a mul object or a ncmul object.  Due to
@@ -247,32 +247,32 @@ const numeric operator--(numeric & lh, int)
 
 const relational operator==(const ex & lh, const ex & rh)
 {
-	return relational(lh,rh,relational::equal);
+	return dynallocate<relational>(lh, rh, relational::equal);
 }
 
 const relational operator!=(const ex & lh, const ex & rh)
 {
-	return relational(lh,rh,relational::not_equal);
+	return dynallocate<relational>(lh, rh, relational::not_equal);
 }
 
 const relational operator<(const ex & lh, const ex & rh)
 {
-	return relational(lh,rh,relational::less);
+	return dynallocate<relational>(lh, rh, relational::less);
 }
 
 const relational operator<=(const ex & lh, const ex & rh)
 {
-	return relational(lh,rh,relational::less_or_equal);
+	return dynallocate<relational>(lh, rh, relational::less_or_equal);
 }
 
 const relational operator>(const ex & lh, const ex & rh)
 {
-	return relational(lh,rh,relational::greater);
+	return dynallocate<relational>(lh, rh, relational::greater);
 }
 
 const relational operator>=(const ex & lh, const ex & rh)
 {
-	return relational(lh,rh,relational::greater_or_equal);
+	return dynallocate<relational>(lh, rh, relational::greater_or_equal);
 }
 
 // input/output stream operators and manipulators

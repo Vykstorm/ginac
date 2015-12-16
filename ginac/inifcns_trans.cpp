@@ -242,12 +242,8 @@ static ex log_series(const ex &arg,
 			// in this case n more (or less) terms are needed
 			// (sadly, to generate them, we have to start from the beginning)
 			if (n == 0 && coeff == 1) {
-				epvector epv;
-				ex acc = dynallocate<pseries>(rel, epv);
-				epv.reserve(2);
-				epv.push_back(expair(-1, _ex0));
-				epv.push_back(expair(Order(_ex1), order));
-				ex rest = pseries(rel, std::move(epv)).add_series(argser);
+				ex rest = pseries(rel, epvector{expair(-1, _ex0), expair(Order(_ex1), order)}).add_series(argser);
+				ex acc = dynallocate<pseries>(rel, epvector());
 				for (int i = order-1; i>0; --i) {
 					epvector cterm { expair(i%2 ? _ex1/i : _ex_1/i, _ex0) };
 					acc = pseries(rel, std::move(cterm)).add_series(ex_to<pseries>(acc));

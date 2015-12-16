@@ -421,7 +421,7 @@ ex power::eval() const
 
 	// Turn (x^c)^d into x^(c*d) in the case that x is positive and c is real.
 	if (is_exactly_a<power>(basis) && basis.op(0).info(info_flags::positive) && basis.op(1).info(info_flags::real))
-		return power(basis.op(0), basis.op(1) * exponent);
+		return dynallocate<power>(basis.op(0), basis.op(1) * exponent);
 
 	if ( num_exponent ) {
 
@@ -472,8 +472,7 @@ ex power::eval() const
 					// because otherwise we'll end up with something like
 					//    (7/8)^(4/3)  ->  7/8*(1/2*7^(1/3))
 					// instead of 7/16*7^(1/3).
-					ex prod = power(*num_basis,r.div(m));
-					return prod*power(*num_basis,q);
+					return pow(basis, r.div(m)) * pow(basis, q);
 				}
 			}
 		}
@@ -490,14 +489,14 @@ ex power::eval() const
 				GINAC_ASSERT(num_sub_exponent!=numeric(1));
 				if (num_exponent->is_integer() || (abs(num_sub_exponent) - (*_num1_p)).is_negative() ||
 				    (num_sub_exponent == *_num_1_p && num_exponent->is_positive())) {
-					return power(sub_basis,num_sub_exponent.mul(*num_exponent));
+					return dynallocate<power>(sub_basis, num_sub_exponent.mul(*num_exponent));
 				}
 			}
 		}
 	
 		// ^(*(x,y,z),c1) -> *(x^c1,y^c1,z^c1) (c1 integer)
 		if (num_exponent->is_integer() && is_exactly_a<mul>(basis)) {
-			return expand_mul(ex_to<mul>(basis), *num_exponent, 0);
+			return expand_mul(ex_to<mul>(basis), *num_exponent, false);
 		}
 
 		// (2*x + 6*y)^(-4) -> 1/16*(x + 3*y)^(-4)
@@ -584,7 +583,7 @@ ex power::evalf(int level) const
 			eexponent = exponent;
 	}
 
-	return power(ebasis,eexponent);
+	return dynallocate<power>(ebasis, eexponent);
 }
 
 ex power::evalm() const
@@ -642,7 +641,7 @@ ex power::subs(const exmap & m, unsigned options) const
 		if (tryfactsubs(*this, it.first, nummatches, repls)) {
 			ex anum = it.second.subs(repls, subs_options::no_pattern);
 			ex aden = it.first.subs(repls, subs_options::no_pattern);
-			ex result = (*this)*power(anum/aden, nummatches);
+			ex result = (*this) * pow(anum/aden, nummatches);
 			return (ex_to<basic>(result)).subs_one_level(m, options);
 		}
 	}
@@ -691,12 +690,12 @@ ex power::real_part() const
 		// Re((a+I*b)^c)  w/  c ∈ ℤ
 		long N = ex_to<numeric>(c).to_long();
 		// Use real terms in Binomial expansion to construct
-		// Re(expand(power(a+I*b, N))).
+		// Re(expand(pow(a+I*b, N))).
 		long NN = N > 0 ? N : -N;
-		ex numer = N > 0 ? _ex1 : power(power(a,2) + power(b,2), NN);
+		ex numer = N > 0 ? _ex1 : pow(pow(a,2) + pow(b,2), NN);
 		ex result = 0;
 		for (long n = 0; n <= NN; n += 2) {
-			ex term = binomial(NN, n) * power(a, NN-n) * power(b, n) / numer;
+			ex term = binomial(NN, n) * pow(a, NN-n) * pow(b, n) / numer;
 			if (n % 4 == 0) {
 				result += term;  // sign: I^n w/ n == 4*m
 			} else {
@@ -708,11 +707,12 @@ ex power::real_part() const
 
 	// Re((a+I*b)^(c+I*d))
 	const ex d = exponent.imag_part();
-	return power(abs(basis),c)*exp(-d*atan2(b,a))*cos(c*atan2(b,a)+d*log(abs(basis)));
+	return pow(abs(basis),c) * exp(-d*atan2(b,a)) * cos(c*atan2(b,a)+d*log(abs(basis)));
 }
 
 ex power::imag_part() const
 {
+	// basis == a+I*b, exponent == c+I*d
 	const ex a = basis.real_part();
 	const ex c = exponent.real_part();
 	if (basis.is_equal(a) && exponent.is_equal(c)) {
@@ -725,13 +725,13 @@ ex power::imag_part() const
 		// Im((a+I*b)^c)  w/  c ∈ ℤ
 		long N = ex_to<numeric>(c).to_long();
 		// Use imaginary terms in Binomial expansion to construct
-		// Im(expand(power(a+I*b, N))).
+		// Im(expand(pow(a+I*b, N))).
 		long p = N > 0 ? 1 : 3;  // modulus for positive sign
 		long NN = N > 0 ? N : -N;
-		ex numer = N > 0 ? _ex1 : power(power(a,2) + power(b,2), NN);
+		ex numer = N > 0 ? _ex1 : pow(pow(a,2) + pow(b,2), NN);
 		ex result = 0;
 		for (long n = 1; n <= NN; n += 2) {
-			ex term = binomial(NN, n) * power(a, NN-n) * power(b, n) / numer;
+			ex term = binomial(NN, n) * pow(a, NN-n) * pow(b, n) / numer;
 			if (n % 4 == p) {
 				result += term;  // sign: I^n w/ n == 4*m+p
 			} else {
@@ -743,7 +743,7 @@ ex power::imag_part() const
 
 	// Im((a+I*b)^(c+I*d))
 	const ex d = exponent.imag_part();
-	return power(abs(basis),c)*exp(-d*atan2(b,a))*sin(c*atan2(b,a)+d*log(abs(basis)));
+	return pow(abs(basis),c) * exp(-d*atan2(b,a)) * sin(c*atan2(b,a)+d*log(abs(basis)));
 }
 
 // protected
@@ -754,16 +754,11 @@ ex power::derivative(const symbol & s) const
 {
 	if (is_a<numeric>(exponent)) {
 		// D(b^r) = r * b^(r-1) * D(b) (faster than the formula below)
-		epvector newseq;
-		newseq.reserve(2);
-		newseq.push_back(expair(basis, exponent - _ex1));
-		newseq.push_back(expair(basis.diff(s), _ex1));
-		return mul(std::move(newseq), exponent);
+		const epvector newseq = {expair(basis, exponent - _ex1), expair(basis.diff(s), _ex1)};
+		return dynallocate<mul>(std::move(newseq), exponent);
 	} else {
 		// D(b^e) = b^e * (D(e)*ln(b) + e*D(b)/b)
-		return mul(*this,
-		           add(mul(exponent.diff(s), log(basis)),
-		           mul(mul(exponent, basis.diff(s)), power(basis, _ex_1))));
+		return *this * (exponent.diff(s)*log(basis) + exponent*basis.diff(s)*pow(basis, _ex_1));
 	}
 }
 
@@ -822,9 +817,9 @@ ex power::expand(unsigned options) const
 		// take care on the numeric coefficient
 		ex coeff=(possign? _ex1 : _ex_1);
 		if (m.overall_coeff.info(info_flags::positive) && m.overall_coeff != _ex1)
-			prodseq.push_back(power(m.overall_coeff, exponent));
+			prodseq.push_back(pow(m.overall_coeff, exponent));
 		else if (m.overall_coeff.info(info_flags::negative) && m.overall_coeff != _ex_1)
-			prodseq.push_back(power(-m.overall_coeff, exponent));
+			prodseq.push_back(pow(-m.overall_coeff, exponent));
 		else
 			coeff *= m.overall_coeff;
 
@@ -832,7 +827,7 @@ ex power::expand(unsigned options) const
 		// In either case we set a flag to avoid the second run on a part
 		// which does not have positive/negative terms.
 		if (prodseq.size() > 0) {
-			ex newbasis = coeff*mul(std::move(powseq));
+			ex newbasis = dynallocate<mul>(std::move(powseq), coeff);
 			ex_to<basic>(newbasis).setflag(status_flags::purely_indefinite);
 			return dynallocate<mul>(std::move(prodseq)) * pow(newbasis, exponent);
 		} else
@@ -848,7 +843,7 @@ ex power::expand(unsigned options) const
 		exvector distrseq;
 		distrseq.reserve(a.seq.size() + 1);
 		for (auto & cit : a.seq) {
-			distrseq.push_back(power(expanded_basis, a.recombine_pair_to_ex(cit)));
+			distrseq.push_back(pow(expanded_basis, a.recombine_pair_to_ex(cit)));
 		}
 		
 		// Make sure that e.g. (x+y)^(2+a) expands the (x+y)^2 factor
@@ -858,9 +853,9 @@ ex power::expand(unsigned options) const
 			if (int_exponent > 0 && is_exactly_a<add>(expanded_basis))
 				distrseq.push_back(expand_add(ex_to<add>(expanded_basis), int_exponent, options));
 			else
-				distrseq.push_back(power(expanded_basis, a.overall_coeff));
+				distrseq.push_back(pow(expanded_basis, a.overall_coeff));
 		} else
-			distrseq.push_back(power(expanded_basis, a.overall_coeff));
+			distrseq.push_back(pow(expanded_basis, a.overall_coeff));
 		
 		// Make sure that e.g. (x+y)^(1+a) -> x*(x+y)^a + y*(x+y)^a
 		ex r = dynallocate<mul>(distrseq);

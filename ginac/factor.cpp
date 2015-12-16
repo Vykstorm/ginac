@@ -916,8 +916,7 @@ static void berlekamp(const umodpoly& a, upvec& upv)
 		return;
 	}
 
-	list<umodpoly> factors;
-	factors.push_back(a);
+	list<umodpoly> factors = {a};
 	unsigned int size = 1;
 	unsigned int r = 1;
 	unsigned int q = cl_I_to_uint(R->modulus);
@@ -937,8 +936,7 @@ static void berlekamp(const umodpoly& a, upvec& upv)
 				div(*u, g, uo);
 				if ( equal_one(uo) ) {
 					throw logic_error("berlekamp: unexpected divisor.");
-				}
-				else {
+				} else {
 					*u = uo;
 				}
 				factors.push_back(g);
@@ -1021,8 +1019,7 @@ static void modsqrfree(const umodpoly& a, upvec& factors, vector<int>& mult)
 				mult[i] *= prime;
 			}
 		}
-	}
-	else {
+	} else {
 		umodpoly ap;
 		expt_1_over_p(a, prime, ap);
 		size_t previ = mult.size();
@@ -1107,8 +1104,7 @@ static void same_degree_factor(const umodpoly& a, upvec& upv)
 	for ( size_t i=0; i<degrees.size(); ++i ) {
 		if ( degrees[i] == degree(ddfactors[i]) ) {
 			upv.push_back(ddfactors[i]);
-		}
-		else {
+		} else {
 			berlekamp(ddfactors[i], upv);
 		}
 	}
@@ -1314,8 +1310,7 @@ static void hensel_univar(const upoly& a_, unsigned int p, const umodpoly& u1_, 
 		if ( alpha != 1 ) {
 			w = w / alpha;
 		}
-	}
-	else {
+	} else {
 		u.clear();
 	}
 }
@@ -1328,20 +1323,22 @@ static void hensel_univar(const upoly& a_, unsigned int p, const umodpoly& u1_, 
 static unsigned int next_prime(unsigned int p)
 {
 	static vector<unsigned int> primes;
-	if ( primes.size() == 0 ) {
-		primes.push_back(3); primes.push_back(5); primes.push_back(7);
+	if (primes.empty()) {
+		primes = {3, 5, 7};
 	}
 	if ( p >= primes.back() ) {
 		unsigned int candidate = primes.back() + 2;
 		while ( true ) {
 			size_t n = primes.size()/2;
 			for ( size_t i=0; i<n; ++i ) {
-				if ( candidate % primes[i] ) continue;
+				if (candidate % primes[i])
+					continue;
 				candidate += 2;
 				i=-1;
 			}
 			primes.push_back(candidate);
-			if ( candidate > p ) break;
+			if (candidate > p)
+				break;
 		}
 		return candidate;
 	}
@@ -1405,8 +1402,7 @@ public:
 			if ( len > n/2 ) return false;
 			fill(k.begin(), k.begin()+len, 1);
 			fill(k.begin()+len+1, k.end(), 0);
-		}
-		else {
+		} else {
 			k[last++] = 0;
 			k[last] = 1;
 		}
@@ -1429,8 +1425,7 @@ private:
 			if ( d ) {
 				if ( cache[pos].size() >= d ) {
 					lr[group] = lr[group] * cache[pos][d-1];
-				}
-				else {
+				} else {
 					if ( cache[pos].size() == 0 ) {
 						cache[pos].push_back(factors[pos] * factors[pos+1]);
 					}
@@ -1444,8 +1439,7 @@ private:
 					}
 					lr[group] = lr[group] * cache[pos].back();
 				}
-			}
-			else {
+			} else {
 				lr[group] = lr[group] * factors[pos];
 			}
 		} while ( i < n );
@@ -1456,8 +1450,7 @@ private:
 		lr[1] = one;
 		if ( n > 6 ) {
 			split_cached();
-		}
-		else {
+		} else {
 			for ( size_t i=0; i<n; ++i ) {
 				lr[k[i]] = lr[k[i]] * factors[i];
 			}
@@ -1542,8 +1535,7 @@ static ex factor_univariate(const ex& poly, const ex& x, unsigned int& prime)
 			minfactors = trialfactors.size();
 			lastp = prime;
 			trials = 1;
-		}
-		else {
+		} else {
 			++trials;
 		}
 	}
@@ -1597,15 +1589,13 @@ static ex factor_univariate(const ex& poly, const ex& x, unsigned int& prime)
 						}
 					}
 					break;
-				}
-				else {
+				} else {
 					upvec newfactors1(part.size_left()), newfactors2(part.size_right());
 					auto i1 = newfactors1.begin(), i2 = newfactors2.begin();
 					for ( size_t i=0; i<n; ++i ) {
 						if ( part[i] ) {
 							*i2++ = tocheck.top().factors[i];
-						}
-						else {
+						} else {
 							*i1++ = tocheck.top().factors[i];
 						}
 					}
@@ -1617,8 +1607,7 @@ static ex factor_univariate(const ex& poly, const ex& x, unsigned int& prime)
 					tocheck.push(mf);
 					break;
 				}
-			}
-			else {
+			} else {
 				// not successful
 				if ( !part.next() ) {
 					// if no more combinations left, return polynomial as
@@ -1808,8 +1797,7 @@ static upvec univar_diophant(const upvec& a, const ex& x, unsigned int m, unsign
 			rem(bmod, a[j], buf);
 			result.push_back(buf);
 		}
-	}
-	else {
+	} else {
 		umodpoly s, t;
 		eea_lift(a[1], a[0], x, p, k, s, t);
 		umodpoly bmod = umodpoly_to_umodpoly(s, R, m);
@@ -1843,8 +1831,7 @@ struct make_modular_map : public map_function {
 			numeric n(R->retract(emod));
 			if ( n > halfmod ) {
 				return n-mod;
-			}
-			else {
+			} else {
 				return n;
 			}
 		}
@@ -1937,8 +1924,7 @@ static vector<ex> multivar_diophant(const vector<ex>& a_, const ex& x, const ex&
 				e = make_modular(buf, R);
 			}
 		}
-	}
-	else {
+	} else {
 		upvec amod;
 		for ( size_t i=0; i<a.size(); ++i ) {
 			umodpoly up;
@@ -1952,8 +1938,7 @@ static vector<ex> multivar_diophant(const vector<ex>& a_, const ex& x, const ex&
 		if ( is_a<add>(c) ) {
 			nterms = c.nops();
 			z = c.op(0);
-		}
-		else {
+		} else {
 			nterms = 1;
 			z = c;
 		}
@@ -2090,8 +2075,7 @@ static ex hensel_multivar(const ex& a, const ex& x, const vector<EvalPoint>& I,
 			res.append(U[i]);
 		}
 		return res;
-	}
-	else {
+	} else {
 		lst res;
 		return lst{};
 	}
@@ -2325,8 +2309,7 @@ static ex factor_multivariate(const ex& poly, const exset& syms)
 			for ( size_t i=1; i<ufaclst.nops(); ++i ) {
 				C[i-1] = ufaclst.op(i).lcoeff(x);
 			}
-		}
-		else {
+		} else {
 			// difficult case.
 			// we use the property of the ftilde having a unique prime factor.
 			// details can be found in [Wan].
@@ -2361,8 +2344,7 @@ static ex factor_multivariate(const ex& poly, const exset& syms)
 					}
 					C[i] = D[i] * prefac;
 				}
-			}
-			else {
+			} else {
 				for ( int i=0; i<factor_count; ++i ) {
 					numeric prefac = ex_to<numeric>(ufaclst.op(i+1).lcoeff(x));
 					for ( int j=ftilde.size()-1; j>=0; --j ) {
@@ -2486,8 +2468,7 @@ static ex factor_sqrfree(const ex& poly)
 			int ld = poly.ldegree(x);
 			ex res = factor_univariate(expand(poly/pow(x, ld)), x);
 			return res * pow(x,ld);
-		}
-		else {
+		} else {
 			ex res = factor_univariate(poly, x);
 			return res;
 		}
@@ -2514,8 +2495,7 @@ struct apply_factor_map : public map_function {
 			for ( size_t i=0; i<e.nops(); ++i ) {
 				if ( e.op(i).info(info_flags::polynomial) ) {
 					s1 += e.op(i);
-				}
-				else {
+				} else {
 					s2 += e.op(i);
 				}
 			}
@@ -2577,17 +2557,14 @@ ex factor(const ex& poly, unsigned options)
 				const ex& base = t.op(0);
 				if ( !is_a<add>(base) ) {
 					res *= t;
-				}
-				else {
+				} else {
 					ex f = factor_sqrfree(base);
 					res *= pow(f, t.op(1));
 				}
-			}
-			else if ( is_a<add>(t) ) {
+			} else if ( is_a<add>(t) ) {
 				ex f = factor_sqrfree(t);
 				res *= f;
-			}
-			else {
+			} else {
 				res *= t;
 			}
 		}

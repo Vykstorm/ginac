@@ -388,7 +388,7 @@ ex quo(const ex &a, const ex &b, const ex &x, bool check_args)
 			if (!divide(rcoeff, blcoeff, term, false))
 				return dynallocate<fail>();
 		}
-		term *= power(x, rdeg - bdeg);
+		term *= pow(x, rdeg - bdeg);
 		v.push_back(term);
 		r -= (term * b).expand();
 		if (r.is_zero())
@@ -441,7 +441,7 @@ ex rem(const ex &a, const ex &b, const ex &x, bool check_args)
 			if (!divide(rcoeff, blcoeff, term, false))
 				return dynallocate<fail>();
 		}
-		term *= power(x, rdeg - bdeg);
+		term *= pow(x, rdeg - bdeg);
 		r -= (term * b).expand();
 		if (r.is_zero())
 			break;
@@ -501,23 +501,23 @@ ex prem(const ex &a, const ex &b, const ex &x, bool check_args)
 		if (bdeg == 0)
 			eb = _ex0;
 		else
-			eb -= blcoeff * power(x, bdeg);
+			eb -= blcoeff * pow(x, bdeg);
 	} else
 		blcoeff = _ex1;
 
 	int delta = rdeg - bdeg + 1, i = 0;
 	while (rdeg >= bdeg && !r.is_zero()) {
 		ex rlcoeff = r.coeff(x, rdeg);
-		ex term = (power(x, rdeg - bdeg) * eb * rlcoeff).expand();
+		ex term = (pow(x, rdeg - bdeg) * eb * rlcoeff).expand();
 		if (rdeg == 0)
 			r = _ex0;
 		else
-			r -= rlcoeff * power(x, rdeg);
+			r -= rlcoeff * pow(x, rdeg);
 		r = (blcoeff * r).expand() - term;
 		rdeg = r.degree(x);
 		i++;
 	}
-	return power(blcoeff, delta - i) * r;
+	return pow(blcoeff, delta - i) * r;
 }
 
 
@@ -553,17 +553,17 @@ ex sprem(const ex &a, const ex &b, const ex &x, bool check_args)
 		if (bdeg == 0)
 			eb = _ex0;
 		else
-			eb -= blcoeff * power(x, bdeg);
+			eb -= blcoeff * pow(x, bdeg);
 	} else
 		blcoeff = _ex1;
 
 	while (rdeg >= bdeg && !r.is_zero()) {
 		ex rlcoeff = r.coeff(x, rdeg);
-		ex term = (power(x, rdeg - bdeg) * eb * rlcoeff).expand();
+		ex term = (pow(x, rdeg - bdeg) * eb * rlcoeff).expand();
 		if (rdeg == 0)
 			r = _ex0;
 		else
-			r -= rlcoeff * power(x, rdeg);
+			r -= rlcoeff * pow(x, rdeg);
 		r = (blcoeff * r).expand() - term;
 		rdeg = r.degree(x);
 	}
@@ -663,7 +663,7 @@ bool divide(const ex &a, const ex &b, ex &q, bool check_args)
 		int a_exp = ex_to<numeric>(a.op(1)).to_int();
 		ex rem_i;
 		if (divide(ab, b, rem_i, false)) {
-			q = rem_i*power(ab, a_exp - 1);
+			q = rem_i * pow(ab, a_exp - 1);
 			return true;
 		}
 // code below is commented-out because it leads to a significant slowdown
@@ -693,7 +693,7 @@ bool divide(const ex &a, const ex &b, ex &q, bool check_args)
 		else
 			if (!divide(rcoeff, blcoeff, term, false))
 				return false;
-		term *= power(x, rdeg - bdeg);
+		term *= pow(x, rdeg - bdeg);
 		v.push_back(term);
 		r -= (term * b).expand();
 		if (r.is_zero()) {
@@ -876,7 +876,7 @@ static bool divide_in_z(const ex &a, const ex &b, ex &q, sym_desc_vec::const_ite
 		ex term, rcoeff = r.coeff(x, rdeg);
 		if (!divide_in_z(rcoeff, blcoeff, term, var+1))
 			break;
-		term = (term * power(x, rdeg - bdeg)).expand();
+		term = (term * pow(x, rdeg - bdeg)).expand();
 		v.push_back(term);
 		r -= (term * eb).expand();
 		if (r.is_zero()) {
@@ -1237,7 +1237,7 @@ static ex interpolate(const ex &gamma, const numeric &xi, const ex &x, int degre
 	numeric rxi = xi.inverse();
 	for (int i=0; !e.is_zero(); i++) {
 		ex gi = e.smod(xi);
-		g.push_back(gi * power(x, i));
+		g.push_back(gi * pow(x, i));
 		e = (e - gi) * rxi;
 	}
 	return dynallocate<add>(g);
@@ -1563,7 +1563,7 @@ ex gcd(const ex &a, const ex &b, ex *ca, ex *cb, bool check_args, unsigned optio
 	int ldeg_b = var->ldeg_b;
 	int min_ldeg = std::min(ldeg_a,ldeg_b);
 	if (min_ldeg > 0) {
-		ex common = power(x, min_ldeg);
+		ex common = pow(x, min_ldeg);
 		return gcd((aex / common).expand(), (bex / common).expand(), ca, cb, false) * common;
 	}
 
@@ -1644,14 +1644,14 @@ static ex gcd_pf_pow_pow(const ex& a, const ex& b, ex* ca, ex* cb)
 			if (ca)
 				*ca = _ex1;
 			if (cb)
-				*cb = power(p, exp_b - exp_a);
-			return power(p, exp_a);
+				*cb = pow(p, exp_b - exp_a);
+			return pow(p, exp_a);
 		} else {
 			if (ca)
-				*ca = power(p, exp_a - exp_b);
+				*ca = pow(p, exp_a - exp_b);
 			if (cb)
 				*cb = _ex1;
-			return power(p, exp_b);
+			return pow(p, exp_b);
 		}
 	}
 
@@ -1671,11 +1671,11 @@ static ex gcd_pf_pow_pow(const ex& a, const ex& b, ex* ca, ex* cb)
 	// a(x) = g(x)^n A(x)^n, b(x) = g(x)^m B(x)^m ==>
 	// gcd(a, b) = g(x)^n gcd(A(x)^n, g(x)^(n-m) B(x)^m
 	if (exp_a < exp_b) {
-		ex pg =  gcd(power(p_co, exp_a), power(p_gcd, exp_b-exp_a)*power(pb_co, exp_b), ca, cb, false);
-		return power(p_gcd, exp_a)*pg;
+		ex pg =  gcd(pow(p_co, exp_a), pow(p_gcd, exp_b-exp_a)*pow(pb_co, exp_b), ca, cb, false);
+		return pow(p_gcd, exp_a)*pg;
 	} else {
-		ex pg = gcd(power(p_gcd, exp_a - exp_b)*power(p_co, exp_a), power(pb_co, exp_b), ca, cb, false);
-		return power(p_gcd, exp_b)*pg;
+		ex pg = gcd(pow(p_gcd, exp_a - exp_b)*pow(p_co, exp_a), pow(pb_co, exp_b), ca, cb, false);
+		return pow(p_gcd, exp_b)*pg;
 	}
 }
 
@@ -1694,7 +1694,7 @@ static ex gcd_pf_pow(const ex& a, const ex& b, ex* ca, ex* cb)
 	if (p.is_equal(b)) {
 		// a = p^n, b = p, gcd = p
 		if (ca)
-			*ca = power(p, a.op(1) - 1);
+			*ca = pow(p, a.op(1) - 1);
 		if (cb)
 			*cb = _ex1;
 		return p;
@@ -1712,7 +1712,7 @@ static ex gcd_pf_pow(const ex& a, const ex& b, ex* ca, ex* cb)
 		return _ex1;
 	}
 	// a(x) = g(x)^n A(x)^n, b(x) = g(x) B(x) ==> gcd(a, b) = g(x) gcd(g(x)^(n-1) A(x)^n, B(x))
-	ex rg = gcd(power(p_gcd, exp_a-1)*power(p_co, exp_a), bpart_co, ca, cb, false);
+	ex rg = gcd(pow(p_gcd, exp_a-1)*pow(p_co, exp_a), bpart_co, ca, cb, false);
 	return p_gcd*rg;
 }
 
@@ -1876,7 +1876,7 @@ ex sqrfree(const ex &a, const lst &l)
 	ex result = _ex1;
 	int p = 1;
 	for (auto & it : factors)
-		result *= power(it, p++);
+		result *= pow(it, p++);
 
 	// Yun's algorithm does not account for constant factors.  (For univariate
 	// polynomials it works only in the monic case.)  We can correct this by
@@ -2248,12 +2248,12 @@ ex power::normal(exmap & repl, exmap & rev_lookup, int level) const
 		if (n_exponent.info(info_flags::positive)) {
 
 			// (a/b)^n -> {a^n, b^n}
-			return dynallocate<lst>({power(n_basis.op(0), n_exponent), power(n_basis.op(1), n_exponent)});
+			return dynallocate<lst>({pow(n_basis.op(0), n_exponent), pow(n_basis.op(1), n_exponent)});
 
 		} else if (n_exponent.info(info_flags::negative)) {
 
 			// (a/b)^-n -> {b^n, a^n}
-			return dynallocate<lst>({power(n_basis.op(1), -n_exponent), power(n_basis.op(0), -n_exponent)});
+			return dynallocate<lst>({pow(n_basis.op(1), -n_exponent), pow(n_basis.op(0), -n_exponent)});
 		}
 
 	} else {
@@ -2261,25 +2261,25 @@ ex power::normal(exmap & repl, exmap & rev_lookup, int level) const
 		if (n_exponent.info(info_flags::positive)) {
 
 			// (a/b)^x -> {sym((a/b)^x), 1}
-			return dynallocate<lst>({replace_with_symbol(power(n_basis.op(0) / n_basis.op(1), n_exponent), repl, rev_lookup), _ex1});
+			return dynallocate<lst>({replace_with_symbol(pow(n_basis.op(0) / n_basis.op(1), n_exponent), repl, rev_lookup), _ex1});
 
 		} else if (n_exponent.info(info_flags::negative)) {
 
 			if (n_basis.op(1).is_equal(_ex1)) {
 
 				// a^-x -> {1, sym(a^x)}
-				return dynallocate<lst>({_ex1, replace_with_symbol(power(n_basis.op(0), -n_exponent), repl, rev_lookup)});
+				return dynallocate<lst>({_ex1, replace_with_symbol(pow(n_basis.op(0), -n_exponent), repl, rev_lookup)});
 
 			} else {
 
 				// (a/b)^-x -> {sym((b/a)^x), 1}
-				return dynallocate<lst>({replace_with_symbol(power(n_basis.op(1) / n_basis.op(0), -n_exponent), repl, rev_lookup), _ex1});
+				return dynallocate<lst>({replace_with_symbol(pow(n_basis.op(1) / n_basis.op(0), -n_exponent), repl, rev_lookup), _ex1});
 			}
 		}
 	}
 
 	// (a/b)^x -> {sym((a/b)^x, 1}
-	return dynallocate<lst>({replace_with_symbol(power(n_basis.op(0) / n_basis.op(1), n_exponent), repl, rev_lookup), _ex1});
+	return dynallocate<lst>({replace_with_symbol(pow(n_basis.op(0) / n_basis.op(1), n_exponent), repl, rev_lookup), _ex1});
 }
 
 
@@ -2516,7 +2516,7 @@ ex numeric::to_polynomial(exmap & repl) const
 ex power::to_rational(exmap & repl) const
 {
 	if (exponent.info(info_flags::integer))
-		return power(basis.to_rational(repl), exponent);
+		return pow(basis.to_rational(repl), exponent);
 	else
 		return replace_with_symbol(*this, repl);
 }
@@ -2526,17 +2526,17 @@ ex power::to_rational(exmap & repl) const
 ex power::to_polynomial(exmap & repl) const
 {
 	if (exponent.info(info_flags::posint))
-		return power(basis.to_rational(repl), exponent);
+		return pow(basis.to_rational(repl), exponent);
 	else if (exponent.info(info_flags::negint))
 	{
 		ex basis_pref = collect_common_factors(basis);
 		if (is_exactly_a<mul>(basis_pref) || is_exactly_a<power>(basis_pref)) {
 			// (A*B)^n will be automagically transformed to A^n*B^n
-			ex t = power(basis_pref, exponent);
+			ex t = pow(basis_pref, exponent);
 			return t.to_polynomial(repl);
 		}
 		else
-			return power(replace_with_symbol(power(basis, _ex_1), repl), -exponent);
+			return pow(replace_with_symbol(pow(basis, _ex_1), repl), -exponent);
 	} 
 	else
 		return replace_with_symbol(*this, repl);
@@ -2655,8 +2655,8 @@ term_done:	;
 			ex eb = e.op(0).to_polynomial(repl);
 			ex factor_local(_ex1);
 			ex pre_res = find_common_factor(eb, factor_local, repl);
-			factor *= power(factor_local, e_exp);
-			return power(pre_res, e_exp);
+			factor *= pow(factor_local, e_exp);
+			return pow(pre_res, e_exp);
 			
 		} else
 			return e.to_polynomial(repl);

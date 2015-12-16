@@ -166,7 +166,7 @@ class make_flat_inserter
 				return x;
 			sort(dummies_of_factor.begin(), dummies_of_factor.end(), ex_is_less());
 			ex new_factor = rename_dummy_indices_uniquely(used_indices,
-				dummies_of_factor, x);
+			                                              dummies_of_factor, x);
 			combine_indices(dummies_of_factor);
 			return new_factor;
 		}
@@ -175,8 +175,8 @@ class make_flat_inserter
 		{
 			exvector new_dummy_indices;
 			set_union(used_indices.begin(), used_indices.end(),
-				dummies_of_factor.begin(), dummies_of_factor.end(),
-				std::back_insert_iterator<exvector>(new_dummy_indices), ex_is_less());
+			          dummies_of_factor.begin(), dummies_of_factor.end(),
+			          std::back_insert_iterator<exvector>(new_dummy_indices), ex_is_less());
 			used_indices.swap(new_dummy_indices);
 		}
 		bool do_renaming;

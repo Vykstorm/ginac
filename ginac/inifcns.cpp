@@ -354,9 +354,9 @@ static ex abs_power(const ex & arg, const ex & exp)
 {
 	if ((is_a<numeric>(exp) && ex_to<numeric>(exp).is_even()) || exp.info(info_flags::even)) {
 		if (arg.info(info_flags::real) || arg.is_equal(arg.conjugate()))
-			return power(arg, exp);
+			return pow(arg, exp);
 		else
-			return power(arg, exp/2)*power(arg.conjugate(), exp/2);
+			return pow(arg, exp/2) * pow(arg.conjugate(), exp/2);
 	} else
 		return power(abs(arg), exp).hold();
 }

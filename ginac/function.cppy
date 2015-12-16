@@ -142,7 +142,7 @@ function_options & function_options::set_return_type(unsigned rt, const return_t
 {
 	use_return_type = true;
 	return_type = rt;
-	if (rtt != 0)
+	if (rtt != nullptr)
 		return_type_tinfo = *rtt;
 	else
 		return_type_tinfo = make_return_type_t<function>();
@@ -380,7 +380,7 @@ ex function::eval() const
 			// Something has changed while sorting arguments, more evaluations later
 			if (sig == 0)
 				return _ex0;
-			return ex(sig) * thiscontainer(v);
+			return ex(sig) * thiscontainer(std::move(v));
 		}
 	}
 

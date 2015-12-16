@@ -27,7 +27,7 @@ please try to follow these rules. It will make our (and your) lives easier. :-)
 ----------------------
 
 Any code in GiNaC should comply to the C++ standard, as defined by ISO/IEC
-14882:1998(E). Don't use compiler-specific language extensions unless they
+14882:2011(E). Don't use compiler-specific language extensions unless they
 are surrounded by appropriate "#ifdef"s, and you also provide a compliant
 version of the code in question for other compilers.
 
