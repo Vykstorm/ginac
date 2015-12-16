@@ -568,6 +568,33 @@ static unsigned exam_paranoia22()
 	return 0;
 }
 
+// Bug in expairseq::evalchildren().
+static unsigned exam_paranoia23()
+{
+	unsigned result = 0;
+	symbol x("x");
+
+	epvector v1;
+	v1.push_back(expair(1, 1));
+	v1.push_back(expair(2*x, -1));
+	ex e1 = add(v1);  // Should be e==1-2*x,
+	if (!e1.is_equal(1-2*x)) {
+		clog << "Failure constructing " << e1 << " from add.\n";
+		++result;
+	}
+
+	epvector v2;
+	v2.push_back(expair(x, 1));
+	v2.push_back(expair(1,-1));
+	ex e2 = mul(v2);  // Should be e==x;
+	if (!e2.is_equal(x)) {
+		clog << "Failure constructing " << e2 << " from mul.\n";
+		++result;
+	}
+
+	return result;
+}
+
 unsigned exam_paranoia()
 {
 	unsigned result = 0;
@@ -597,6 +624,7 @@ unsigned exam_paranoia()
 	result += is_polynomial_false_positive(); cout << '.' << flush;
 	result += exam_paranoia21();  cout << '.' << flush;
 	result += exam_paranoia22();  cout << '.' << flush;
+	result += exam_paranoia23();  cout << '.' << flush;
 	
 	return result;
 }

@@ -2555,7 +2555,7 @@ ex expairseq::to_rational(exmap & repl) const
 	if (oc.info(info_flags::numeric))
 		return thisexpairseq(std::move(s), overall_coeff);
 	else
-		s.push_back(combine_ex_with_coeff_to_pair(oc, _ex1));
+		s.push_back(expair(oc, _ex1));
 	return thisexpairseq(std::move(s), default_overall_coeff());
 }
 
@@ -2571,7 +2571,7 @@ ex expairseq::to_polynomial(exmap & repl) const
 	if (oc.info(info_flags::numeric))
 		return thisexpairseq(std::move(s), overall_coeff);
 	else
-		s.push_back(combine_ex_with_coeff_to_pair(oc, _ex1));
+		s.push_back(expair(oc, _ex1));
 	return thisexpairseq(std::move(s), default_overall_coeff());
 }
 

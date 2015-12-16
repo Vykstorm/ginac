@@ -468,18 +468,18 @@ ex mul::coeff(const ex & s, int n) const
  *  @param level cut-off in recursive evaluation */
 ex mul::eval(int level) const
 {
-	epvector evaled = evalchildren(level);
-	if (unlikely(!evaled.empty())) {
-		// do more evaluation later
-		return dynallocate<mul>(std::move(evaled), overall_coeff);
-	}
-
-	if (flags & status_flags::evaluated) {
+	if ((level == 1) && (flags & status_flags::evaluated)) {
 		GINAC_ASSERT(seq.size()>0);
 		GINAC_ASSERT(seq.size()>1 || !overall_coeff.is_equal(_ex1));
 		return *this;
 	}
-	
+
+	const epvector evaled = evalchildren(level);
+	if (unlikely(!evaled.empty())) {
+		// start over evaluating a new object
+		return dynallocate<mul>(std::move(evaled), overall_coeff);
+	}
+
 	size_t seq_size = seq.size();
 	if (overall_coeff.is_zero()) {
 		// *(...,x;0) -> 0
@@ -588,10 +588,9 @@ ex mul::evalf(int level) const
 
 	--level;
 	for (auto & it : seq) {
-		s.push_back(combine_ex_with_coeff_to_pair(it.rest.evalf(level),
-		                                          it.coeff));
+		s.push_back(expair(it.rest.evalf(level), it.coeff));
 	}
-	return mul(std::move(s), overall_coeff.evalf(level));
+	return dynallocate<mul>(std::move(s), overall_coeff.evalf(level));
 }
 
 void mul::find_real_imag(ex & rp, ex & ip) const
@@ -966,6 +965,12 @@ expair mul::split_ex_to_pair(const ex & e) const
 expair mul::combine_ex_with_coeff_to_pair(const ex & e,
                                           const ex & c) const
 {
+	GINAC_ASSERT(is_exactly_a<numeric>(c));
+
+	// First, try a common shortcut:
+	if (is_exactly_a<symbol>(e))
+		return expair(e, c);
+
 	// to avoid duplication of power simplification rules,
 	// we create a temporary power object
 	// otherwise it would be hard to correctly evaluate
@@ -979,6 +984,9 @@ expair mul::combine_ex_with_coeff_to_pair(const ex & e,
 expair mul::combine_pair_with_coeff_to_pair(const expair & p,
                                             const ex & c) const
 {
+	GINAC_ASSERT(is_exactly_a<numeric>(p.coeff));
+	GINAC_ASSERT(is_exactly_a<numeric>(c));
+
 	// to avoid duplication of power simplification rules,
 	// we create a temporary power object
 	// otherwise it would be hard to correctly evaluate

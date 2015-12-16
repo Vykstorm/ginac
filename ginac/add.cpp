@@ -307,13 +307,13 @@ ex add::coeff(const ex & s, int n) const
 		if (!restcoeff.is_zero()) {
 			if (do_clifford) {
 				if (clifford_max_label(restcoeff) == -1) {
-					coeffseq_cliff.push_back(combine_ex_with_coeff_to_pair(ncmul(restcoeff, dirac_ONE(rl)), i.coeff));
+					coeffseq_cliff.push_back(expair(ncmul(restcoeff, dirac_ONE(rl)), i.coeff));
 				} else {
-					coeffseq_cliff.push_back(combine_ex_with_coeff_to_pair(restcoeff, i.coeff));
+					coeffseq_cliff.push_back(expair(restcoeff, i.coeff));
 					nonscalar = true;
 				}
 			}
-			coeffseq.push_back(combine_ex_with_coeff_to_pair(restcoeff, i.coeff));
+			coeffseq.push_back(expair(restcoeff, i.coeff));
 		}
 	}
 
@@ -330,9 +330,15 @@ ex add::coeff(const ex & s, int n) const
  *  @param level cut-off in recursive evaluation */
 ex add::eval(int level) const
 {
-	epvector evaled = evalchildren(level);
+	if ((level == 1) && (flags & status_flags::evaluated)) {
+		GINAC_ASSERT(seq.size()>0);
+		GINAC_ASSERT(seq.size()>1 || !overall_coeff.is_zero());
+		return *this;
+	}
+
+	const epvector evaled = evalchildren(level);
 	if (unlikely(!evaled.empty())) {
-		// do more evaluation later
+		// start over evaluating a new object
 		return dynallocate<add>(std::move(evaled), overall_coeff);
 	}
 
@@ -341,13 +347,7 @@ ex add::eval(int level) const
 		GINAC_ASSERT(!is_exactly_a<add>(i.rest));
 	}
 #endif // def DO_GINAC_ASSERT
-	
-	if (flags & status_flags::evaluated) {
-		GINAC_ASSERT(seq.size()>0);
-		GINAC_ASSERT(seq.size()>1 || !overall_coeff.is_zero());
-		return *this;
-	}
-	
+
 	int seq_size = seq.size();
 	if (seq_size == 0) {
 		// +(;c) -> c
@@ -491,7 +491,7 @@ ex add::derivative(const symbol & y) const
 	// than the default implementation in basic::derivative() although
 	// if performs the same function (differentiate each term).
 	for (auto & it : seq)
-		s.push_back(combine_ex_with_coeff_to_pair(it.rest.diff(y), it.coeff));
+		s.push_back(expair(it.rest.diff(y), it.coeff));
 
 	return dynallocate<add>(std::move(s), _ex0);
 }
@@ -551,7 +551,7 @@ expair add::combine_ex_with_coeff_to_pair(const ex & e,
 	if (is_exactly_a<mul>(e)) {
 		const mul &mulref(ex_to<mul>(e));
 		const ex &numfactor = mulref.overall_coeff;
-		if (numfactor.is_equal(_ex1))
+		if (likely(numfactor.is_equal(_ex1)))
 			return expair(e, c);
 		mul & mulcopy = dynallocate<mul>(mulref);
 		mulcopy.overall_coeff = _ex1;

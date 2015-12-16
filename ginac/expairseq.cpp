@@ -244,7 +244,7 @@ ex expairseq::eval(int level) const
 	if ((level==1) && (flags &status_flags::evaluated))
 		return *this;
 
-	epvector evaled = evalchildren(level);
+	const epvector evaled = evalchildren(level);
 	if (!evaled.empty())
 		return dynallocate<expairseq>(std::move(evaled), overall_coeff).setflag(status_flags::evaluated);
 	else
@@ -1014,7 +1014,7 @@ epvector expairseq::expandchildren(unsigned options) const
 {
 	auto cit = seq.begin(), last = seq.end();
 	while (cit!=last) {
-		const ex &expanded_ex = cit->rest.expand(options);
+		const ex expanded_ex = cit->rest.expand(options);
 		if (!are_ex_trivially_equal(cit->rest,expanded_ex)) {
 			
 			// something changed, copy seq, eval and return it
@@ -1022,25 +1022,20 @@ epvector expairseq::expandchildren(unsigned options) const
 			s.reserve(seq.size());
 			
 			// copy parts of seq which are known not to have changed
-			auto cit2 = seq.begin();
-			while (cit2!=cit) {
-				s.push_back(*cit2);
-				++cit2;
-			}
+			s.insert(s.begin(), seq.begin(), cit);
 
 			// copy first changed element
-			s.push_back(combine_ex_with_coeff_to_pair(expanded_ex,
-			                                          cit2->coeff));
-			++cit2;
+			s.push_back(expair(expanded_ex, cit->coeff));
+			++cit;
 
 			// copy rest
-			while (cit2!=last) {
-				s.push_back(combine_ex_with_coeff_to_pair(cit2->rest.expand(options),
-				                                          cit2->coeff));
-				++cit2;
+			while (cit != last) {
+				s.push_back(expair(cit->rest.expand(options), cit->coeff));
+				++cit;
 			}
 			return s;
 		}
+
 		++cit;
 	}
 	
@@ -1055,42 +1050,35 @@ epvector expairseq::expandchildren(unsigned options) const
  *    had to be changed. */
 epvector expairseq::evalchildren(int level) const
 {
-	if (likely(level==1))
-		return epvector();  // nothing had to be evaluated
-	
 	if (level == -max_recursion_level)
 		throw(std::runtime_error("max recursion level reached"));
-	
-	--level;
+
 	auto cit = seq.begin(), last = seq.end();
 	while (cit!=last) {
-		const ex evaled_ex = cit->rest.eval(level);
-		if (!are_ex_trivially_equal(cit->rest,evaled_ex)) {
-			
-			// something changed, copy seq, eval and return it
+		const ex evaled_rest = level==1 ? cit->rest : cit->rest.eval(level-1);
+		const expair evaled_pair = combine_ex_with_coeff_to_pair(evaled_rest, cit->coeff);
+		if (unlikely(!evaled_pair.is_equal(*cit))) {
+
+			// something changed: copy seq, eval and return it
 			epvector s;
 			s.reserve(seq.size());
-			
+
 			// copy parts of seq which are known not to have changed
-			auto cit2 = seq.begin();
-			while (cit2!=cit) {
-				s.push_back(*cit2);
-				++cit2;
-			}
+			s.insert(s.begin(), seq.begin(), cit);
 
 			// copy first changed element
-			s.push_back(combine_ex_with_coeff_to_pair(evaled_ex,
-			                                          cit2->coeff));
-			++cit2;
+			s.push_back(evaled_pair);
+			++cit;
 
 			// copy rest
-			while (cit2!=last) {
-				s.push_back(combine_ex_with_coeff_to_pair(cit2->rest.eval(level),
-				                                          cit2->coeff));
-				++cit2;
+			while (cit != last) {
+				const ex evaled_rest = level==1 ? cit->rest : cit->rest.eval(level-1);
+				s.push_back(combine_ex_with_coeff_to_pair(evaled_rest, cit->coeff));
+				++cit;
 			}
-			return std::move(s);
+			return s;
 		}
+
 		++cit;
 	}
 
@@ -1130,7 +1118,7 @@ epvector expairseq::subschildren(const exmap & m, unsigned options) const
 			const ex &subsed_ex = orig_ex.subs(m, options);
 			if (!are_ex_trivially_equal(orig_ex, subsed_ex)) {
 
-				// Something changed, copy seq, subs and return it
+				// Something changed: copy seq, subs and return it
 				epvector s;
 				s.reserve(seq.size());
 
@@ -1158,10 +1146,11 @@ epvector expairseq::subschildren(const exmap & m, unsigned options) const
 		auto cit = seq.begin(), last = seq.end();
 		while (cit != last) {
 
-			const ex &subsed_ex = cit->rest.subs(m, options);
-			if (!are_ex_trivially_equal(cit->rest, subsed_ex)) {
+			const ex subsed_rest = cit->rest.subs(m, options);
+			const expair subsed_pair = combine_ex_with_coeff_to_pair(subsed_rest, cit->coeff);
+			if (!subsed_pair.is_equal(*cit)) {
 			
-				// Something changed, copy seq, subs and return it
+				// Something changed: copy seq, subs and return it
 				epvector s;
 				s.reserve(seq.size());
 
@@ -1169,7 +1158,7 @@ epvector expairseq::subschildren(const exmap & m, unsigned options) const
 				s.insert(s.begin(), seq.begin(), cit);
 			
 				// Copy first changed element
-				s.push_back(combine_ex_with_coeff_to_pair(subsed_ex, cit->coeff));
+				s.push_back(subsed_pair);
 				++cit;
 
 				// Copy rest

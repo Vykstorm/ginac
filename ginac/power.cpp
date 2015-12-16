@@ -1198,7 +1198,7 @@ ex power::expand_add(const add & a, long n, unsigned options)
 			composition_generator compositions(partition);
 			do {
 				const std::vector<int>& exponent = compositions.current();
-				exvector monomial;
+				epvector monomial;
 				monomial.reserve(msize);
 				numeric factor = coeff;
 				for (unsigned i = 0; i < exponent.size(); ++i) {
@@ -1216,22 +1216,21 @@ ex power::expand_add(const add & a, long n, unsigned options)
 						// optimize away
 					} else if (exponent[i] == 1) {
 						// optimized
-						monomial.push_back(r);
+						monomial.push_back(expair(r, _ex1));
 						if (c != *_num1_p)
 							factor = factor.mul(c);
 					} else { // general case exponent[i] > 1
-						monomial.push_back(dynallocate<power>(r, exponent[i]));
+						monomial.push_back(expair(r, exponent[i]));
 						if (c != *_num1_p)
 							factor = factor.mul(c.power(exponent[i]));
 					}
 				}
-				result.push_back(a.combine_ex_with_coeff_to_pair(mul(monomial).expand(options), factor));
+				result.push_back(expair(mul(monomial).expand(options), factor));
 			} while (compositions.next());
 		} while (partitions.next());
 	}
 
 	GINAC_ASSERT(result.size() == result_size);
-
 	if (a.overall_coeff.is_zero()) {
 		return dynallocate<add>(std::move(result)).setflag(status_flags::expanded);
 	} else {
@@ -1270,27 +1269,27 @@ ex power::expand_add_2(const add & a, unsigned options)
 		
 		if (c.is_equal(_ex1)) {
 			if (is_exactly_a<mul>(r)) {
-				result.push_back(a.combine_ex_with_coeff_to_pair(expand_mul(ex_to<mul>(r), *_num2_p, options, true),
-				                                                 _ex1));
+				result.push_back(expair(expand_mul(ex_to<mul>(r), *_num2_p, options, true),
+				                        _ex1));
 			} else {
-				result.push_back(a.combine_ex_with_coeff_to_pair(dynallocate<power>(r, _ex2),
-				                                                 _ex1));
+				result.push_back(expair(dynallocate<power>(r, _ex2),
+				                        _ex1));
 			}
 		} else {
 			if (is_exactly_a<mul>(r)) {
-				result.push_back(a.combine_ex_with_coeff_to_pair(expand_mul(ex_to<mul>(r), *_num2_p, options, true),
-				                                                 ex_to<numeric>(c).power_dyn(*_num2_p)));
+				result.push_back(expair(expand_mul(ex_to<mul>(r), *_num2_p, options, true),
+				                        ex_to<numeric>(c).power_dyn(*_num2_p)));
 			} else {
-				result.push_back(a.combine_ex_with_coeff_to_pair(dynallocate<power>(r, _ex2),
-				                                                 ex_to<numeric>(c).power_dyn(*_num2_p)));
+				result.push_back(expair(dynallocate<power>(r, _ex2),
+				                        ex_to<numeric>(c).power_dyn(*_num2_p)));
 			}
 		}
 
 		for (epvector::const_iterator cit1=cit0+1; cit1!=last; ++cit1) {
 			const ex & r1 = cit1->rest;
 			const ex & c1 = cit1->coeff;
-			result.push_back(a.combine_ex_with_coeff_to_pair(mul(r,r1).expand(options),
-			                                                 _num2_p->mul(ex_to<numeric>(c)).mul_dyn(ex_to<numeric>(c1))));
+			result.push_back(expair(mul(r,r1).expand(options),
+			                        _num2_p->mul(ex_to<numeric>(c)).mul_dyn(ex_to<numeric>(c1))));
 		}
 	}
 	
