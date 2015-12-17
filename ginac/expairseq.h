@@ -104,7 +104,6 @@ protected:
 protected:
 	void do_print(const print_context & c, unsigned level) const;
 	void do_print_tree(const print_tree & c, unsigned level) const;
-	void construct_from_2_ex_via_exvector(const ex & lh, const ex & rh);
 	void construct_from_2_ex(const ex & lh, const ex & rh);
 	void construct_from_2_expairseq(const expairseq & s1,
 	                                const expairseq & s2);

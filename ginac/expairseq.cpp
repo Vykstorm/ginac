@@ -599,12 +599,6 @@ bool expairseq::can_make_flat(const expair &p) const
 // non-virtual functions in this class
 //////////
 
-void expairseq::construct_from_2_ex_via_exvector(const ex &lh, const ex &rh)
-{
-	const exvector v = {lh, rh};
-	construct_from_exvector(std::move(v));
-}
-
 void expairseq::construct_from_2_ex(const ex &lh, const ex &rh)
 {
 	if (typeid(ex_to<basic>(lh)) == typeid(*this)) {
