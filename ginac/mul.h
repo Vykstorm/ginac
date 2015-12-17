@@ -42,6 +42,7 @@ public:
 	mul(const exvector & v);
 	mul(const epvector & v);
 	mul(const epvector & v, const ex & oc, bool do_index_renaming = false);
+	mul(epvector && vp);
 	mul(epvector && vp, const ex & oc, bool do_index_renaming = false);
 	mul(const ex & lh, const ex & mh, const ex & rh);
 	

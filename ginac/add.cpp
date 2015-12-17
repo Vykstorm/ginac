@@ -86,6 +86,13 @@ add::add(const epvector & v, const ex & oc)
 	GINAC_ASSERT(is_canonical());
 }
 
+add::add(epvector && vp)
+{
+	overall_coeff = _ex0;
+	construct_from_epvector(std::move(vp));
+	GINAC_ASSERT(is_canonical());
+}
+
 add::add(epvector && vp, const ex & oc)
 {
 	overall_coeff = oc;
@@ -492,7 +499,7 @@ ex add::derivative(const symbol & y) const
 	for (auto & it : seq)
 		s.push_back(expair(it.rest.diff(y), it.coeff));
 
-	return dynallocate<add>(std::move(s), _ex0);
+	return dynallocate<add>(std::move(s));
 }
 
 int add::compare_same_type(const basic & other) const

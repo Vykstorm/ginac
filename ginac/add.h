@@ -41,7 +41,8 @@ public:
 	add(const exvector & v);
 	add(const epvector & v);
 	add(const epvector & v, const ex & oc);
-	add(epvector && vp, const ex & oc);
+	add(epvector && v);
+	add(epvector && v, const ex & oc);
 	
 	// functions overriding virtual functions from base classes
 public:

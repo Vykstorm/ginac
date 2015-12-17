@@ -89,6 +89,13 @@ mul::mul(const epvector & v, const ex & oc, bool do_index_renaming)
 	GINAC_ASSERT(is_canonical());
 }
 
+mul::mul(epvector && vp)
+{
+	overall_coeff = _ex1;
+	construct_from_epvector(std::move(vp));
+	GINAC_ASSERT(is_canonical());
+}
+
 mul::mul(epvector && vp, const ex & oc, bool do_index_renaming)
 {
 	overall_coeff = oc;
