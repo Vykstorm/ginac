@@ -354,7 +354,7 @@ ex add::eval() const
 	}
 #endif // def DO_GINAC_ASSERT
 
-	int seq_size = seq.size();
+	size_t seq_size = seq.size();
 	if (seq_size == 0) {
 		// +(;c) -> c
 		return overall_coeff;
@@ -364,27 +364,7 @@ ex add::eval() const
 	} else if (!overall_coeff.is_zero() && seq[0].rest.return_type() != return_types::commutative) {
 		throw (std::logic_error("add::eval(): sum of non-commutative objects has non-zero numeric term"));
 	}
-	
-	// if any terms in the sum still are purely numeric, then they are more
-	// appropriately collected into the overall coefficient
-	int terms_to_collect = 0;
-	for (auto & it : seq) {
-		if (unlikely(is_a<numeric>(it.rest)))
-			++terms_to_collect;
-	}
-	if (terms_to_collect) {
-		epvector s;
-		s.reserve(seq_size - terms_to_collect);
-		numeric oc = *_num1_p;
-		for (auto & it : seq) {
-			if (unlikely(is_a<numeric>(it.rest)))
-				oc = oc.mul(ex_to<numeric>(it.rest)).mul(ex_to<numeric>(it.coeff));
-			else
-				s.push_back(it);
-		}
-		return dynallocate<add>(std::move(s), ex_to<numeric>(overall_coeff).add_dyn(oc));
-	}
-	
+
 	return this->hold();
 }
 

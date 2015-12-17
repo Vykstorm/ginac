@@ -440,16 +440,26 @@ static unsigned exam_paranoia17()
 }
 
 // Bug in add::eval() could result in numeric terms not being collected into
-// the overall coefficient. Fixed on Sep 22, 2010
+// the overall coefficient. Fixed first on Sep 22, 2010 and again on Dec 17 2015
 static unsigned exam_paranoia18()
 {
+	unsigned result = 0;
+
 	ex sqrt2 = sqrt(ex(2));
-	ex e = 1+2*(sqrt2+1)*(sqrt2-1);
-	if ( e.real_part() != 3 ) {
+	ex e1 = 1 + 2*(sqrt2+1)*(sqrt2-1);
+	if (e1.real_part() != 3) {
 		clog << "real_part(1+2*(sqrt(2)+1)*(sqrt(2)-1)) failed to evaluate to 3\n";
-		return 1;
+		++result;
 	}
-	return 0;
+
+	ex sqrt3 = sqrt(ex(3));
+	ex e2 = 2 + 2*(sqrt2+1)*(sqrt2-1) - 2*(sqrt3+1)*(sqrt3-1);
+	if (e2.real_part() != 0) {
+		clog << "real_part(2+2*(sqrt(2)+1)*(sqrt(2)-1)-3*(sqrt(3)+1)*(sqrt(3)-1)) failed to evaluate to 0\n";
+		++result;
+	}
+
+	return result;
 }
 
 // Bug in mul::conjugate when factors are evaluated at branch cuts, reported as
