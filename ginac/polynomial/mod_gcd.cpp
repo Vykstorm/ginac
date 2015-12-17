@@ -28,6 +28,7 @@
 #include <cln/numtheory.h>
 #include <cln/random.h>
 #include <stdexcept>
+#include <algorithm>
 
 namespace GiNaC {
 

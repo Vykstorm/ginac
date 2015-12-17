@@ -32,6 +32,7 @@ using namespace cln;
 #include <map>
 #include <stdexcept>
 #include <vector>
+#include <algorithm>
 using namespace std;
 
 /// Generate a sequences of primes p_i such that \prod_i p_i < limit
