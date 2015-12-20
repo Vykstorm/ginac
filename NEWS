@@ -1,5 +1,9 @@
 This file records noteworthy changes.
 
+1.6.6 (20 December 2015)
+* Fix elusive bug in add::eval().
+* Several minor performance enhancements.
+
 1.6.5 (27 July 2015)
 * Fix pow(+(...),2).expand() where the sum contained roots of expressions.
 * Speed-up pow(+(...),n).expand() where n > 3.
