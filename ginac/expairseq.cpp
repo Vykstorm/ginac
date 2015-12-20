@@ -601,8 +601,9 @@ bool expairseq::can_make_flat(const expair &p) const
 
 void expairseq::construct_from_2_ex(const ex &lh, const ex &rh)
 {
-	if (typeid(ex_to<basic>(lh)) == typeid(*this)) {
-		if (typeid(ex_to<basic>(rh)) == typeid(*this)) {
+	const std::type_info& typeid_this = typeid(*this);
+	if (typeid(ex_to<basic>(lh)) == typeid_this) {
+		if (typeid(ex_to<basic>(rh)) == typeid_this) {
 			if (is_a<mul>(lh) && lh.info(info_flags::has_indices) && 
 				rh.info(info_flags::has_indices)) {
 				ex newrh=rename_dummy_indices_uniquely(lh, rh);
@@ -617,7 +618,7 @@ void expairseq::construct_from_2_ex(const ex &lh, const ex &rh)
 			construct_from_expairseq_ex(ex_to<expairseq>(lh), rh);
 			return;
 		}
-	} else if (typeid(ex_to<basic>(rh)) == typeid(*this)) {
+	} else if (typeid(ex_to<basic>(rh)) == typeid_this) {
 		construct_from_expairseq_ex(ex_to<expairseq>(rh),lh);
 		return;
 	}
@@ -819,9 +820,10 @@ void expairseq::make_flat(const exvector &v)
 	int nexpairseqs = 0;
 	int noperands = 0;
 	bool do_idx_rename = false;
-	
+
+	const std::type_info& typeid_this = typeid(*this);
 	for (auto & cit : v) {
-		if (typeid(ex_to<basic>(cit)) == typeid(*this)) {
+		if (typeid(ex_to<basic>(cit)) == typeid_this) {
 			++nexpairseqs;
 			noperands += ex_to<expairseq>(cit).seq.size();
 		}
@@ -836,7 +838,7 @@ void expairseq::make_flat(const exvector &v)
 	// copy elements and split off numerical part
 	make_flat_inserter mf(v, do_idx_rename);
 	for (auto & cit : v) {
-		if (typeid(ex_to<basic>(cit)) == typeid(*this)) {
+		if (typeid(ex_to<basic>(cit)) == typeid_this) {
 			ex newfactor = mf.handle_factor(cit, _ex1);
 			const expairseq &subseqref = ex_to<expairseq>(newfactor);
 			combine_overall_coeff(subseqref.overall_coeff);
@@ -863,9 +865,10 @@ void expairseq::make_flat(const epvector &v, bool do_index_renaming)
 	int nexpairseqs = 0;
 	int noperands = 0;
 	bool really_need_rename_inds = false;
-	
+
+	const std::type_info& typeid_this = typeid(*this);
 	for (auto & cit : v) {
-		if (typeid(ex_to<basic>(cit.rest)) == typeid(*this)) {
+		if (typeid(ex_to<basic>(cit.rest)) == typeid_this) {
 			++nexpairseqs;
 			noperands += ex_to<expairseq>(cit.rest).seq.size();
 		}
@@ -881,7 +884,7 @@ void expairseq::make_flat(const epvector &v, bool do_index_renaming)
 	
 	// copy elements and split off numerical part
 	for (auto & cit : v) {
-		if (typeid(ex_to<basic>(cit.rest)) == typeid(*this) &&
+		if (typeid(ex_to<basic>(cit.rest)) == typeid_this &&
 		    this->can_make_flat(cit)) {
 			ex newrest = mf.handle_factor(cit.rest, cit.coeff);
 			const expairseq &subseqref = ex_to<expairseq>(newrest);
