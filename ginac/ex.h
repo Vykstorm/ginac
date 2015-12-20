@@ -970,20 +970,6 @@ inline void swap(GiNaC::ex &a, GiNaC::ex &b)
 	a.swap(b);
 }
 
-/** Specialization of std::iter_swap() for vector<ex> iterators. */
-template <>
-inline void iter_swap(vector<GiNaC::ex>::iterator i1, vector<GiNaC::ex>::iterator i2)
-{
-	i1->swap(*i2);
-}
-
-/** Specialization of std::iter_swap() for list<ex> iterators. */
-template <>
-inline void iter_swap(list<GiNaC::ex>::iterator i1, list<GiNaC::ex>::iterator i2)
-{
-	i1->swap(*i2);
-}
-
 } // namespace std
 
 #endif // ndef GINAC_EX_H

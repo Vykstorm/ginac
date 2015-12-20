@@ -108,6 +108,7 @@ inline unsigned golden_ratio_hash(p_int n)
 template <class It>
 int permutation_sign(It first, It last)
 {
+	using std::swap;
 	if (first == last)
 		return 0;
 	--last;
@@ -122,7 +123,7 @@ int permutation_sign(It first, It last)
 		bool swapped = false;
 		while (i != first) {
 			if (*i < *other) {
-				std::iter_swap(other, i);
+				swap(*other, *i);
 				flag = other;
 				swapped = true;
 				sign = -sign;
@@ -143,7 +144,7 @@ int permutation_sign(It first, It last)
 		swapped = false;
 		while (i != last) {
 			if (*other < *i) {
-				std::iter_swap(i, other);
+				swap(*i, *other);
 				flag = other;
 				swapped = true;
 				sign = -sign;
