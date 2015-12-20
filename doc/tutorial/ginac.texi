@@ -484,10 +484,10 @@ required for the configuration, it can be downloaded from
 @uref{http://pkg-config.freedesktop.org}.
 Last but not least, the CLN library
 is used extensively and needs to be installed on your system.
-Please get it from @uref{ftp://ftpthep.physik.uni-mainz.de/pub/gnu/}
-(it is covered by GPL) and install it prior to trying to install
-GiNaC.  The configure script checks if it can find it and if it cannot
-it will refuse to continue.
+Please get it from @uref{http://www.ginac.de/CLN/} (it is licensed under
+the GPL) and install it prior to trying to install GiNaC.  The configure
+script checks if it can find it and if it cannot, it will refuse to
+continue.
 
 
 @node Configuration, Building GiNaC, Prerequisites, Installation
