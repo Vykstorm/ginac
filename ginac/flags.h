@@ -250,7 +250,6 @@ public:
 		rational_polynomial,
 		crational_polynomial,
 		rational_function,
-		algebraic,
 
 		// answered by class indexed
 		indexed,      // class can carry indices

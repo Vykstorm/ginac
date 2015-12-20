@@ -109,7 +109,6 @@ static bool func_arg_info(const ex & arg, unsigned inf)
 		case info_flags::prime:
 		case info_flags::crational_polynomial:
 		case info_flags::rational_function:
-		case info_flags::algebraic:
 		case info_flags::positive:
 		case info_flags::negative:
 		case info_flags::nonnegative:

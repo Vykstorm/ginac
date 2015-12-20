@@ -247,15 +247,6 @@ bool add::info(unsigned inf) const
 				return true;
 			return overall_coeff.info(inf);
 		}
-		case info_flags::algebraic: {
-			epvector::const_iterator i = seq.begin(), end = seq.end();
-			while (i != end) {
-				if ((recombine_pair_to_ex(*i).info(inf)))
-					return true;
-				++i;
-			}
-			return false;
-		}
 	}
 	return inherited::info(inf);
 }

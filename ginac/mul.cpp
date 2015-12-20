@@ -292,13 +292,6 @@ bool mul::info(unsigned inf) const
 				return true;
 			return overall_coeff.info(inf);
 		}
-		case info_flags::algebraic: {
-			for (auto & it : seq) {
-				if (recombine_pair_to_ex(it).info(inf))
-					return true;
-			}
-			return false;
-		}
 		case info_flags::positive:
 		case info_flags::negative: {
 			if ((inf==info_flags::positive) && (flags & status_flags::is_positive))

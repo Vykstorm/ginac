@@ -714,8 +714,6 @@ bool numeric::info(unsigned inf) const
 			return is_odd();
 		case info_flags::prime:
 			return is_prime();
-		case info_flags::algebraic:
-			return !is_real();
 	}
 	return false;
 }
