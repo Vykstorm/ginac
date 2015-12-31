@@ -290,17 +290,7 @@ unsigned relational::calchash() const
 // new virtual functions which can be overridden by derived classes
 //////////
 
-/** Left hand side of relational. */
-ex relational::lhs() const
-{
-	return lh;
-}
-
-/** Right hand side of relational. */
-ex relational::rhs() const
-{
-	return rh;    
-}
+// none
 
 //////////
 // non-virtual functions in this class

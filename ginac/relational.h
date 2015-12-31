@@ -76,8 +76,8 @@ protected:
 	void do_print_python_repr(const print_python_repr & c, unsigned level) const;
 
 public:
-	virtual ex lhs() const;
-	virtual ex rhs() const;
+	ex lhs() const { return lh; }
+	ex rhs() const { return rh; }
 
 	// non-virtual functions in this class
 private:
