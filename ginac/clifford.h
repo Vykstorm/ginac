@@ -77,6 +77,7 @@ public:
 protected:
 	void do_print_dflt(const print_dflt & c, unsigned level) const;
 	void do_print_latex(const print_latex & c, unsigned level) const;
+	void do_print_tree(const print_tree & c, unsigned level) const;
 
 	// member variables
 protected:

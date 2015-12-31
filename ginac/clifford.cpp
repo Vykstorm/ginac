@@ -44,7 +44,8 @@ namespace GiNaC {
 
 GINAC_IMPLEMENT_REGISTERED_CLASS_OPT(clifford, indexed,
   print_func<print_dflt>(&clifford::do_print_dflt).
-  print_func<print_latex>(&clifford::do_print_latex))
+  print_func<print_latex>(&clifford::do_print_latex).
+  print_func<print_tree>(&clifford::do_print_tree))
 
 GINAC_IMPLEMENT_REGISTERED_CLASS_OPT(diracone, tensor,
   print_func<print_dflt>(&diracone::do_print).
@@ -292,6 +293,17 @@ void clifford::do_print_latex(const print_latex & c, unsigned level) const
 		c.s << "\\clifford[" << int(representation_label) << "]";
 		this->print_dispatch<inherited>(c, level);
 	}
+}
+
+void clifford::do_print_tree(const print_tree & c, unsigned level) const
+{
+	c.s << std::string(level, ' ') << class_name() << " @" << this
+	    << std::hex << ", hash=0x" << hashvalue << ", flags=0x" << flags << std::dec
+	    << ", " << seq.size()-1 << " indices"
+	    << ", symmetry=" << symtree << std::endl;
+	metric.print(c, level + c.delta_indent);
+	seq[0].print(c, level + c.delta_indent);
+	printindices(c, level + c.delta_indent);
 }
 
 DEFAULT_COMPARE(diracone)
