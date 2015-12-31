@@ -3330,6 +3330,15 @@ Note that the call @code{clifford_unit(mu, minkmetric())} creates
 something very close to @code{dirac_gamma(mu)}, although
 @code{dirac_gamma} have more efficient simplification mechanism. 
 @cindex @code{get_metric()}
+Also, the object created by @code{clifford_unit(mu, minkmetric())} is
+not aware about the symmetry of its metric, see the start of the pevious
+paragraph. A more accurate analog of 'dirac_gamma(mu)' should be
+specifies as follows:
+
+@example
+    clifford_unit(mu, indexed(minkmetric(),sy_symm(),varidx(symbol("i"),4),varidx(symbol("j"),4)));
+@end example
+
 The method @code{clifford::get_metric()} returns a metric defining this
 Clifford number.
 
