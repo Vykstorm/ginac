@@ -278,9 +278,6 @@ detail here. Please refer to the GiNaC documentation.
 .BI divide( expression ", " expression )
 \- exact polynomial division
 .br
-.BI eval( "expression [" ", " level] )
-\- evaluates an expression, replacing symbols by their assigned value
-.br
 .BI evalf( "expression [" ", " level] )
 \- evaluates an expression to a floating point number
 .br
