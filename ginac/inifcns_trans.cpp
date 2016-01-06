@@ -265,8 +265,12 @@ static ex log_series(const ex &arg,
 		const ex &point = rel.rhs();
 		const symbol foo;
 		const ex replarg = series(log(arg), s==foo, order).subs(foo==point, subs_options::no_pattern);
-		epvector seq { expair(-I*csgn(arg*I)*Pi, _ex0),
-		               expair(Order(_ex1), order) };
+		epvector seq;
+		if (order > 0) {
+			seq.reserve(2);
+			seq.push_back(expair(-I*csgn(arg*I)*Pi, _ex0));
+		}
+		seq.push_back(expair(Order(_ex1), order));
 		return series(replarg - I*Pi + pseries(rel, std::move(seq)), rel, order);
 	}
 	throw do_taylor();  // caught by function::series()
@@ -928,8 +932,12 @@ static ex atan_series(const ex &arg,
 			Order0correction += log((I*arg_pt+_ex_1)/(I*arg_pt+_ex1))*I*_ex_1_2;
 		else
 			Order0correction += log((I*arg_pt+_ex1)/(I*arg_pt+_ex_1))*I*_ex1_2;
-		epvector seq { expair(Order0correction, _ex0),
-		               expair(Order(_ex1), order) };
+		epvector seq;
+		if (order > 0) {
+			seq.reserve(2);
+			seq.push_back(expair(Order0correction, _ex0));
+		}
+		seq.push_back(expair(Order(_ex1), order));
 		return series(replarg - pseries(rel, std::move(seq)), rel, order);
 	}
 	throw do_taylor();
@@ -1534,8 +1542,12 @@ static ex atanh_series(const ex &arg,
 			Order0correction += log((arg_pt+_ex_1)/(arg_pt+_ex1))*_ex1_2;
 		else
 			Order0correction += log((arg_pt+_ex1)/(arg_pt+_ex_1))*_ex_1_2;
-		epvector seq { expair(Order0correction, _ex0),
-		               expair(Order(_ex1), order) };
+		epvector seq;
+		if (order > 0) {
+			seq.reserve(2);
+			seq.push_back(expair(Order0correction, _ex0));
+		}
+		seq.push_back(expair(Order(_ex1), order));
 		return series(replarg - pseries(rel, std::move(seq)), rel, order);
 	}
 	throw do_taylor();

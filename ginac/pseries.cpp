@@ -71,6 +71,19 @@ pseries::pseries() { }
 pseries::pseries(const ex &rel_, const epvector &ops_)
   : seq(ops_)
 {
+#ifdef DO_GINAC_ASSERT
+	auto i = seq.begin();
+	while (i != seq.end()) {
+		auto ip1 = i+1;
+		if (ip1 != seq.end())
+			GINAC_ASSERT(!is_order_function(i->rest));
+		else
+			break;
+		GINAC_ASSERT(is_a<numeric>(i->coeff));
+		GINAC_ASSERT(ex_to<numeric>(i->coeff) < ex_to<numeric>(ip1->coeff));
+		++i;
+	}
+#endif // def DO_GINAC_ASSERT
 	GINAC_ASSERT(is_a<relational>(rel_));
 	GINAC_ASSERT(is_a<symbol>(rel_.lhs()));
 	point = rel_.rhs();
@@ -79,6 +92,19 @@ pseries::pseries(const ex &rel_, const epvector &ops_)
 pseries::pseries(const ex &rel_, epvector &&ops_)
   : seq(std::move(ops_))
 {
+#ifdef DO_GINAC_ASSERT
+	auto i = seq.begin();
+	while (i != seq.end()) {
+		auto ip1 = i+1;
+		if (ip1 != seq.end())
+			GINAC_ASSERT(!is_order_function(i->rest));
+		else
+			break;
+		GINAC_ASSERT(is_a<numeric>(i->coeff));
+		GINAC_ASSERT(ex_to<numeric>(i->coeff) < ex_to<numeric>(ip1->coeff));
+		++i;
+	}
+#endif // def DO_GINAC_ASSERT
 	GINAC_ASSERT(is_a<relational>(rel_));
 	GINAC_ASSERT(is_a<symbol>(rel_.lhs()));
 	point = rel_.rhs();
@@ -290,25 +316,17 @@ ex pseries::op(size_t i) const
  *  series is examined termwise. */
 int pseries::degree(const ex &s) const
 {
-	if (var.is_equal(s)) {
-		// Return last exponent
-		if (seq.size())
-			return ex_to<numeric>((seq.end()-1)->coeff).to_int();
-		else
-			return 0;
-	} else {
-		epvector::const_iterator it = seq.begin(), itend = seq.end();
-		if (it == itend)
-			return 0;
-		int max_pow = std::numeric_limits<int>::min();
-		while (it != itend) {
-			int pow = it->rest.degree(s);
-			if (pow > max_pow)
-				max_pow = pow;
-			++it;
-		}
-		return max_pow;
-	}
+	if (seq.empty())
+		return 0;
+
+	if (var.is_equal(s))
+		// Return last/greatest exponent
+		return ex_to<numeric>((seq.end()-1)->coeff).to_int();
+
+	int max_pow = std::numeric_limits<int>::min();
+	for (auto & it : seq)
+		max_pow = std::max(max_pow, it.rest.degree(s));
+	return max_pow;
 }
 
 /** Return degree of lowest power of the series.  This is usually the exponent
@@ -318,25 +336,17 @@ int pseries::degree(const ex &s) const
  *  I.e.: (1-x) + (1-x)^2 + Order((1-x)^3) has ldegree(x) 1, not 0. */
 int pseries::ldegree(const ex &s) const
 {
-	if (var.is_equal(s)) {
-		// Return first exponent
-		if (seq.size())
-			return ex_to<numeric>((seq.begin())->coeff).to_int();
-		else
-			return 0;
-	} else {
-		epvector::const_iterator it = seq.begin(), itend = seq.end();
-		if (it == itend)
-			return 0;
-		int min_pow = std::numeric_limits<int>::max();
-		while (it != itend) {
-			int pow = it->rest.ldegree(s);
-			if (pow < min_pow)
-				min_pow = pow;
-			++it;
-		}
-		return min_pow;
-	}
+	if (seq.empty())
+		return 0;
+
+	if (var.is_equal(s))
+		// Return first/smallest exponent
+		return ex_to<numeric>((seq.begin())->coeff).to_int();
+
+	int min_pow = std::numeric_limits<int>::max();
+	for (auto & it : seq)
+		min_pow = std::min(min_pow, it.rest.degree(s));
+	return min_pow;
 }
 
 /** Return coefficient of degree n in power series if s is the expansion
@@ -389,15 +399,13 @@ ex pseries::eval() const
 	if (flags & status_flags::evaluated) {
 		return *this;
 	}
-	
+
 	// Construct a new series with evaluated coefficients
 	epvector new_seq;
 	new_seq.reserve(seq.size());
-	epvector::const_iterator it = seq.begin(), itend = seq.end();
-	while (it != itend) {
-		new_seq.push_back(expair(it->rest, it->coeff));
-		++it;
-	}
+	for (auto & it : seq)
+		new_seq.push_back(expair(it.rest, it.coeff));
+
 	return dynallocate<pseries>(relational(var,point), std::move(new_seq)).setflag(status_flags::evaluated);
 }
 
@@ -413,11 +421,9 @@ ex pseries::evalf(int level) const
 	// Construct a new series with evaluated coefficients
 	epvector new_seq;
 	new_seq.reserve(seq.size());
-	epvector::const_iterator it = seq.begin(), itend = seq.end();
-	while (it != itend) {
-		new_seq.push_back(expair(it->rest.evalf(level-1), it->coeff));
-		++it;
-	}
+	for (auto & it : seq)
+		new_seq.push_back(expair(it.rest, it.coeff));
+
 	return dynallocate<pseries>(relational(var,point), std::move(new_seq)).setflag(status_flags::evaluated);
 }
 
