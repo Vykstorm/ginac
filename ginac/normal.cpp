@@ -2024,34 +2024,25 @@ static ex replace_with_symbol(const ex & e, exmap & repl)
 
 /** Function object to be applied by basic::normal(). */
 struct normal_map_function : public map_function {
-	int level;
-	normal_map_function(int l) : level(l) {}
-	ex operator()(const ex & e) override { return normal(e, level); }
+	ex operator()(const ex & e) override { return normal(e); }
 };
 
 /** Default implementation of ex::normal(). It normalizes the children and
  *  replaces the object with a temporary symbol.
  *  @see ex::normal */
-ex basic::normal(exmap & repl, exmap & rev_lookup, int level) const
+ex basic::normal(exmap & repl, exmap & rev_lookup) const
 {
 	if (nops() == 0)
 		return dynallocate<lst>({replace_with_symbol(*this, repl, rev_lookup), _ex1});
-	else {
-		if (level == 1)
-			return dynallocate<lst>({replace_with_symbol(*this, repl, rev_lookup), _ex1});
-		else if (level == -max_recursion_level)
-			throw(std::runtime_error("max recursion level reached"));
-		else {
-			normal_map_function map_normal(level - 1);
-			return dynallocate<lst>({replace_with_symbol(map(map_normal), repl, rev_lookup), _ex1});
-		}
-	}
+
+	normal_map_function map_normal;
+	return dynallocate<lst>({replace_with_symbol(map(map_normal), repl, rev_lookup), _ex1});
 }
 
 
 /** Implementation of ex::normal() for symbols. This returns the unmodified symbol.
  *  @see ex::normal */
-ex symbol::normal(exmap & repl, exmap & rev_lookup, int level) const
+ex symbol::normal(exmap & repl, exmap & rev_lookup) const
 {
 	return dynallocate<lst>({*this, _ex1});
 }
@@ -2061,7 +2052,7 @@ ex symbol::normal(exmap & repl, exmap & rev_lookup, int level) const
  *  into re+I*im and replaces I and non-rational real numbers with a temporary
  *  symbol.
  *  @see ex::normal */
-ex numeric::normal(exmap & repl, exmap & rev_lookup, int level) const
+ex numeric::normal(exmap & repl, exmap & rev_lookup) const
 {
 	numeric num = numer();
 	ex numex = num;
@@ -2145,23 +2136,18 @@ static ex frac_cancel(const ex &n, const ex &d)
 /** Implementation of ex::normal() for a sum. It expands terms and performs
  *  fractional addition.
  *  @see ex::normal */
-ex add::normal(exmap & repl, exmap & rev_lookup, int level) const
+ex add::normal(exmap & repl, exmap & rev_lookup) const
 {
-	if (level == 1)
-		return dynallocate<lst>({replace_with_symbol(*this, repl, rev_lookup), _ex1});
-	else if (level == -max_recursion_level)
-		throw(std::runtime_error("max recursion level reached"));
-
 	// Normalize children and split each one into numerator and denominator
 	exvector nums, dens;
 	nums.reserve(seq.size()+1);
 	dens.reserve(seq.size()+1);
 	for (auto & it : seq) {
-		ex n = ex_to<basic>(recombine_pair_to_ex(it)).normal(repl, rev_lookup, level-1);
+		ex n = ex_to<basic>(recombine_pair_to_ex(it)).normal(repl, rev_lookup);
 		nums.push_back(n.op(0));
 		dens.push_back(n.op(1));
 	}
-	ex n = ex_to<numeric>(overall_coeff).normal(repl, rev_lookup, level-1);
+	ex n = ex_to<numeric>(overall_coeff).normal(repl, rev_lookup);
 	nums.push_back(n.op(0));
 	dens.push_back(n.op(1));
 	GINAC_ASSERT(nums.size() == dens.size());
@@ -2202,23 +2188,18 @@ ex add::normal(exmap & repl, exmap & rev_lookup, int level) const
 /** Implementation of ex::normal() for a product. It cancels common factors
  *  from fractions.
  *  @see ex::normal() */
-ex mul::normal(exmap & repl, exmap & rev_lookup, int level) const
+ex mul::normal(exmap & repl, exmap & rev_lookup) const
 {
-	if (level == 1)
-		return dynallocate<lst>({replace_with_symbol(*this, repl, rev_lookup), _ex1});
-	else if (level == -max_recursion_level)
-		throw(std::runtime_error("max recursion level reached"));
-
 	// Normalize children, separate into numerator and denominator
 	exvector num; num.reserve(seq.size());
 	exvector den; den.reserve(seq.size());
 	ex n;
 	for (auto & it : seq) {
-		n = ex_to<basic>(recombine_pair_to_ex(it)).normal(repl, rev_lookup, level-1);
+		n = ex_to<basic>(recombine_pair_to_ex(it)).normal(repl, rev_lookup);
 		num.push_back(n.op(0));
 		den.push_back(n.op(1));
 	}
-	n = ex_to<numeric>(overall_coeff).normal(repl, rev_lookup, level-1);
+	n = ex_to<numeric>(overall_coeff).normal(repl, rev_lookup);
 	num.push_back(n.op(0));
 	den.push_back(n.op(1));
 
@@ -2231,16 +2212,11 @@ ex mul::normal(exmap & repl, exmap & rev_lookup, int level) const
  *  distributes integer exponents to numerator and denominator, and replaces
  *  non-integer powers by temporary symbols.
  *  @see ex::normal */
-ex power::normal(exmap & repl, exmap & rev_lookup, int level) const
+ex power::normal(exmap & repl, exmap & rev_lookup) const
 {
-	if (level == 1)
-		return dynallocate<lst>({replace_with_symbol(*this, repl, rev_lookup), _ex1});
-	else if (level == -max_recursion_level)
-		throw(std::runtime_error("max recursion level reached"));
-
 	// Normalize basis and exponent (exponent gets reassembled)
-	ex n_basis = ex_to<basic>(basis).normal(repl, rev_lookup, level-1);
-	ex n_exponent = ex_to<basic>(exponent).normal(repl, rev_lookup, level-1);
+	ex n_basis = ex_to<basic>(basis).normal(repl, rev_lookup);
+	ex n_exponent = ex_to<basic>(exponent).normal(repl, rev_lookup);
 	n_exponent = n_exponent.op(0) / n_exponent.op(1);
 
 	if (n_exponent.info(info_flags::integer)) {
@@ -2286,7 +2262,7 @@ ex power::normal(exmap & repl, exmap & rev_lookup, int level) const
 /** Implementation of ex::normal() for pseries. It normalizes each coefficient
  *  and replaces the series by a temporary symbol.
  *  @see ex::normal */
-ex pseries::normal(exmap & repl, exmap & rev_lookup, int level) const
+ex pseries::normal(exmap & repl, exmap & rev_lookup) const
 {
 	epvector newseq;
 	for (auto & it : seq) {
@@ -2309,13 +2285,12 @@ ex pseries::normal(exmap & repl, exmap & rev_lookup, int level) const
  *  expression can be treated as a rational function). normal() is applied
  *  recursively to arguments of functions etc.
  *
- *  @param level maximum depth of recursion
  *  @return normalized expression */
-ex ex::normal(int level) const
+ex ex::normal() const
 {
 	exmap repl, rev_lookup;
 
-	ex e = bp->normal(repl, rev_lookup, level);
+	ex e = bp->normal(repl, rev_lookup);
 	GINAC_ASSERT(is_a<lst>(e));
 
 	// Re-insert replaced symbols
@@ -2336,7 +2311,7 @@ ex ex::numer() const
 {
 	exmap repl, rev_lookup;
 
-	ex e = bp->normal(repl, rev_lookup, 0);
+	ex e = bp->normal(repl, rev_lookup);
 	GINAC_ASSERT(is_a<lst>(e));
 
 	// Re-insert replaced symbols
@@ -2356,7 +2331,7 @@ ex ex::denom() const
 {
 	exmap repl, rev_lookup;
 
-	ex e = bp->normal(repl, rev_lookup, 0);
+	ex e = bp->normal(repl, rev_lookup);
 	GINAC_ASSERT(is_a<lst>(e));
 
 	// Re-insert replaced symbols
@@ -2376,7 +2351,7 @@ ex ex::numer_denom() const
 {
 	exmap repl, rev_lookup;
 
-	ex e = bp->normal(repl, rev_lookup, 0);
+	ex e = bp->normal(repl, rev_lookup);
 	GINAC_ASSERT(is_a<lst>(e));
 
 	// Re-insert replaced symbols

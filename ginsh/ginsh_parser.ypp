@@ -343,7 +343,7 @@ static ex f_lcoeff(const exprseq &e) {return e[0].lcoeff(e[1]);}
 static ex f_ldegree(const exprseq &e) {return e[0].ldegree(e[1]);}
 static ex f_lsolve(const exprseq &e) {return lsolve(e[0], e[1]);}
 static ex f_nops(const exprseq &e) {return e[0].nops();}
-static ex f_normal1(const exprseq &e) {return e[0].normal();}
+static ex f_normal(const exprseq &e) {return e[0].normal();}
 static ex f_numer(const exprseq &e) {return e[0].numer();}
 static ex f_numer_denom(const exprseq &e) {return e[0].numer_denom();}
 static ex f_pow(const exprseq &e) {return pow(e[0], e[1]);}
@@ -478,12 +478,6 @@ static ex f_match(const exprseq &e)
 		return repl_lst;
 	}
 	throw std::runtime_error("FAIL");
-}
-
-static ex f_normal2(const exprseq &e)
-{
-	CHECK_ARG(1, numeric, normal);
-	return e[0].normal(ex_to<numeric>(e[1]).to_int());
 }
 
 static ex f_op(const exprseq &e)
@@ -626,8 +620,7 @@ static const fcn_init builtin_fcns[] = {
 	{"map", f_map, 2},
 	{"match", f_match, 2},
 	{"nops", f_nops, 1},
-	{"normal", f_normal1, 1},
-	{"normal", f_normal2, 2},
+	{"normal", f_normal, 1},
 	{"numer", f_numer, 1},
 	{"numer_denom", f_numer_denom, 1},
 	{"op", f_op, 2},

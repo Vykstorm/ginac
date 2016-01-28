@@ -178,7 +178,7 @@ public:
 	ex series(const relational & r, int order, unsigned options = 0) const override { return inherited::series(r, order, options); }
 
 	// rational functions
-	ex normal(exmap & repl, exmap & rev_lookup, int level = 0) const override { return inherited::normal(repl, rev_lookup, level); }
+	ex normal(exmap & repl, exmap & rev_lookup) const override { return inherited::normal(repl, rev_lookup); }
 	ex to_rational(exmap & repl) const override { return inherited::to_rational(repl); }
 	ex to_polynomial(exmap & repl) const override { return inherited::to_polynomial(repl); }
 

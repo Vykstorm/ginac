@@ -332,7 +332,7 @@ detail here. Please refer to the GiNaC documentation.
 .BI nops( expression )
 \- number of operands in expression
 .br
-.BI normal( "expression [" ", " level] )
+.BI normal( expression )
 \- rational function normalization
 .br
 .BI numer( expression )
