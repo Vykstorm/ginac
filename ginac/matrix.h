@@ -189,8 +189,8 @@ inline size_t nops(const matrix & m)
 inline ex expand(const matrix & m, unsigned options = 0)
 { return m.expand(options); }
 
-inline ex evalf(const matrix & m, int level = 0)
-{ return m.evalf(level); }
+inline ex evalf(const matrix & m)
+{ return m.evalf(); }
 
 inline unsigned rows(const matrix & m)
 { return m.rows(); }

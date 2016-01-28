@@ -42,7 +42,7 @@ public:
 public:
 	unsigned precedence() const override {return 45;}
 	ex eval() const override;
-	ex evalf(int level=0) const override;
+	ex evalf() const override;
 	int degree(const ex & s) const override;
 	int ldegree(const ex & s) const override;
 	ex eval_ncmul(const exvector & v) const override;

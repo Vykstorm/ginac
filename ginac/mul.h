@@ -56,7 +56,7 @@ public:
 	ex coeff(const ex & s, int n = 1) const override;
 	bool has(const ex & other, unsigned options = 0) const override;
 	ex eval() const override;
-	ex evalf(int level=0) const override;
+	ex evalf() const override;
 	ex real_part() const override;
 	ex imag_part() const override;
 	ex evalm() const override;

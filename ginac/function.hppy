@@ -229,7 +229,7 @@ public:
 	unsigned precedence() const override {return 70;}
 	ex expand(unsigned options=0) const override;
 	ex eval() const override;
-	ex evalf(int level=0) const override;
+	ex evalf() const override;
 	ex eval_ncmul(const exvector & v) const override;
 	unsigned calchash() const override;
 	ex series(const relational & r, int order, unsigned options = 0) const override;

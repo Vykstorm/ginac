@@ -61,7 +61,6 @@ public:
 public:
 	void print(const print_context & c, unsigned level = 0) const override;
 	ex eval() const override;
-	ex evalf(int level = 0) const override;
 	ex series(const relational & r, int order, unsigned options = 0) const override;
 	ex thiscontainer(const exvector & v) const override;
 	ex thiscontainer(exvector && v) const override;

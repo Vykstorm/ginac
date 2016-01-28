@@ -127,7 +127,6 @@ public:
 public:
 	// evaluation
 	ex eval() const override { return hold(); }
-	ex evalf(int level = 0) const override { return inherited::evalf(level); }
 	ex evalm() const override { return inherited::evalm(); }
 protected:
 	ex eval_ncmul(const exvector & v) const override { return hold_ncmul(v); }

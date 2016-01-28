@@ -414,22 +414,19 @@ ex function::eval() const
 	return eval_result;
 }
 
-ex function::evalf(int level) const
+ex function::evalf() const
 {
 	GINAC_ASSERT(serial<registered_functions().size());
 	const function_options &opt = registered_functions()[serial];
 
 	// Evaluate children first
 	exvector eseq;
-	if (level == 1 || !(opt.evalf_params_first))
+	if (!opt.evalf_params_first)
 		eseq = seq;
-	else if (level == -max_recursion_level)
-		throw(std::runtime_error("max recursion level reached"));
 	else {
 		eseq.reserve(seq.size());
-		--level;
 		for (auto & it : seq) {
-			eseq.push_back(it.evalf(level));
+			eseq.push_back(it.evalf());
 		}
 	}
 

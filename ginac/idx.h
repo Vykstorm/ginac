@@ -51,7 +51,7 @@ public:
 	size_t nops() const override;
 	ex op(size_t i) const override;
 	ex map(map_function & f) const override;
-	ex evalf(int level = 0) const override;
+	ex evalf() const override;
 	ex subs(const exmap & m, unsigned options = 0) const override;
 	void archive(archive_node& n) const override;
 	void read_archive(const archive_node& n, lst& syms) override;

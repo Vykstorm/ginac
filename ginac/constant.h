@@ -48,7 +48,7 @@ public:
 	// functions overriding virtual functions from base classes
 public:
 	bool info(unsigned inf) const override;
-	ex evalf(int level = 0) const override;
+	ex evalf() const override;
 	bool is_polynomial(const ex & var) const override;
 	ex conjugate() const override;
 	ex real_part() const override;

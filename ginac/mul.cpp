@@ -574,22 +574,14 @@ ex mul::eval() const
 	return this->hold();
 }
 
-ex mul::evalf(int level) const
+ex mul::evalf() const
 {
-	if (level==1)
-		return mul(seq, overall_coeff);
-	
-	if (level==-max_recursion_level)
-		throw(std::runtime_error("max recursion level reached"));
-	
 	epvector s;
 	s.reserve(seq.size());
 
-	--level;
-	for (auto & it : seq) {
-		s.push_back(expair(it.rest.evalf(level), it.coeff));
-	}
-	return dynallocate<mul>(std::move(s), overall_coeff.evalf(level));
+	for (auto & it : seq)
+		s.push_back(expair(it.rest.evalf(), it.coeff));
+	return dynallocate<mul>(std::move(s), overall_coeff.evalf());
 }
 
 void mul::find_real_imag(ex & rp, ex & ip) const

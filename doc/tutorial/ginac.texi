@@ -4213,7 +4213,7 @@ GiNaC keeps algebraic expressions, numbers and constants in their exact form.
 To evaluate them using floating-point arithmetic you need to call
 
 @example
-ex ex::evalf(int level = 0) const;
+ex ex::evalf() const;
 @end example
 
 @cindex @code{Digits}
@@ -8323,7 +8323,7 @@ might want to provide:
 
 @example
 bool info(unsigned inf) const override;
-ex evalf(int level = 0) const override;
+ex evalf() const override;
 ex series(const relational & r, int order, unsigned options = 0) const override;
 ex derivative(const symbol & s) const override;
 @end example

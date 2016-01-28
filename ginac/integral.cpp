@@ -154,23 +154,11 @@ ex integral::eval() const
 	return this->hold();
 }
 
-ex integral::evalf(int level) const
+ex integral::evalf() const
 {
-	ex ea;
-	ex eb;
-	ex ef;
-
-	if (level==1) {
-		ea = a;
-		eb = b;
-		ef = f;
-	} else if (level == -max_recursion_level) {
-		throw(runtime_error("max recursion level reached"));
-	} else {
-		ea = a.evalf(level-1);
-		eb = b.evalf(level-1);
-		ef = f.evalf(level-1);
-	}
+	ex ea = a.evalf();
+	ex eb = b.evalf();
+	ex ef = f.evalf();
 
 	// 12.34 is just an arbitrary number used to check whether a number
 	// results after substituting a number for the integration variable.

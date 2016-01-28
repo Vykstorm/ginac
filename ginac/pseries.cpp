@@ -410,14 +410,8 @@ ex pseries::eval() const
 }
 
 /** Evaluate coefficients numerically. */
-ex pseries::evalf(int level) const
+ex pseries::evalf() const
 {
-	if (level == 1)
-		return *this;
-	
-	if (level == -max_recursion_level)
-		throw (std::runtime_error("pseries::evalf(): recursion limit exceeded"));
-	
 	// Construct a new series with evaluated coefficients
 	epvector new_seq;
 	new_seq.reserve(seq.size());

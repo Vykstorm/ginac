@@ -148,7 +148,7 @@ bool constant::info(unsigned inf) const
 		return inherited::info(inf);
 }
 
-ex constant::evalf(int level) const
+ex constant::evalf() const
 {
 	if (ef!=nullptr) {
 		return ef();

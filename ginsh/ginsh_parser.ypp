@@ -331,7 +331,7 @@ static ex f_collect_common_factors(const exprseq &e) {return collect_common_fact
 static ex f_convert_H_to_Li(const exprseq &e) {return convert_H_to_Li(e[0], e[1]);}
 static ex f_degree(const exprseq &e) {return e[0].degree(e[1]);}
 static ex f_denom(const exprseq &e) {return e[0].denom();}
-static ex f_evalf1(const exprseq &e) {return e[0].evalf();}
+static ex f_evalf(const exprseq &e) {return e[0].evalf();}
 static ex f_evalm(const exprseq &e) {return e[0].evalm();}
 static ex f_eval_integ(const exprseq &e) {return e[0].eval_integ();}
 static ex f_expand(const exprseq &e) {return e[0].expand();}
@@ -411,12 +411,6 @@ static ex f_divide(const exprseq &e)
 		return q;
 	else
 		return fail();
-}
-
-static ex f_evalf2(const exprseq &e)
-{
-	CHECK_ARG(1, numeric, evalf);
-	return e[0].evalf(ex_to<numeric>(e[1]).to_int());
 }
 
 static ex f_find(const exprseq &e)
@@ -611,8 +605,7 @@ static const fcn_init builtin_fcns[] = {
 	{"diff", f_diff2, 2},
 	{"diff", f_diff3, 3},
 	{"divide", f_divide, 2},
-	{"evalf", f_evalf1, 1},
-	{"evalf", f_evalf2, 2},
+	{"evalf", f_evalf, 1},
 	{"evalm", f_evalm, 1},
 	{"eval_integ", f_eval_integ, 1},
 	{"expand", f_expand, 1},

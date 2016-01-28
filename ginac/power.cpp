@@ -562,23 +562,15 @@ ex power::eval() const
 	return this->hold();
 }
 
-ex power::evalf(int level) const
+ex power::evalf() const
 {
-	ex ebasis;
+	ex ebasis = basis.evalf();
 	ex eexponent;
 	
-	if (level==1) {
-		ebasis = basis;
+	if (!is_exactly_a<numeric>(exponent))
+		eexponent = exponent.evalf();
+	else
 		eexponent = exponent;
-	} else if (level == -max_recursion_level) {
-		throw(std::runtime_error("max recursion level reached"));
-	} else {
-		ebasis = basis.evalf(level-1);
-		if (!is_exactly_a<numeric>(exponent))
-			eexponent = exponent.evalf(level-1);
-		else
-			eexponent = exponent;
-	}
 
 	return dynallocate<power>(ebasis, eexponent);
 }

@@ -104,7 +104,7 @@ public:
 	ex coeff(const ex & s, int n = 1) const override;
 	bool has(const ex &other, unsigned options = 0) const override;
 	ex eval() const override;
-	ex evalf(int level = 0) const override;
+	ex evalf() const override;
 	ex subs(const exmap & m, unsigned options = 0) const override { return subs_one_level(m, options); } // overwrites basic::subs() for performance reasons
 	ex normal(exmap & repl, exmap & rev_lookup, int level = 0) const override;
 	ex to_rational(exmap & repl) const override;

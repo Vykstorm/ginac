@@ -784,11 +784,9 @@ ex numeric::eval() const
  *  currently set.  In case the object already was a floating point number the
  *  precision is trimmed to match the currently set default.
  *
- *  @param level  ignored, only needed for overriding basic::evalf.
  *  @return  an ex-handle to a numeric. */
-ex numeric::evalf(int level) const
+ex numeric::evalf() const
 {
-	// level can safely be discarded for numeric objects.
 	return numeric(cln::cl_float(1.0, cln::default_float_format) * value);
 }
 

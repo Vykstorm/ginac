@@ -418,25 +418,17 @@ ex basic::eval() const
 
 /** Function object to be applied by basic::evalf(). */
 struct evalf_map_function : public map_function {
-	int level;
-	evalf_map_function(int l) : level(l) {}
-	ex operator()(const ex & e) override { return evalf(e, level); }
+	ex operator()(const ex & e) override { return evalf(e); }
 };
 
 /** Evaluate object numerically. */
-ex basic::evalf(int level) const
+ex basic::evalf() const
 {
 	if (nops() == 0)
 		return *this;
 	else {
-		if (level == 1)
-			return *this;
-		else if (level == -max_recursion_level)
-			throw(std::runtime_error("max recursion level reached"));
-		else {
-			evalf_map_function map_evalf(level - 1);
-			return map(map_evalf);
-		}
+		evalf_map_function map_evalf;
+		return map(map_evalf);
 	}
 }
 
