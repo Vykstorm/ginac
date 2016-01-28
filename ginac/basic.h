@@ -304,8 +304,6 @@ protected:
 
 // global variables
 
-extern int max_recursion_level;
-
 
 // convenience type checker template functions
 

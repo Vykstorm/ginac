@@ -901,9 +901,6 @@ void basic::ensure_if_modifiable() const
 // global variables
 //////////
 
-int max_recursion_level = 1024;
-
-
 #ifdef GINAC_COMPARE_STATISTICS
 compare_statistics_t::~compare_statistics_t()
 {
