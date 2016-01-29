@@ -554,7 +554,9 @@ template<class T> static ex rename_dummy_indices(const ex & e, exvector & global
 		int remaining = local_size - global_size;
 		auto it = local_dummy_indices.begin(), itend = local_dummy_indices.end();
 		while (it != itend && remaining > 0) {
-			if (is_exactly_a<T>(*it) && find_if(global_dummy_indices.begin(), global_dummy_indices.end(), bind2nd(idx_is_equal_ignore_dim(), *it)) == global_dummy_indices.end()) {
+			if (is_exactly_a<T>(*it) &&
+			    find_if(global_dummy_indices.begin(), global_dummy_indices.end(),
+			            [it](const ex &lh) { return idx_is_equal_ignore_dim()(lh, *it); }) == global_dummy_indices.end()) {
 				global_dummy_indices.push_back(*it);
 				global_size++;
 				remaining--;
