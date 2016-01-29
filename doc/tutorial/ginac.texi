@@ -4157,12 +4157,12 @@ provides two functors that can be supplied as proper binary comparison
 predicates to the STL:
 
 @example
-class ex_is_less : public std::binary_function<ex, ex, bool> @{
+class ex_is_less @{
 public:
     bool operator()(const ex &lh, const ex &rh) const;
 @};
 
-class ex_is_equal : public std::binary_function<ex, ex, bool> @{
+class ex_is_equal @{
 public:
     bool operator()(const ex &lh, const ex &rh) const;
 @};
@@ -4190,7 +4190,7 @@ std::sort(v.begin(), v.end(), ex_is_less());
 
 // count the number of expressions equal to '1'
 unsigned num_ones = std::count_if(v.begin(), v.end(),
-                                  std::bind2nd(ex_is_equal(), 1));
+                                  [](const ex& e) @{ return ex_is_equal()(e, 1); @});
 @end example
 
 The implementation of @code{ex_is_less} uses the member function

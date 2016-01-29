@@ -394,7 +394,7 @@ ex indexed::derivative(const symbol & s) const
 // global functions
 //////////
 
-struct idx_is_equal_ignore_dim : public std::binary_function<ex, ex, bool> {
+struct idx_is_equal_ignore_dim {
 	bool operator() (const ex &lh, const ex &rh) const
 	{
 		if (lh.is_equal(rh))
@@ -506,7 +506,7 @@ exvector ncmul::get_free_indices() const
 	return free_indices;
 }
 
-struct is_summation_idx : public std::unary_function<ex, bool> {
+struct is_summation_idx {
 	bool operator()(const ex & e)
 	{
 		return is_dummy_pair(e, e);
@@ -719,7 +719,7 @@ next_index: ;
 }
 
 /* Ordering that only compares the base expressions of indexed objects. */
-struct ex_base_is_less : public std::binary_function<ex, ex, bool> {
+struct ex_base_is_less {
 	bool operator() (const ex &lh, const ex &rh) const
 	{
 		return (is_a<indexed>(lh) ? lh.op(0) : lh).compare(is_a<indexed>(rh) ? rh.op(0) : rh) < 0;

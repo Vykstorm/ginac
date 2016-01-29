@@ -340,7 +340,7 @@ static void base_and_index(const ex & c, ex & b, ex & i)
 }
 
 /** Predicate for finding non-clifford objects. */
-struct is_not_a_clifford : public std::unary_function<ex, bool> {
+struct is_not_a_clifford {
 	bool operator()(const ex & e)
 	{
 		return !is_a<clifford>(e);

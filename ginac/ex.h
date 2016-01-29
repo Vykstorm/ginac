@@ -673,19 +673,19 @@ inline bool are_ex_trivially_equal(const ex &e1, const ex &e2)
 }
 
 /* Function objects for STL sort() etc. */
-struct ex_is_less : public std::binary_function<ex, ex, bool> {
+struct ex_is_less {
 	bool operator() (const ex &lh, const ex &rh) const { return lh.compare(rh) < 0; }
 };
 
-struct ex_is_equal : public std::binary_function<ex, ex, bool> {
+struct ex_is_equal {
 	bool operator() (const ex &lh, const ex &rh) const { return lh.is_equal(rh); }
 };
 
-struct op0_is_equal : public std::binary_function<ex, ex, bool> {
+struct op0_is_equal {
 	bool operator() (const ex &lh, const ex &rh) const { return lh.op(0).is_equal(rh.op(0)); }
 };
 
-struct ex_swap : public std::binary_function<ex, ex, void> {
+struct ex_swap {
 	void operator() (ex &lh, ex &rh) const { lh.swap(rh); }
 };
 

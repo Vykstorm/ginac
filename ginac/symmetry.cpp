@@ -389,7 +389,7 @@ const symmetry & antisymmetric4()
 	return ex_to<symmetry>(s);
 }
 
-class sy_is_less : public std::binary_function<ex, ex, bool> {
+class sy_is_less {
 	exvector::iterator v;
 
 public:
@@ -413,7 +413,7 @@ public:
 	}
 };
 
-class sy_swap : public std::binary_function<ex, ex, void> {
+class sy_swap {
 	exvector::iterator v;
 
 public:

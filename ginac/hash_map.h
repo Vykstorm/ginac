@@ -192,7 +192,7 @@ public:
 	typedef typename Table::size_type size_type;
 	typedef typename Table::difference_type difference_type;
 
-	class value_compare : public std::binary_function<value_type, value_type, bool>, private key_compare {
+	class value_compare : private key_compare {
 		friend class exhashmap;
 	public:
 		bool operator()(const value_type &lhs, const value_type &rhs) const
