@@ -29,7 +29,6 @@ find_package(CLN 1.2.2 REQUIRED)
 include_directories(${CLN_INCLUDE_DIR})
 
 include(CheckIncludeFile)
-check_include_file("stdint.h" HAVE_STDINT_H)
 check_include_file("unistd.h" HAVE_UNISTD_H)
 
 include_directories(${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_CURRENT_BINARY_DIR}/ginac)

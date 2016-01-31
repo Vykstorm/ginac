@@ -32,6 +32,7 @@ AC_CACHE_CHECK([for standard C++ header files], [ginac_cv_std_cxx_headers], [
 		#include <algorithm>
 		#include <cstring>
 		#include <cstddef>
+		#include <cstdint>
 		#include <ctime>
 		#include <fstream>
 		#include <functional>

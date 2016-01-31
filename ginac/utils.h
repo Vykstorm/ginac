@@ -25,14 +25,9 @@
 #define GINAC_UTILS_H
 
 #include "assertion.h"
-#ifdef HAVE_CONFIG_H
-#include "config.h"
-#endif
 
 #include <functional>
-#ifdef HAVE_STDINT_H
-#include <stdint.h> // for uintptr_t
-#endif
+#include <cstdint> // for uintptr_t
 #include <string>
 
 namespace GiNaC {
@@ -69,37 +64,10 @@ inline int compare_pointers(const T * a, const T * b)
 	return 0;
 }
 
-#ifdef HAVE_STDINT_H
-typedef uintptr_t p_int;
-#else
-typedef unsigned long p_int;
-#endif
-
 /** Truncated multiplication with golden ratio, for computing hash values. */
-inline unsigned golden_ratio_hash(p_int n)
+inline unsigned golden_ratio_hash(uintptr_t n)
 {
-	// This function works much better when fast arithmetic with at
-	// least 64 significant bits is available.
-	if (sizeof(long) >= 8) {
-	// So 'long' has 64 bits.  Excellent!  We prefer it because it might be
-	// more efficient than 'long long'.
-	unsigned long l = n * 0x4f1bbcddUL;
-	return (unsigned)l;
-	}
-#ifdef HAVE_LONG_LONG
-	else if (sizeof(long long) >= 8) {
-	// This requires 'long long' (or an equivalent 64 bit type)---which is,
-	// unfortunately, not ANSI-C++-compliant.
-	// (Yet C99 demands it, which is reason for hope.)
-	unsigned long long l = n * 0x4f1bbcddULL;
-	return (unsigned)l;
-	}
-#endif
-	// Without a type with 64 significant bits do the multiplication manually
-	// by splitting n up into the lower and upper two bytes.
-	const unsigned n0 = (n & 0x0000ffffU);
-	const unsigned n1 = (n & 0xffff0000U) >> 16;
-	return (n0 * 0x0000bcddU) + ((n1 * 0x0000bcddU + n0 * 0x00004f1bU) << 16);
+	return n * UINT64_C(0x4f1bbcdd);
 }
 
 /* Compute the sign of a permutation of a container, with and without an
