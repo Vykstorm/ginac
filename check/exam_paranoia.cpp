@@ -577,6 +577,52 @@ static unsigned exam_paranoia23()
 	return result;
 }
 
+// Bug in sqrfree_yun (fixed 2016-02-02).
+static unsigned exam_paranoia24()
+{
+	unsigned result = 0;
+	symbol x("x");
+	ex e;
+
+	e = (x-1)*(x+1) - x*x + 1;  // an unexpanded 0...
+	try {
+		ex f = sqrfree(e);
+		if (!f.is_zero()) {
+			clog << "sqrfree(" << e << ") returns " << f << " instead of 0\n";
+			++result;
+		}
+	} catch (const exception &err) {
+		clog << "sqrfree(" << e << ") throws " << err.what() << endl;
+		++result;
+	}
+
+	e = pow(x-1,3) - expand(pow(x-1,3));  // ...still after differentiating...
+	try {
+		ex f = sqrfree(e);
+		if (!f.is_zero()) {
+			clog << "sqrfree(" << e << ") returns " << f << " instead of 0\n";
+			++result;
+		}
+	} catch (const exception &err) {
+		clog << "sqrfree(" << e << ") throws " << err.what() << endl;
+		++result;
+	}
+
+	e = pow(x-1,4) - expand(pow(x-1,4));  // ...and after differentiating twice.
+	try {
+		ex f = sqrfree(e);
+		if (!f.is_zero()) {
+			clog << "sqrfree(" << e << ") returns " << f << " instead of 0\n";
+			++result;
+		}
+	} catch (const exception &err) {
+		clog << "sqrfree(" << e << ") throws " << err.what() << endl;
+		++result;
+	}
+
+	return result;
+}
+
 unsigned exam_paranoia()
 {
 	unsigned result = 0;
@@ -607,6 +653,7 @@ unsigned exam_paranoia()
 	result += exam_paranoia21();  cout << '.' << flush;
 	result += exam_paranoia22();  cout << '.' << flush;
 	result += exam_paranoia23();  cout << '.' << flush;
+	result += exam_paranoia24();  cout << '.' << flush;
 	
 	return result;
 }
