@@ -270,9 +270,15 @@ static numeric lcm_of_coefficients_denominators(const ex &e)
  *  @param lcm  LCM to multiply in */
 static ex multiply_lcm(const ex &e, const numeric &lcm)
 {
+	if (lcm.is_equal(*_num1_p))
+		// e * 1 -> e;
+		return e;
+
 	if (is_exactly_a<mul>(e)) {
+		// (a*b*...)*lcm -> (a*lcma)*(b*lcmb)*...*(lcm/(lcma*lcmb*...))
 		size_t num = e.nops();
-		exvector v; v.reserve(num + 1);
+		exvector v;
+		v.reserve(num + 1);
 		numeric lcm_accum = *_num1_p;
 		for (size_t i=0; i<num; i++) {
 			numeric op_lcm = lcmcoeff(e.op(i), *_num1_p);
@@ -282,23 +288,24 @@ static ex multiply_lcm(const ex &e, const numeric &lcm)
 		v.push_back(lcm / lcm_accum);
 		return dynallocate<mul>(v);
 	} else if (is_exactly_a<add>(e)) {
+		// (a+b+...)*lcm -> a*lcm+b*lcm+...
 		size_t num = e.nops();
-		exvector v; v.reserve(num);
+		exvector v;
+		v.reserve(num);
 		for (size_t i=0; i<num; i++)
 			v.push_back(multiply_lcm(e.op(i), lcm));
 		return dynallocate<add>(v);
 	} else if (is_exactly_a<power>(e)) {
-		if (is_a<symbol>(e.op(0)))
-			return e * lcm;
-		else {
+		if (!is_a<symbol>(e.op(0))) {
+			// (b^e)*lcm -> (b*lcm^(1/e))^e if lcm^(1/e) ∈ ℝ (i.e. not a float)
+			// but not for symbolic b, as evaluation would undo this again
 			numeric root_of_lcm = lcm.power(ex_to<numeric>(e.op(1)).inverse());
 			if (root_of_lcm.is_rational())
 				return pow(multiply_lcm(e.op(0), root_of_lcm), e.op(1));
-			else
-				return e * lcm;
 		}
-	} else
-		return e * lcm;
+	}
+	// can't recurse down into e
+	return dynallocate<mul>(e, lcm);
 }
 
 
