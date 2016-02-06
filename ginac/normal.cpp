@@ -297,7 +297,7 @@ static ex multiply_lcm(const ex &e, const numeric &lcm)
 		return dynallocate<add>(v);
 	} else if (is_exactly_a<power>(e)) {
 		if (!is_a<symbol>(e.op(0))) {
-			// (b^e)*lcm -> (b*lcm^(1/e))^e if lcm^(1/e) ∈ ℝ (i.e. not a float)
+			// (b^e)*lcm -> (b*lcm^(1/e))^e if lcm^(1/e) ∈ ℚ (i.e. not a float)
 			// but not for symbolic b, as evaluation would undo this again
 			numeric root_of_lcm = lcm.power(ex_to<numeric>(e.op(1)).inverse());
 			if (root_of_lcm.is_rational())

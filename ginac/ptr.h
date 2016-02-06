@@ -61,7 +61,7 @@ template <class T> class ptr {
 	// and makewritable() requires locking.
 
 public:
-    // no default ctor: a ptr is never unbound
+	// no default ctor: a ptr is never unbound
 
 	/** Bind ptr to newly created object, start reference counting. */
 	ptr(T *t) noexcept : p(t) { GINAC_ASSERT(p); p->set_refcount(1); }
