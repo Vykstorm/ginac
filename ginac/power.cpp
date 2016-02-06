@@ -1065,7 +1065,7 @@ multinomial_coefficient(const std::vector<int> & p)
 		n += numeric(it);
 		d *= factorial(numeric(it));
 	}
-	return factorial(numeric(n)) / d;
+	return factorial(n) / d;
 }
 
 }  // anonymous namespace
@@ -1199,7 +1199,7 @@ ex power::expand_add(const add & a, long n, unsigned options)
 							factor = factor.mul(c.power(exponent[i]));
 					}
 				}
-				result.push_back(expair(mul(monomial).expand(options), factor));
+				result.push_back(expair(mul(std::move(monomial)).expand(options), factor));
 			} while (compositions.next());
 		} while (partitions.next());
 	}
