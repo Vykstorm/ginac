@@ -1,5 +1,8 @@
 This file records noteworthy changes.
 
+1.6.7 (29 February 2016)
+* Fix elusive bug in sqrfree(), normal(), numer(), and denom().
+
 1.6.6 (20 December 2015)
 * Fix elusive bug in add::eval().
 * Several minor performance enhancements.
