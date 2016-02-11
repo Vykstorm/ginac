@@ -43,9 +43,11 @@ set(ginaclib_sources
     polynomial/gcd_uvar.cpp
     polynomial/mgcd.cpp
     polynomial/mod_gcd.cpp
+    polynomial/normalize.cpp
     polynomial/optimal_vars_finder.cpp
     polynomial/pgcd.cpp
     polynomial/primpart_content.cpp
+    polynomial/remainder.cpp
     polynomial/upoly_io.cpp
     power.cpp
     print.cpp
