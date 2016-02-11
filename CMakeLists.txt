@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.6)
+cmake_minimum_required(VERSION 3.1)
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/modules")
 
 project(GiNaC)
@@ -24,6 +24,8 @@ add_custom_target(check COMMAND ${CMAKE_CTEST_COMMAND})
 add_custom_target(info ALL)
 add_custom_target(html)
 add_custom_target(pdf)
+
+set (CMAKE_CXX_STANDARD 11)
 
 find_package(CLN 1.2.2 REQUIRED)
 include_directories(${CLN_INCLUDE_DIR})
