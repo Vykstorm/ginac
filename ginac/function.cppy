@@ -79,7 +79,7 @@ void function_options::initialize()
 	nparams = 0;
 	eval_f = evalf_f = real_part_f = imag_part_f = conjugate_f = expand_f
 		= derivative_f = expl_derivative_f = power_f = series_f = nullptr;
-	info_f = 0;
+	info_f = nullptr;
 	evalf_params_first = true;
 	use_return_type = false;
 	eval_use_exvector_args = false;
@@ -430,7 +430,7 @@ ex function::evalf() const
 		}
 	}
 
-	if (opt.evalf_f==0) {
+	if (opt.evalf_f==nullptr) {
 		return function(serial,eseq).hold();
 	}
 	current_serial = serial;
@@ -489,7 +489,7 @@ ex function::series(const relational & r, int order, unsigned options) const
 	GINAC_ASSERT(serial<registered_functions().size());
 	const function_options &opt = registered_functions()[serial];
 
-	if (opt.series_f==0) {
+	if (opt.series_f==nullptr) {
 		return basic::series(r, order);
 	}
 	ex res;
@@ -524,7 +524,7 @@ ex function::conjugate() const
 	GINAC_ASSERT(serial<registered_functions().size());
 	const function_options & opt = registered_functions()[serial];
 
-	if (opt.conjugate_f==0) {
+	if (opt.conjugate_f==nullptr) {
 		return conjugate_function(*this).hold();
 	}
 
@@ -549,7 +549,7 @@ ex function::real_part() const
 	GINAC_ASSERT(serial<registered_functions().size());
 	const function_options & opt = registered_functions()[serial];
 
-	if (opt.real_part_f==0)
+	if (opt.real_part_f==nullptr)
 		return basic::real_part();
 
 	if (opt.real_part_use_exvector_args)
@@ -572,7 +572,7 @@ ex function::imag_part() const
 	GINAC_ASSERT(serial<registered_functions().size());
 	const function_options & opt = registered_functions()[serial];
 
-	if (opt.imag_part_f==0)
+	if (opt.imag_part_f==nullptr)
 		return basic::imag_part();
 
 	if (opt.imag_part_use_exvector_args)
@@ -595,7 +595,7 @@ bool function::info(unsigned inf) const
 	GINAC_ASSERT(serial<registered_functions().size());
 	const function_options & opt = registered_functions()[serial];
 
-	if (opt.info_f==0) {
+	if (opt.info_f==nullptr) {
 		return basic::info(inf);
 	}
 

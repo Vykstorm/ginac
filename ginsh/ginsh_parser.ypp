@@ -90,7 +90,7 @@ typedef ex (*fcnp)(const exprseq &e);
 typedef ex (*fcnp2)(const exprseq &e, int serial);
 
 struct fcn_desc {
-	fcn_desc() : p(NULL), num_params(0), is_ginac(false), serial(0) {}
+	fcn_desc() : p(nullptr), num_params(0), is_ginac(false), serial(0) {}
 	fcn_desc(fcnp func, int num) : p(func), num_params(num), is_ginac(false), serial(0) {}
 	fcn_desc(fcnp2 func, int num, int ser) : p((fcnp)func), num_params(num), is_ginac(true), serial(ser) {}
 
@@ -647,7 +647,7 @@ static const fcn_init builtin_fcns[] = {
 	{"transpose", f_transpose, 1},
 	{"unassign", f_unassign, 1},
 	{"unit", f_unit, 2},
-	{NULL, f_dummy, 0}           // End marker
+	{nullptr, f_dummy, 0}        // End marker
 };
 
 struct fcn_help_init {
@@ -685,7 +685,7 @@ static const fcn_help_init builtin_help[] = {
 	{"H", "harmonic polylogarithm"},
 	{"Order", "order term function (for truncated power series)"},
 	{"Derivative", "inert differential operator"},
-	{NULL, NULL}	// End marker
+	{nullptr, nullptr}  // End marker
 };
 
 #include "ginsh_extensions.h"
@@ -840,7 +840,7 @@ static char *fcn_generator(const char *text, int state)
 		if (strncmp(fcn_name, text, len) == 0)
 			return strdup(fcn_name);
 	}
-	return NULL;
+	return nullptr;
 }
 
 #ifdef HAVE_LIBREADLINE
@@ -923,7 +923,7 @@ int main(int argc, char **argv)
 	file_list = argv + 1;
 	if (num_files) {
 		yyin = fopen(*file_list, "r");
-		if (yyin == NULL) {
+		if (yyin == nullptr) {
 			cerr << "Can't open " << *file_list << endl;
 			exit(1);
 		}

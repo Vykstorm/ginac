@@ -144,7 +144,7 @@ real_symbols    return T_REAL_SYMBOLS;
  */
 
 static int line_length = 0;
-static char *line_read = NULL;
+static char *line_read = nullptr;
 static char *line_ptr;
 
 // Input function that uses libreadline for interactive input
@@ -208,7 +208,7 @@ static int ginsh_input(char *buf, int max_size)
 
 // List of input files to be processed
 int num_files = 0;
-char **file_list = NULL;
+char **file_list = nullptr;
 
 // EOF encountered, connect to next file. If this was the last file,
 // connect to stdin. If this was stdin, terminate the scanner.
@@ -220,7 +220,7 @@ int yywrap()
 	fclose(yyin);
 	if (num_files) {
 		yyin = fopen(*file_list, "r");
-		if (yyin == NULL) {
+		if (yyin == nullptr) {
 			cerr << "Can't open " << *file_list << endl;
 			return 1;
 		}

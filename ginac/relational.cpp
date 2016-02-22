@@ -298,7 +298,7 @@ unsigned relational::calchash() const
 
 relational::safe_bool relational::make_safe_bool(bool cond) const
 {
-	return cond? &safe_bool_helper::nonnull : 0;
+	return cond? &safe_bool_helper::nonnull : nullptr;
 }
 
 /** Cast the relational into a Boolean, mainly for evaluation within an

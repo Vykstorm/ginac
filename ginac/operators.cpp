@@ -289,8 +289,8 @@ static void my_ios_callback(std::ios_base::event ev, std::ios_base & s, int i)
 	print_context *p = static_cast<print_context *>(s.pword(i));
 	if (ev == std::ios_base::erase_event) {
 		delete p;
-		s.pword(i) = 0;
-	} else if (ev == std::ios_base::copyfmt_event && p != 0)
+		s.pword(i) = nullptr;
+	} else if (ev == std::ios_base::copyfmt_event && p != nullptr)
 		s.pword(i) = p->duplicate();
 }
 

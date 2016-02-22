@@ -550,7 +550,7 @@ ex archive_node::unarchive(lst &sym_lst) const
 }
 
 int unarchive_table_t::usecount = 0;
-unarchive_map_t* unarchive_table_t::unarch_map = 0;
+unarchive_map_t* unarchive_table_t::unarch_map = nullptr;
 
 unarchive_table_t::unarchive_table_t()
 {

@@ -1739,7 +1739,7 @@ class lanczos_coeffs
 		std::vector<cln::cl_N> *current_vector;
 };
 
-std::vector<cln::cl_N>* lanczos_coeffs::coeffs = 0;
+std::vector<cln::cl_N>* lanczos_coeffs::coeffs = nullptr;
 
 bool lanczos_coeffs::sufficiently_accurate(int digits)
 {	if (digits<=20) {
