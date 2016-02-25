@@ -81,7 +81,7 @@ GINAC_BIND_UNARCHIVER(fderivative);
 void fderivative::archive(archive_node &n) const
 {
 	inherited::archive(n);
-	paramset::const_iterator i = parameter_set.begin(), end = parameter_set.end();
+	auto i = parameter_set.begin(), end = parameter_set.end();
 	while (i != end) {
 		n.add_unsigned("param", *i);
 		++i;
@@ -102,7 +102,7 @@ void fderivative::print(const print_context & c, unsigned level) const
 void fderivative::do_print(const print_context & c, unsigned level) const
 {
 	c.s << "D[";
-	paramset::const_iterator i = parameter_set.begin(), end = parameter_set.end();
+	auto i = parameter_set.begin(), end = parameter_set.end();
 	--end;
 	while (i != end) {
 		c.s << *i++ << ",";
@@ -114,7 +114,7 @@ void fderivative::do_print(const print_context & c, unsigned level) const
 void fderivative::do_print_csrc(const print_csrc & c, unsigned level) const
 {
 	c.s << "D_";
-	paramset::const_iterator i = parameter_set.begin(), end = parameter_set.end();
+	auto i = parameter_set.begin(), end = parameter_set.end();
 	--end;
 	while (i != end)
 		c.s << *i++ << "_";
@@ -129,13 +129,13 @@ void fderivative::do_print_tree(const print_tree & c, unsigned level) const
 	    << std::hex << ", hash=0x" << hashvalue << ", flags=0x" << flags << std::dec
 	    << ", nops=" << nops()
 	    << ", params=";
-	paramset::const_iterator i = parameter_set.begin(), end = parameter_set.end();
+	auto i = parameter_set.begin(), end = parameter_set.end();
 	--end;
 	while (i != end)
 		c.s << *i++ << ",";
 	c.s << *i << std::endl;
-	for (size_t i=0; i<seq.size(); ++i)
-		seq[i].print(c, level + c.delta_indent);
+	for (auto & i : seq)
+		i.print(c, level + c.delta_indent);
 	c.s << std::string(level + c.delta_indent, ' ') << "=====" << std::endl;
 }
 

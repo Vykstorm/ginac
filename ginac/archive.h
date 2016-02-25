@@ -326,7 +326,6 @@ private:
 	mutable std::map<std::string, archive_atom> inverse_atoms;
 
 	/** Map of stored expressions to nodes for faster archiving */
-	typedef std::map<ex, archive_node_id, ex_is_less>::iterator mapit;
 	mutable std::map<ex, archive_node_id, ex_is_less> exprtable;
 };
 

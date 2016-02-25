@@ -423,7 +423,7 @@ bool diracgamma::contract_with(exvector::iterator self, exvector::iterator other
 			if (std::find_if(self + 1, other, is_not_a_clifford()) != other)
 				return false;
 
-			exvector::iterator next_to_last = other - 1;
+			auto next_to_last = other - 1;
 			ex S = ncmul(exvector(self + 1, next_to_last));
 			ex SR = ncmul(exvector(std::reverse_iterator<exvector::const_iterator>(next_to_last), std::reverse_iterator<exvector::const_iterator>(self + 1)));
 
@@ -439,7 +439,7 @@ bool diracgamma::contract_with(exvector::iterator self, exvector::iterator other
 			if (std::find_if(self + 1, other, is_not_a_clifford()) != other)
 				return false;
 
-			exvector::iterator next_to_last = other - 1;
+			auto next_to_last = other - 1;
 			ex S = ncmul(exvector(self + 1, next_to_last));
 
 			*self = 2 * (*next_to_last) * S - (*self) * S * (*other) * (*next_to_last);
@@ -474,7 +474,7 @@ bool cliffordunit::contract_with(exvector::iterator self, exvector::iterator oth
 		    && unit.same_metric(*other))
 			return false;
 
-		exvector::iterator before_other = other - 1;
+		auto before_other = other - 1;
 		ex mu = self->op(1);
 		ex mu_toggle = other->op(1);
 		ex alpha = before_other->op(1);
@@ -542,11 +542,11 @@ ex clifford::eval_ncmul(const exvector & v) const
 
 	// Anticommutate gamma5/L/R's to the front
 	if (s.size() >= 2) {
-		exvector::iterator first = s.begin(), next_to_last = s.end() - 2;
+		auto first = s.begin(), next_to_last = s.end() - 2;
 		while (true) {
-			exvector::iterator it = next_to_last;
+			auto it = next_to_last;
 			while (true) {
-				exvector::iterator it2 = it + 1;
+				auto it2 = it + 1;
 				if (is_a<clifford>(*it) && is_a<clifford>(*it2)) {
 					ex e1 = it->op(0), e2 = it2->op(0);
 
@@ -1003,9 +1003,9 @@ ex dirac_trace(const ex & e, const lst & rll, const ex & trONE)
 {
 	// Convert list to set
 	std::set<unsigned char> rls;
-	for (lst::const_iterator i = rll.begin(); i != rll.end(); ++i) {
-		if (i->info(info_flags::nonnegint))
-			rls.insert(ex_to<numeric>(*i).to_int());
+	for (const auto & i : rll) {
+		if (i.info(info_flags::nonnegint))
+			rls.insert(ex_to<numeric>(i).to_int());
 	}
 
 	return dirac_trace(e, rls, trONE);
@@ -1033,10 +1033,10 @@ ex canonicalize_clifford(const ex & e_)
 		// Scan for any ncmul objects
 		exmap srl;
 		ex aux = e.to_rational(srl);
-		for (exmap::iterator i = srl.begin(); i != srl.end(); ++i) {
+		for (auto & i : srl) {
 
-			ex lhs = i->first;
-			ex rhs = i->second;
+			ex lhs = i.first;
+			ex rhs = i.second;
 
 			if (is_exactly_a<ncmul>(rhs)
 					&& rhs.return_type() == return_types::noncommutative
@@ -1045,7 +1045,7 @@ ex canonicalize_clifford(const ex & e_)
 				// Expand product, if necessary
 				ex rhs_expanded = rhs.expand();
 				if (!is_a<ncmul>(rhs_expanded)) {
-					i->second = canonicalize_clifford(rhs_expanded);
+					i.second = canonicalize_clifford(rhs_expanded);
 					continue;
 
 				} else if (!is_a<clifford>(rhs.op(0)))
@@ -1057,7 +1057,7 @@ ex canonicalize_clifford(const ex & e_)
 					v.push_back(rhs.op(j));
 
 				// Stupid recursive bubble sort because we only want to swap adjacent gammas
-				exvector::iterator it = v.begin(), next_to_last = v.end() - 1;
+				auto it = v.begin(), next_to_last = v.end() - 1;
 				if (is_a<diracgamma5>(it->op(0)) || is_a<diracgammaL>(it->op(0)) || is_a<diracgammaR>(it->op(0)))
 					++it;
 
@@ -1075,7 +1075,7 @@ ex canonicalize_clifford(const ex & e_)
 						it[0] = save1;
 						it[1] = save0;
 						sum += ex_to<clifford>(save0).get_commutator_sign() * ncmul(std::move(v));
-						i->second = canonicalize_clifford(sum);
+						i.second = canonicalize_clifford(sum);
 						goto next_sym;
 					}
 					++it;

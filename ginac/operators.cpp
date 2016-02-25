@@ -352,8 +352,8 @@ std::ostream & operator<<(std::ostream & os, const ex & e)
 std::ostream & operator<<(std::ostream & os, const exvector & e)
 {
 	print_context *p = get_print_context(os);
-	exvector::const_iterator i = e.begin();
-	exvector::const_iterator vend = e.end();
+	auto i = e.begin();
+	auto vend = e.end();
 
 	if (i==vend) {
 		os << "[]";
@@ -379,8 +379,8 @@ std::ostream & operator<<(std::ostream & os, const exvector & e)
 std::ostream & operator<<(std::ostream & os, const exset & e)
 {
 	print_context *p = get_print_context(os);
-	exset::const_iterator i = e.begin();
-	exset::const_iterator send = e.end();
+	auto i = e.begin();
+	auto send = e.end();
 
 	if (i==send) {
 		os << "<>";
@@ -406,8 +406,8 @@ std::ostream & operator<<(std::ostream & os, const exset & e)
 std::ostream & operator<<(std::ostream & os, const exmap & e)
 {
 	print_context *p = get_print_context(os);
-	exmap::const_iterator i = e.begin();
-	exmap::const_iterator mend = e.end();
+	auto i = e.begin();
+	auto mend = e.end();
 
 	if (i==mend) {
 		os << "{}";

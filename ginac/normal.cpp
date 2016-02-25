@@ -1548,7 +1548,7 @@ ex gcd(const ex &a, const ex &b, ex *ca, ex *cb, bool check_args, unsigned optio
 
 	// The symbol with least degree which is contained in both polynomials
 	// is our main variable
-	sym_desc_vec::iterator vari = sym_stats.begin();
+	auto vari = sym_stats.begin();
 	while ((vari != sym_stats.end()) && 
 	       (((vari->ldeg_b == 0) && (vari->deg_b == 0)) ||
 	        ((vari->ldeg_a == 0) && (vari->deg_a == 0))))

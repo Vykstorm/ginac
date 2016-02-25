@@ -265,7 +265,7 @@ epvector* conjugateepvector(const epvector&epv)
 		}
 		newepv = new epvector;
 		newepv->reserve(epv.size());
-		for (epvector::const_iterator j=epv.begin(); j!=i; ++j) {
+		for (auto j=epv.begin(); j!=i; ++j) {
 			newepv->push_back(*j);
 		}
 		newepv->push_back(x);

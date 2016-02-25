@@ -118,7 +118,7 @@ collect_term(ex_collect_priv_t& ec, const ex& e, const exvector& vars)
 		key[i] = var_i_pow;
 		pre_coeff = pre_coeff.coeff(vars[i], var_i_pow);
 	}
-	ex_collect_priv_t::iterator i = ec.find(key);
+	auto i = ec.find(key);
 	if (i != ec.end())
 		i->second += pre_coeff;
 	else
@@ -127,7 +127,7 @@ collect_term(ex_collect_priv_t& ec, const ex& e, const exvector& vars)
 
 static void wipe_out_zeros(ex_collect_priv_t& m)
 {
-	ex_collect_priv_t::iterator i = m.begin();
+	auto i = m.begin();
 	while (i != m.end()) {
 		// be careful to not invalide iterator, use post-increment
 		// for that, see e.g.

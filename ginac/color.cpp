@@ -332,7 +332,7 @@ bool su3t::contract_with(exvector::iterator self, exvector::iterator other, exve
 
 		// T.a S T.a = 1/2 Tr(S) - 1/6 S
 		} else {
-			exvector::iterator it = self + 1;
+			auto it = self + 1;
 			while (it != other) {
 				if (!is_a<color>(*it)) {
 					return false;

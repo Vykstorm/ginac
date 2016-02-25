@@ -143,8 +143,7 @@ const prototype_table& get_builtin_reader()
 			Order,
 			NFUNCTIONS
 		};
-		std::vector<function_options>::const_iterator it =
-			registered_functions_hack::get_registered_functions().begin();
+		auto it = registered_functions_hack::get_registered_functions().begin();
 		unsigned serial = 0;
 		for ( ; serial<NFUNCTIONS; ++it, ++serial ) {
 			prototype proto = make_pair(it->get_name(), it->get_nparams());

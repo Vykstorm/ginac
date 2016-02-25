@@ -838,8 +838,8 @@ void function::store_remember_table(ex const & result) const
 unsigned function::register_new(function_options const & opt)
 {
 	size_t same_name = 0;
-	for (size_t i=0; i<registered_functions().size(); ++i) {
-		if (registered_functions()[i].name==opt.name) {
+	for (auto & i : registered_functions()) {
+		if (i.name==opt.name) {
 			++same_name;
 		}
 	}

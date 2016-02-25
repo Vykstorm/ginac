@@ -521,7 +521,7 @@ unsigned ncmul::return_type() const
 	bool all_commutative = true;
 	exvector::const_iterator noncommutative_element; // point to first found nc element
 
-	exvector::const_iterator i = seq.begin(), end = seq.end();
+	auto i = seq.begin(), end = seq.end();
 	while (i != end) {
 		unsigned rt = i->return_type();
 		if (rt == return_types::noncommutative_composite)

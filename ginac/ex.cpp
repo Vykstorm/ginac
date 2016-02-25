@@ -123,7 +123,7 @@ ex ex::subs(const lst & ls, const lst & lr, unsigned options) const
 
 	// Convert the lists to a map
 	exmap m;
-	for (lst::const_iterator its = ls.begin(), itr = lr.begin(); its != ls.end(); ++its, ++itr) {
+	for (auto its = ls.begin(), itr = lr.begin(); its != ls.end(); ++its, ++itr) {
 		m.insert(std::make_pair(*its, *itr));
 
 		// Search for products and powers in the expressions to be substituted

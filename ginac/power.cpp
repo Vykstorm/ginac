@@ -1225,11 +1225,11 @@ ex power::expand_add_2(const add & a, unsigned options)
 	}
 	result.reserve(result_size);
 
-	epvector::const_iterator last = a.seq.end();
+	auto last = a.seq.end();
 
 	// power(+(x,...,z;c),2)=power(+(x,...,z;0),2)+2*c*+(x,...,z;0)+c*c
 	// first part: ignore overall_coeff and expand other terms
-	for (epvector::const_iterator cit0=a.seq.begin(); cit0!=last; ++cit0) {
+	for (auto cit0=a.seq.begin(); cit0!=last; ++cit0) {
 		const ex & r = cit0->rest;
 		const ex & c = cit0->coeff;
 		
@@ -1259,7 +1259,7 @@ ex power::expand_add_2(const add & a, unsigned options)
 			}
 		}
 
-		for (epvector::const_iterator cit1=cit0+1; cit1!=last; ++cit1) {
+		for (auto cit1=cit0+1; cit1!=last; ++cit1) {
 			const ex & r1 = cit1->rest;
 			const ex & c1 = cit1->coeff;
 			result.push_back(expair(mul(r,r1).expand(options),

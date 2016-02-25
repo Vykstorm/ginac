@@ -93,7 +93,7 @@ ex parser::parse_identifier_expr()
 	// Eat the ')'.
 	get_next_tok();
 	prototype the_prototype = make_pair(name, args.size());
-	prototype_table::const_iterator reader = funcs.find(the_prototype);
+	auto reader = funcs.find(the_prototype);
 	if (reader == funcs.end()) {
 		Parse_error_("no function \"" << name << "\" with " <<
 			     args.size() << " arguments");

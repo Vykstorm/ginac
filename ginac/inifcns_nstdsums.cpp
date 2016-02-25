@@ -124,7 +124,7 @@ void fill_Xn(int n)
 	if (n>1) {
 		// calculate X_2 and higher (corresponding to Li_4 and higher)
 		std::vector<cln::cl_N> buf(xninitsize);
-		std::vector<cln::cl_N>::iterator it = buf.begin();
+		auto it = buf.begin();
 		cln::cl_N result;
 		*it = -(cln::expt(cln::cl_I(2),n+1) - 1) / cln::expt(cln::cl_I(2),n+1); // i == 1
 		it++;
@@ -149,7 +149,7 @@ void fill_Xn(int n)
 	} else if (n==1) {
 		// special case to handle the X_0 correct
 		std::vector<cln::cl_N> buf(xninitsize);
-		std::vector<cln::cl_N>::iterator it = buf.begin();
+		auto it = buf.begin();
 		cln::cl_N result;
 		*it = cln::cl_I(-3)/cln::cl_I(4); // i == 1
 		it++;
@@ -173,7 +173,7 @@ void fill_Xn(int n)
 	} else {
 		// calculate X_0
 		std::vector<cln::cl_N> buf(xninitsize/2);
-		std::vector<cln::cl_N>::iterator it = buf.begin();
+		auto it = buf.begin();
 		for (int i=1; i<=xninitsize/2; i++) {
 			*it = bernoulli(i*2).to_cl_N();
 			it++;
@@ -474,8 +474,8 @@ namespace {
 cln::cl_N multipleLi_do_sum(const std::vector<int>& s, const std::vector<cln::cl_N>& x)
 {
 	// ensure all x <> 0.
-	for (std::vector<cln::cl_N>::const_iterator it = x.begin(); it != x.end(); ++it) {
-		if ( *it == 0 ) return cln::cl_float(0, cln::float_format(Digits));
+	for (const auto & it : x) {
+		if (it == 0) return cln::cl_float(0, cln::float_format(Digits));
 	}
 
 	const int j = s.size();
@@ -539,9 +539,9 @@ ex G_eval(const Gparameter& a, int scale, const exvector& gsyms)
 	bool all_zero = true;
 	bool all_ones = true;
 	int count_ones = 0;
-	for (Gparameter::const_iterator it = a.begin(); it != a.end(); ++it) {
-		if (*it != 0) {
-			const ex sym = gsyms[std::abs(*it)];
+	for (const auto & it : a) {
+		if (it != 0) {
+			const ex sym = gsyms[std::abs(it)];
 			newa.append(sym);
 			all_zero = false;
 			if (sym != sc) {
@@ -559,31 +559,17 @@ ex G_eval(const Gparameter& a, int scale, const exvector& gsyms)
 	// later on in the transformation
 	if (newa.nops() > 1 && newa.op(0) == sc && !all_ones && a.front()!=0) {
 		// do shuffle
-		Gparameter short_a;
-		Gparameter::const_iterator it = a.begin();
-		++it;
-		for (; it != a.end(); ++it) {
-			short_a.push_back(*it);
-		}
+		Gparameter short_a(a.begin()+1, a.end());
 		ex result = G_eval1(a.front(), scale, gsyms) * G_eval(short_a, scale, gsyms);
-		it = short_a.begin();
-		for (int i=1; i<count_ones; ++i) {
-			++it;
-		}
+
+		auto it = short_a.begin();
+		advance(it, count_ones-1);
 		for (; it != short_a.end(); ++it) {
 
-			Gparameter newa;
-			Gparameter::const_iterator it2 = short_a.begin();
-			for (; it2 != it; ++it2) {
-				newa.push_back(*it2);
-			}
+			Gparameter newa(short_a.begin(), it);
 			newa.push_back(*it);
 			newa.push_back(a[0]);
-			it2 = it;
-			++it2;
-			for (; it2 != short_a.end(); ++it2) {
-				newa.push_back(*it2);	
-			}
+			newa.insert(newa.end(), it+1, short_a.end());
 			result -= G_eval(newa, scale, gsyms);
 		}
 		return result / count_ones;
@@ -604,9 +590,9 @@ ex G_eval(const Gparameter& a, int scale, const exvector& gsyms)
 	lst x;
 	ex argbuf = gsyms[std::abs(scale)];
 	ex mval = _ex1;
-	for (Gparameter::const_iterator it=a.begin(); it!=a.end(); ++it) {
-		if (*it != 0) {
-			const ex& sym = gsyms[std::abs(*it)];
+	for (const auto & it : a) {
+		if (it != 0) {
+			const ex& sym = gsyms[std::abs(it)];
 			x.append(argbuf / sym);
 			m.append(mval);
 			mval = _ex1;
@@ -642,14 +628,14 @@ Gparameter convert_pending_integrals_G(const Gparameter& pending_integrals)
 // trailing_zeros : number of trailing zeros of a
 // min_it         : iterator of a pointing on the smallest element in a
 Gparameter::const_iterator check_parameter_G(const Gparameter& a, int scale,
-		bool& convergent, int& depth, int& trailing_zeros, Gparameter::const_iterator& min_it)
+                                             bool& convergent, int& depth, int& trailing_zeros, Gparameter::const_iterator& min_it)
 {
 	convergent = true;
 	depth = 0;
 	trailing_zeros = 0;
 	min_it = a.end();
-	Gparameter::const_iterator lastnonzero = a.end();
-	for (Gparameter::const_iterator it = a.begin(); it != a.end(); ++it) {
+	auto lastnonzero = a.end();
+	for (auto it = a.begin(); it != a.end(); ++it) {
 		if (std::abs(*it) > 0) {
 			++depth;
 			trailing_zeros = 0;
@@ -699,7 +685,7 @@ ex trailing_zeros_G(const Gparameter& a, int scale, const exvector& gsyms)
 		ex result;
 		Gparameter new_a(a.begin(), a.end()-1);
 		result += G_eval1(0, scale, gsyms) * trailing_zeros_G(new_a, scale, gsyms);
-		for (Gparameter::const_iterator it = a.begin(); it != last; ++it) {
+		for (auto it = a.begin(); it != last; ++it) {
 			Gparameter new_a(a.begin(), it);
 			new_a.push_back(0);
 			new_a.insert(new_a.end(), it, a.end()-1);
@@ -746,20 +732,20 @@ ex depth_one_trafo_G(const Gparameter& pending_integrals, const Gparameter& a, i
 		}
 		if (psize) {
 			result *= trailing_zeros_G(convert_pending_integrals_G(pending_integrals),
-				                   pending_integrals.front(),
-						   gsyms);
+			                           pending_integrals.front(),
+			                           gsyms);
 		}
 		
 		// G(y2_{-+}; sr)
 		result += trailing_zeros_G(convert_pending_integrals_G(new_pending_integrals),
-			                   new_pending_integrals.front(),
-					   gsyms);
+		                           new_pending_integrals.front(),
+		                           gsyms);
 		
 		// G(0; sr)
 		new_pending_integrals.back() = 0;
 		result -= trailing_zeros_G(convert_pending_integrals_G(new_pending_integrals),
-			                   new_pending_integrals.front(),
-					   gsyms);
+		                           new_pending_integrals.front(),
+		                           gsyms);
 
 		return result;
 	}
@@ -772,8 +758,8 @@ ex depth_one_trafo_G(const Gparameter& pending_integrals, const Gparameter& a, i
 	result -= zeta(a.size());
 	if (psize) {
 		result *= trailing_zeros_G(convert_pending_integrals_G(pending_integrals),
-			                   pending_integrals.front(),
-					   gsyms);
+		                           pending_integrals.front(),
+		                           gsyms);
 	}
 	
 	// term int_0^sr dt/t G_{m-1}( (1/y2)_{+-}; 1/t )
@@ -789,8 +775,8 @@ ex depth_one_trafo_G(const Gparameter& pending_integrals, const Gparameter& a, i
 	new_pending_integrals_2.push_back(0);
 	if (psize) {
 		result += trailing_zeros_G(convert_pending_integrals_G(pending_integrals),
-			                   pending_integrals.front(),
-					   gsyms)
+		                           pending_integrals.front(),
+		                           gsyms)
 		          * depth_one_trafo_G(new_pending_integrals_2, new_a, scale, gsyms);
 	} else {
 		result += depth_one_trafo_G(new_pending_integrals_2, new_a, scale, gsyms);
@@ -802,13 +788,13 @@ ex depth_one_trafo_G(const Gparameter& pending_integrals, const Gparameter& a, i
 
 // forward declaration
 ex shuffle_G(const Gparameter & a0, const Gparameter & a1, const Gparameter & a2,
-	     const Gparameter& pendint, const Gparameter& a_old, int scale,
-	     const exvector& gsyms, bool flag_trailing_zeros_only);
+             const Gparameter& pendint, const Gparameter& a_old, int scale,
+             const exvector& gsyms, bool flag_trailing_zeros_only);
 
 
 // G transformation [VSW]
 ex G_transform(const Gparameter& pendint, const Gparameter& a, int scale,
-	       const exvector& gsyms, bool flag_trailing_zeros_only)
+               const exvector& gsyms, bool flag_trailing_zeros_only)
 {
 	// main recursion routine
 	//
@@ -823,23 +809,22 @@ ex G_transform(const Gparameter& pendint, const Gparameter& a, int scale,
 	bool convergent;
 	int depth, trailing_zeros;
 	Gparameter::const_iterator min_it;
-	Gparameter::const_iterator firstzero = 
-		check_parameter_G(a, scale, convergent, depth, trailing_zeros, min_it);
-	int min_it_pos = min_it - a.begin();
+	auto firstzero = check_parameter_G(a, scale, convergent, depth, trailing_zeros, min_it);
+	int min_it_pos = distance(a.begin(), min_it);
 
 	// special case: all a's are zero
 	if (depth == 0) {
 		ex result;
 
 		if (a.size() == 0) {
-		  result = 1;
+			result = 1;
 		} else {
-		  result = G_eval(a, scale, gsyms);
+			result = G_eval(a, scale, gsyms);
 		}
 		if (pendint.size() > 0) {
-		  result *= trailing_zeros_G(convert_pending_integrals_G(pendint),
-			                     pendint.front(),
-					     gsyms);
+			result *= trailing_zeros_G(convert_pending_integrals_G(pendint),
+			                           pendint.front(),
+			                           gsyms);
 		} 
 		return result;
 	}
@@ -849,7 +834,7 @@ ex G_transform(const Gparameter& pendint, const Gparameter& a, int scale,
 		ex result;
 		Gparameter new_a(a.begin(), a.end()-1);
 		result += G_eval1(0, scale, gsyms) * G_transform(pendint, new_a, scale, gsyms, flag_trailing_zeros_only);
-		for (Gparameter::const_iterator it = a.begin(); it != firstzero; ++it) {
+		for (auto it = a.begin(); it != firstzero; ++it) {
 			Gparameter new_a(a.begin(), it);
 			new_a.push_back(0);
 			new_a.insert(new_a.end(), it, a.end()-1);
@@ -862,8 +847,8 @@ ex G_transform(const Gparameter& pendint, const Gparameter& a, int scale,
 	if (convergent || flag_trailing_zeros_only) {
 		if (pendint.size() > 0) {
 			return G_eval(convert_pending_integrals_G(pendint),
-				      pendint.front(), gsyms)*
-				G_eval(a, scale, gsyms);
+			              pendint.front(), gsyms) *
+			       G_eval(a, scale, gsyms);
 		} else {
 			return G_eval(a, scale, gsyms);
 		}
@@ -903,7 +888,7 @@ ex G_transform(const Gparameter& pendint, const Gparameter& a, int scale,
 	ex result = G_transform(empty, new_a, scale, gsyms, flag_trailing_zeros_only);
 	if (pendint.size() > 0) {
 		result *= trailing_zeros_G(convert_pending_integrals_G(pendint),
-			                   pendint.front(), gsyms);
+		                           pendint.front(), gsyms);
 	}
 
 	// other terms
@@ -913,7 +898,7 @@ ex G_transform(const Gparameter& pendint, const Gparameter& a, int scale,
 		// smallest in the middle
 		new_pendint.push_back(*changeit);
 		result -= trailing_zeros_G(convert_pending_integrals_G(new_pendint),
-			                   new_pendint.front(), gsyms)*
+		                           new_pendint.front(), gsyms)*
 		          G_transform(empty, new_a, scale, gsyms, flag_trailing_zeros_only);
 		int buffer = *changeit;
 		*changeit = *min_it;
@@ -923,7 +908,7 @@ ex G_transform(const Gparameter& pendint, const Gparameter& a, int scale,
 		--changeit;
 		new_pendint.push_back(*changeit);
 		result += trailing_zeros_G(convert_pending_integrals_G(new_pendint),
-			                   new_pendint.front(), gsyms)*
+		                           new_pendint.front(), gsyms)*
 		          G_transform(empty, new_a, scale, gsyms, flag_trailing_zeros_only);
 		*changeit = *min_it;
 		result -= G_transform(new_pendint, new_a, scale, gsyms, flag_trailing_zeros_only);
@@ -931,11 +916,11 @@ ex G_transform(const Gparameter& pendint, const Gparameter& a, int scale,
 		// smallest at the front
 		new_pendint.push_back(scale);
 		result += trailing_zeros_G(convert_pending_integrals_G(new_pendint),
-			                   new_pendint.front(), gsyms)*
+		                           new_pendint.front(), gsyms)*
 		          G_transform(empty, new_a, scale, gsyms, flag_trailing_zeros_only);
 		new_pendint.back() =  *changeit;
 		result -= trailing_zeros_G(convert_pending_integrals_G(new_pendint),
-			                   new_pendint.front(), gsyms)*
+		                           new_pendint.front(), gsyms)*
 		          G_transform(empty, new_a, scale, gsyms, flag_trailing_zeros_only);
 		*changeit = *min_it;
 		result += G_transform(new_pendint, new_a, scale, gsyms, flag_trailing_zeros_only);
@@ -947,8 +932,8 @@ ex G_transform(const Gparameter& pendint, const Gparameter& a, int scale,
 // shuffles the two parameter list a1 and a2 and calls G_transform for every term except
 // for the one that is equal to a_old
 ex shuffle_G(const Gparameter & a0, const Gparameter & a1, const Gparameter & a2,
-	     const Gparameter& pendint, const Gparameter& a_old, int scale,
-	     const exvector& gsyms, bool flag_trailing_zeros_only) 
+             const Gparameter& pendint, const Gparameter& a_old, int scale,
+             const exvector& gsyms, bool flag_trailing_zeros_only)
 {
 	if (a1.size()==0 && a2.size()==0) {
 		// veto the one configuration we don't want
@@ -988,13 +973,13 @@ ex shuffle_G(const Gparameter & a0, const Gparameter & a1, const Gparameter & a2
 // the parameter x, s and y must only contain numerics
 static cln::cl_N
 G_numeric(const std::vector<cln::cl_N>& x, const std::vector<int>& s,
-	  const cln::cl_N& y);
+          const cln::cl_N& y);
 
 // do acceleration transformation (hoelder convolution [BBB])
 // the parameter x, s and y must only contain numerics
 static cln::cl_N
 G_do_hoelder(std::vector<cln::cl_N> x, /* yes, it's passed by value */
-	     const std::vector<int>& s, const cln::cl_N& y)
+             const std::vector<int>& s, const cln::cl_N& y)
 {
 	cln::cl_N result;
 	const std::size_t size = x.size();
@@ -1149,22 +1134,22 @@ G_do_trafo(const std::vector<cln::cl_N>& x, const std::vector<int>& s,
 // the parameter x, s and y must only contain numerics
 static cln::cl_N
 G_numeric(const std::vector<cln::cl_N>& x, const std::vector<int>& s,
-	  const cln::cl_N& y)
+          const cln::cl_N& y)
 {
 	// check for convergence and necessary accelerations
 	bool need_trafo = false;
 	bool need_hoelder = false;
 	bool have_trailing_zero = false;
 	std::size_t depth = 0;
-	for (std::size_t i = 0; i < x.size(); ++i) {
-		if (!zerop(x[i])) {
+	for (auto & xi : x) {
+		if (!zerop(xi)) {
 			++depth;
-			const cln::cl_N x_y = abs(x[i]) - y;
+			const cln::cl_N x_y = abs(xi) - y;
 			if (instanceof(x_y, cln::cl_R_ring) &&
 			    realpart(x_y) < cln::least_negative_float(cln::float_format(Digits - 2)))
 				need_trafo = true;
 
-			if (abs(abs(x[i]/y) - 1) < 0.01)
+			if (abs(abs(xi/y) - 1) < 0.01)
 				need_hoelder = true;
 		}
 	}
@@ -1192,12 +1177,12 @@ G_numeric(const std::vector<cln::cl_N>& x, const std::vector<int>& s,
 	int mcount = 1;
 	int sign = 1;
 	cln::cl_N factor = y;
-	for (std::size_t i = 0; i < x.size(); ++i) {
-		if (zerop(x[i])) {
+	for (auto & xi : x) {
+		if (zerop(xi)) {
 			++mcount;
 		} else {
-			newx.push_back(factor/x[i]);
-			factor = x[i];
+			newx.push_back(factor/xi);
+			factor = xi;
 			m.push_back(mcount);
 			mcount = 1;
 			sign = -sign;
@@ -1216,7 +1201,7 @@ ex mLi_numeric(const lst& m, const lst& x)
 	std::vector<int> s;
 	s.reserve(x.nops());
 	cln::cl_N factor(1);
-	for (lst::const_iterator itm = m.begin(), itx = x.begin(); itm != m.end(); ++itm, ++itx) {
+	for (auto itm = m.begin(), itx = x.begin(); itm != m.end(); ++itm, ++itx) {
 		for (int i = 1; i < *itm; ++i) {
 			newx.push_back(cln::cl_N(0));
 			s.push_back(1);
@@ -1262,14 +1247,14 @@ static ex G2_evalf(const ex& x_, const ex& y)
 	std::vector<int> s;
 	s.reserve(x.nops());
 	bool all_zero = true;
-	for (lst::const_iterator it = x.begin(); it != x.end(); ++it) {
-		if (!(*it).info(info_flags::numeric)) {
+	for (const auto & it : x) {
+		if (!it.info(info_flags::numeric)) {
 			return G(x_, y).hold();
 		}
-		if (*it != _ex0) {
+		if (it != _ex0) {
 			all_zero = false;
 		}
-		if ( !ex_to<numeric>(*it).is_real() && ex_to<numeric>(*it).imag() < 0 ) {
+		if ( !ex_to<numeric>(it).is_real() && ex_to<numeric>(it).imag() < 0 ) {
 			s.push_back(-1);
 		}
 		else {
@@ -1281,8 +1266,8 @@ static ex G2_evalf(const ex& x_, const ex& y)
 	}
 	std::vector<cln::cl_N> xv;
 	xv.reserve(x.nops());
-	for (lst::const_iterator it = x.begin(); it != x.end(); ++it)
-		xv.push_back(ex_to<numeric>(*it).to_cl_N());
+	for (const auto & it : x)
+		xv.push_back(ex_to<numeric>(it).to_cl_N());
 	cln::cl_N result = G_numeric(xv, s, ex_to<numeric>(y).to_cl_N());
 	return numeric(result);
 }
@@ -1306,17 +1291,17 @@ static ex G2_eval(const ex& x_, const ex& y)
 	s.reserve(x.nops());
 	bool all_zero = true;
 	bool crational = true;
-	for (lst::const_iterator it = x.begin(); it != x.end(); ++it) {
-		if (!(*it).info(info_flags::numeric)) {
+	for (const auto & it : x) {
+		if (!it.info(info_flags::numeric)) {
 			return G(x_, y).hold();
 		}
-		if (!(*it).info(info_flags::crational)) {
+		if (!it.info(info_flags::crational)) {
 			crational = false;
 		}
-		if (*it != _ex0) {
+		if (it != _ex0) {
 			all_zero = false;
 		}
-		if ( !ex_to<numeric>(*it).is_real() && ex_to<numeric>(*it).imag() < 0 ) {
+		if ( !ex_to<numeric>(it).is_real() && ex_to<numeric>(it).imag() < 0 ) {
 			s.push_back(-1);
 		}
 		else {
@@ -1334,8 +1319,8 @@ static ex G2_eval(const ex& x_, const ex& y)
 	}
 	std::vector<cln::cl_N> xv;
 	xv.reserve(x.nops());
-	for (lst::const_iterator it = x.begin(); it != x.end(); ++it)
-		xv.push_back(ex_to<numeric>(*it).to_cl_N());
+	for (const auto & it : x)
+		xv.push_back(ex_to<numeric>(it).to_cl_N());
 	cln::cl_N result = G_numeric(xv, s, ex_to<numeric>(y).to_cl_N());
 	return numeric(result);
 }
@@ -1370,7 +1355,7 @@ static ex G3_evalf(const ex& x_, const ex& s_, const ex& y)
 	std::vector<int> sn;
 	sn.reserve(s.nops());
 	bool all_zero = true;
-	for (lst::const_iterator itx = x.begin(), its = s.begin(); itx != x.end(); ++itx, ++its) {
+	for (auto itx = x.begin(), its = s.begin(); itx != x.end(); ++itx, ++its) {
 		if (!(*itx).info(info_flags::numeric)) {
 			return G(x_, y).hold();
 		}
@@ -1406,8 +1391,8 @@ static ex G3_evalf(const ex& x_, const ex& s_, const ex& y)
 	}
 	std::vector<cln::cl_N> xn;
 	xn.reserve(x.nops());
-	for (lst::const_iterator it = x.begin(); it != x.end(); ++it)
-		xn.push_back(ex_to<numeric>(*it).to_cl_N());
+	for (const auto & it : x)
+		xn.push_back(ex_to<numeric>(it).to_cl_N());
 	cln::cl_N result = G_numeric(xn, sn, ex_to<numeric>(y).to_cl_N());
 	return numeric(result);
 }
@@ -1435,7 +1420,7 @@ static ex G3_eval(const ex& x_, const ex& s_, const ex& y)
 	sn.reserve(s.nops());
 	bool all_zero = true;
 	bool crational = true;
-	for (lst::const_iterator itx = x.begin(), its = s.begin(); itx != x.end(); ++itx, ++its) {
+	for (auto itx = x.begin(), its = s.begin(); itx != x.end(); ++itx, ++its) {
 		if (!(*itx).info(info_flags::numeric)) {
 			return G(x_, s_, y).hold();
 		}
@@ -1480,8 +1465,8 @@ static ex G3_eval(const ex& x_, const ex& s_, const ex& y)
 	}
 	std::vector<cln::cl_N> xn;
 	xn.reserve(x.nops());
-	for (lst::const_iterator it = x.begin(); it != x.end(); ++it)
-		xn.push_back(ex_to<numeric>(*it).to_cl_N());
+	for (const auto & it : x)
+		xn.push_back(ex_to<numeric>(it).to_cl_N());
 	cln::cl_N result = G_numeric(xn, sn, ex_to<numeric>(y).to_cl_N());
 	return numeric(result);
 }
@@ -1543,7 +1528,7 @@ static ex Li_evalf(const ex& m_, const ex& x_)
 			return Li(m_,x_).hold();
 		}
 
-		for (lst::const_iterator itm = m.begin(), itx = x.begin(); itm != m.end(); ++itm, ++itx) {
+		for (auto itm = m.begin(), itx = x.begin(); itm != m.end(); ++itm, ++itx) {
 			if (!(*itm).info(info_flags::posint)) {
 				return Li(m_, x_).hold();
 			}
@@ -1579,7 +1564,7 @@ static ex Li_eval(const ex& m_, const ex& x_)
 			bool is_zeta = true;
 			bool do_evalf = true;
 			bool crational = true;
-			for (lst::const_iterator itm = m.begin(), itx = x.begin(); itm != m.end(); ++itm, ++itx) {
+			for (auto itm = m.begin(), itx = x.begin(); itm != m.end(); ++itm, ++itx) {
 				if (!(*itm).info(info_flags::posint)) {
 					return Li(m_,x_).hold();
 				}
@@ -1601,14 +1586,14 @@ static ex Li_eval(const ex& m_, const ex& x_)
 			}
 			if (is_zeta) {
 				lst newx;
-				for (lst::const_iterator itx = x.begin(); itx != x.end(); ++itx) {
-					GINAC_ASSERT((*itx == _ex1) || (*itx == _ex_1));
+				for (const auto & itx : x) {
+					GINAC_ASSERT((itx == _ex1) || (itx == _ex_1));
 					// XXX: 1 + 0.0*I is considered equal to 1. However
 					// the former is a not automatically converted
 					// to a real number. Do the conversion explicitly
 					// to avoid the "numeric::operator>(): complex inequality"
 					// exception (and similar problems).
-					newx.append(*itx != _ex_1 ? _ex1 : _ex_1);
+					newx.append(itx != _ex_1 ? _ex1 : _ex_1);
 				}
 				return zeta(m_, newx);
 			}
@@ -1736,7 +1721,7 @@ static void Li_print_latex(const ex& m_, const ex& x_, const print_context& c)
 		x = lst{x_};
 	}
 	c.s << "\\mathrm{Li}_{";
-	lst::const_iterator itm = m.begin();
+	auto itm = m.begin();
 	(*itm).print(c);
 	itm++;
 	for (; itm != m.end(); itm++) {
@@ -1744,7 +1729,7 @@ static void Li_print_latex(const ex& m_, const ex& x_, const print_context& c)
 		(*itm).print(c);
 	}
 	c.s << "}(";
-	lst::const_iterator itx = x.begin();
+	auto itx = x.begin();
 	(*itx).print(c);
 	itx++;
 	for (; itx != x.end(); itx++) {
@@ -1800,8 +1785,8 @@ void fill_Yn(int n, const cln::float_format_t& prec)
 
 	if (n) {
 		std::vector<cln::cl_N> buf(initsize);
-		std::vector<cln::cl_N>::iterator it = buf.begin();
-		std::vector<cln::cl_N>::iterator itprev = Yn[n-1].begin();
+		auto it = buf.begin();
+		auto itprev = Yn[n-1].begin();
 		*it = (*itprev) / cln::cl_N(n+1) * one;
 		it++;
 		itprev++;
@@ -1815,7 +1800,7 @@ void fill_Yn(int n, const cln::float_format_t& prec)
 		Yn.push_back(buf);
 	} else {
 		std::vector<cln::cl_N> buf(initsize);
-		std::vector<cln::cl_N>::iterator it = buf.begin();
+		auto it = buf.begin();
 		*it = 1 * one;
 		it++;
 		for (int i=2; i<=initsize; i++) {
@@ -1835,7 +1820,7 @@ void make_Yn_longer(int newsize, const cln::float_format_t& prec)
 	cln::cl_N one = cln::cl_float(1, prec);
 
 	Yn[0].resize(newsize);
-	std::vector<cln::cl_N>::iterator it = Yn[0].begin();
+	auto it = Yn[0].begin();
 	it += ynlength;
 	for (int i=ynlength+1; i<=newsize; i++) {
 		*it = *(it-1) + 1 / cln::cl_N(i) * one;
@@ -1844,8 +1829,8 @@ void make_Yn_longer(int newsize, const cln::float_format_t& prec)
 
 	for (int n=1; n<ynsize; n++) {
 		Yn[n].resize(newsize);
-		std::vector<cln::cl_N>::iterator it = Yn[n].begin();
-		std::vector<cln::cl_N>::iterator itprev = Yn[n-1].begin();
+		auto it = Yn[n].begin();
+		auto itprev = Yn[n-1].begin();
 		it += ynlength;
 		itprev += ynlength;
 		for (int i=ynlength+n+1; i<=newsize+n; i++) {
@@ -2293,7 +2278,7 @@ REGISTER_FUNCTION(S,
 // anonymous namespace for helper functions
 namespace {
 
-	
+
 // regulates the pole (used by 1/x-transformation)
 symbol H_polesign("IMSIGN");
 
@@ -2305,19 +2290,19 @@ bool convert_parameter_H_to_Li(const lst& l, lst& m, lst& s, ex& pf)
 {
 	// expand parameter list
 	lst mexp;
-	for (lst::const_iterator it = l.begin(); it != l.end(); it++) {
-		if (*it > 1) {
-			for (ex count=*it-1; count > 0; count--) {
+	for (const auto & it : l) {
+		if (it > 1) {
+			for (ex count=it-1; count > 0; count--) {
 				mexp.append(0);
 			}
 			mexp.append(1);
-		} else if (*it < -1) {
-			for (ex count=*it+1; count < 0; count++) {
+		} else if (it < -1) {
+			for (ex count=it+1; count < 0; count++) {
 				mexp.append(0);
 			}
 			mexp.append(-1);
 		} else {
-			mexp.append(*it);
+			mexp.append(it);
 		}
 	}
 	
@@ -2325,19 +2310,19 @@ bool convert_parameter_H_to_Li(const lst& l, lst& m, lst& s, ex& pf)
 	pf = 1;
 	bool has_negative_parameters = false;
 	ex acc = 1;
-	for (lst::const_iterator it = mexp.begin(); it != mexp.end(); it++) {
-		if (*it == 0) {
+	for (const auto & it : mexp) {
+		if (it == 0) {
 			acc++;
 			continue;
 		}
-		if (*it > 0) {
-			m.append((*it+acc-1) * signum);
+		if (it > 0) {
+			m.append((it+acc-1) * signum);
 		} else {
-			m.append((*it-acc+1) * signum);
+			m.append((it-acc+1) * signum);
 		}
 		acc = 1;
-		signum = *it;
-		pf *= *it;
+		signum = it;
+		pf *= it;
 		if (pf < 0) {
 			has_negative_parameters = true;
 		}
@@ -2370,7 +2355,7 @@ struct map_trafo_H_convert_to_Li : public map_function
 			if (name == "H") {
 				lst parameter;
 				if (is_a<lst>(e.op(0))) {
-						parameter = ex_to<lst>(e.op(0));
+					parameter = ex_to<lst>(e.op(0));
 				} else {
 					parameter = lst{e.op(0)};
 				}
@@ -2409,7 +2394,7 @@ struct map_trafo_H_convert_to_zeta : public map_function
 			if (name == "H") {
 				lst parameter;
 				if (is_a<lst>(e.op(0))) {
-						parameter = ex_to<lst>(e.op(0));
+					parameter = ex_to<lst>(e.op(0));
 				} else {
 					parameter = lst{e.op(0)};
 				}
@@ -2455,7 +2440,7 @@ struct map_trafo_H_reduce_trailing_zeros : public map_function
 					}
 					
 					//
-					lst::const_iterator it = parameter.begin();
+					auto it = parameter.begin();
 					while ((it != parameter.end()) && (*it == 0)) {
 						it++;
 					}
@@ -2517,8 +2502,8 @@ ex convert_H_to_zeta(const lst& m)
 lst convert_parameter_Li_to_H(const lst& m, const lst& x, ex& pf)
 {
 	lst res;
-	lst::const_iterator itm = m.begin();
-	lst::const_iterator itx = ++x.begin();
+	auto itm = m.begin();
+	auto itx = ++x.begin();
 	int signum = 1;
 	pf = _ex1;
 	res.append(*itm);
@@ -3213,20 +3198,20 @@ static ex H_evalf(const ex& x1, const ex& x2)
 		// ... and expand parameter notation
 		bool has_minus_one = false;
 		lst m;
-		for (lst::const_iterator it = morg.begin(); it != morg.end(); it++) {
-			if (*it > 1) {
-				for (ex count=*it-1; count > 0; count--) {
+		for (const auto & it : morg) {
+			if (it > 1) {
+				for (ex count=it-1; count > 0; count--) {
 					m.append(0);
 				}
 				m.append(1);
-			} else if (*it <= -1) {
-				for (ex count=*it+1; count < 0; count++) {
+			} else if (it <= -1) {
+				for (ex count=it+1; count < 0; count++) {
 					m.append(0);
 				}
 				m.append(-1);
 				has_minus_one = true;
 			} else {
-				m.append(*it);
+				m.append(it);
 			}
 		}
 
@@ -3239,7 +3224,7 @@ static ex H_evalf(const ex& x1, const ex& x2)
 				// negative parameters -> s_lst is filled
 				std::vector<int> m_int;
 				std::vector<cln::cl_N> x_cln;
-				for (lst::const_iterator it_int = m_lst.begin(), it_cln = s_lst.begin(); 
+				for (auto it_int = m_lst.begin(), it_cln = s_lst.begin();
 				     it_int != m_lst.end(); it_int++, it_cln++) {
 					m_int.push_back(ex_to<numeric>(*it_int).to_int());
 					x_cln.push_back(ex_to<numeric>(*it_cln).to_cl_N());
@@ -3253,8 +3238,8 @@ static ex H_evalf(const ex& x1, const ex& x2)
 					return Li(m_lst.op(0), x2).evalf();
 				}
 				std::vector<int> m_int;
-				for (lst::const_iterator it = m_lst.begin(); it != m_lst.end(); it++) {
-					m_int.push_back(ex_to<numeric>(*it).to_int());
+				for (const auto & it : m_lst) {
+					m_int.push_back(ex_to<numeric>(it).to_int());
 				}
 				return numeric(H_do_sum(m_int, x));
 			}
@@ -3345,8 +3330,8 @@ static ex H_eval(const ex& m_, const ex& x)
 		pos1 = *m.begin();
 		p = _ex1;
 	}
-	for (lst::const_iterator it = ++m.begin(); it != m.end(); it++) {
-		if ((*it).info(info_flags::integer)) {
+	for (auto it = ++m.begin(); it != m.end(); it++) {
+		if (it->info(info_flags::integer)) {
 			if (step == 0) {
 				if (*it > _ex1) {
 					if (pos1 == _ex0) {
@@ -3473,7 +3458,7 @@ static void H_print_latex(const ex& m_, const ex& x, const print_context& c)
 		m = lst{m_};
 	}
 	c.s << "\\mathrm{H}_{";
-	lst::const_iterator itm = m.begin();
+	auto itm = m.begin();
 	(*itm).print(c);
 	itm++;
 	for (; itm != m.end(); itm++) {
@@ -3592,7 +3577,7 @@ static void calc_f(std::vector<std::vector<cln::cl_N>>& f_kj,
 {
 	cln::cl_N t0, t1, t2, t3, t4;
 	int i, j, k;
-	std::vector<std::vector<cln::cl_N>>::iterator it = f_kj.begin();
+	auto it = f_kj.begin();
 	cln::cl_F one = cln::cl_float(1, cln::float_format(Digits));
 	
 	t0 = cln::exp(-lambda);
@@ -3869,8 +3854,8 @@ static ex zeta1_evalf(const ex& x)
 		std::vector<int> r(count);
 
 		// check parameters and convert them
-		lst::const_iterator it1 = xlst.begin();
-		std::vector<int>::iterator it2 = r.begin();
+		auto it1 = xlst.begin();
+		auto it2 = r.begin();
 		do {
 			if (!(*it1).info(info_flags::posint)) {
 				return zeta(x).hold();
@@ -3965,7 +3950,7 @@ static void zeta1_print_latex(const ex& m_, const print_context& c)
 	c.s << "\\zeta(";
 	if (is_a<lst>(m_)) {
 		const lst& m = ex_to<lst>(m_);
-		lst::const_iterator it = m.begin();
+		auto it = m.begin();
 		(*it).print(c);
 		it++;
 		for (; it != m.end(); it++) {
@@ -4009,10 +3994,10 @@ static ex zeta2_evalf(const ex& x, const ex& s)
 		std::vector<int> si(count);
 
 		// check parameters and convert them
-		lst::const_iterator it_xread = xlst.begin();
-		lst::const_iterator it_sread = slst.begin();
-		std::vector<int>::iterator it_xwrite = xi.begin();
-		std::vector<int>::iterator it_swrite = si.begin();
+		auto it_xread = xlst.begin();
+		auto it_sread = slst.begin();
+		auto it_xwrite = xi.begin();
+		auto it_swrite = si.begin();
 		do {
 			if (!(*it_xread).info(info_flags::posint)) {
 				return zeta(x, s).hold();
@@ -4046,8 +4031,8 @@ static ex zeta2_eval(const ex& m, const ex& s_)
 {
 	if (is_exactly_a<lst>(s_)) {
 		const lst& s = ex_to<lst>(s_);
-		for (lst::const_iterator it = s.begin(); it != s.end(); it++) {
-			if ((*it).info(info_flags::positive)) {
+		for (const auto & it : s) {
+			if (it.info(info_flags::positive)) {
 				continue;
 			}
 			return zeta(m, s_).hold();
@@ -4091,8 +4076,8 @@ static void zeta2_print_latex(const ex& m_, const ex& s_, const print_context& c
 		s = lst{s_};
 	}
 	c.s << "\\zeta(";
-	lst::const_iterator itm = m.begin();
-	lst::const_iterator its = s.begin();
+	auto itm = m.begin();
+	auto its = s.begin();
 	if (*its < 0) {
 		c.s << "\\overline{";
 		(*itm).print(c);

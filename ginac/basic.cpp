@@ -373,7 +373,7 @@ ex basic::collect(const ex & s, bool distributed) const
 					pre_coeff = pre_coeff.coeff(li, cexp);
 					key *= pow(li, cexp);
 				}
-				exmap::iterator ci = cmap.find(key);
+				auto ci = cmap.find(key);
 				if (ci != cmap.end())
 					ci->second += pre_coeff;
 				else

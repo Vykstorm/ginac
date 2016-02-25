@@ -281,7 +281,7 @@ int pseries::compare_same_type(const basic & other) const
 		return cmpval;
 	
 	// ...and if that failed the individual elements
-	epvector::const_iterator it = seq.begin(), o_it = o.seq.begin();
+	auto it = seq.begin(), o_it = o.seq.begin();
 	while (it!=seq.end() && o_it!=o.seq.end()) {
 		cmpval = it->compare(*o_it);
 		if (cmpval)
