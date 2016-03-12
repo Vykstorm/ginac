@@ -185,9 +185,7 @@ public:
 	// rational functions
 	ex normal() const;
 	ex to_rational(exmap & repl) const;
-	ex to_rational(lst & repl_lst) const;
 	ex to_polynomial(exmap & repl) const;
-	ex to_polynomial(lst & repl_lst) const;
 	ex numer() const;
 	ex denom() const;
 	ex numer_denom() const;
@@ -740,17 +738,11 @@ inline ex numer_denom(const ex & thisex)
 inline ex normal(const ex & thisex)
 { return thisex.normal(); }
 
-inline ex to_rational(const ex & thisex, lst & repl_lst)
-{ return thisex.to_rational(repl_lst); }
-
 inline ex to_rational(const ex & thisex, exmap & repl)
 { return thisex.to_rational(repl); }
 
 inline ex to_polynomial(const ex & thisex, exmap & repl)
 { return thisex.to_polynomial(repl); }
-
-inline ex to_polynomial(const ex & thisex, lst & repl_lst)
-{ return thisex.to_polynomial(repl_lst); }
 
 inline ex collect(const ex & thisex, const ex & s, bool distributed = false)
 { return thisex.collect(s, distributed); }

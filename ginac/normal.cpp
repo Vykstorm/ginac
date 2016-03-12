@@ -2398,45 +2398,9 @@ ex ex::to_rational(exmap & repl) const
 	return bp->to_rational(repl);
 }
 
-// GiNaC 1.1 compatibility function
-ex ex::to_rational(lst & repl_lst) const
-{
-	// Convert lst to exmap
-	exmap m;
-	for (auto & it : repl_lst)
-		m.insert(std::make_pair(it.op(0), it.op(1)));
-
-	ex ret = bp->to_rational(m);
-
-	// Convert exmap back to lst
-	repl_lst.remove_all();
-	for (auto & it : m)
-		repl_lst.append(it.first == it.second);
-
-	return ret;
-}
-
 ex ex::to_polynomial(exmap & repl) const
 {
 	return bp->to_polynomial(repl);
-}
-
-// GiNaC 1.1 compatibility function
-ex ex::to_polynomial(lst & repl_lst) const
-{
-	// Convert lst to exmap
-	exmap m;
-	for (auto & it : repl_lst)
-		m.insert(std::make_pair(it.op(0), it.op(1)));
-
-	ex ret = bp->to_polynomial(m);
-
-	// Convert exmap back to lst
-	repl_lst.remove_all();
-	for (auto & it : m)
-		repl_lst.append(it.first == it.second);
-
-	return ret;
 }
 
 /** Default implementation of ex::to_rational(). This replaces the object with
