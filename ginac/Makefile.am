@@ -9,7 +9,7 @@ libginac_la_SOURCES = add.cpp archive.cpp basic.cpp clifford.cpp color.cpp \
   operators.cpp power.cpp registrar.cpp relational.cpp remember.cpp \
   pseries.cpp print.cpp symbol.cpp symmetry.cpp tensor.cpp \
   utils.cpp wildcard.cpp \
-  remember.h utils.h crc32.h hash_seed.h compiler.h \
+  remember.h utils.h crc32.h hash_seed.h \
   parser/parse_binop_rhs.cpp \
   parser/parser.cpp \
   parser/parse_context.cpp \
@@ -66,7 +66,7 @@ ginacinclude_HEADERS = ginac.h add.h archive.h assertion.h basic.h class_info.h 
   exprseq.h fail.h factor.h fderivative.h flags.h function.h hash_map.h idx.h indexed.h \
   inifcns.h integral.h lst.h matrix.h mul.h ncmul.h normal.h numeric.h operators.h \
   power.h print.h pseries.h ptr.h registrar.h relational.h structure.h \
-  symbol.h symmetry.h tensor.h version.h wildcard.h \
+  symbol.h symmetry.h tensor.h version.h wildcard.h compiler.h \
   parser/parser.h \
   parser/parse_context.h
 

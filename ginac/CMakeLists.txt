@@ -71,6 +71,7 @@ set(ginaclib_public_headers
     class_info.h
     clifford.h
     color.h
+    compiler.h
     constant.h
     container.h
     ex.h
@@ -116,7 +117,6 @@ set(ginaclib_private_headers
     utils.h
     crc32.h
     hash_seed.h
-    compiler.h
     parser/lexer.h
     parser/debug.h
     polynomial/gcd_euclid.h
