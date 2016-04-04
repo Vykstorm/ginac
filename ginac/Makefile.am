@@ -58,6 +58,7 @@ polynomial/smod_helpers.h \
 polynomial/debug.h
 
 libginac_la_LDFLAGS = -version-info $(LT_VERSION_INFO)
+libginac_la_CPPFLAGS = -DLIBEXECDIR='"$(libexecdir)/"'
 libginac_la_LIBADD = $(DL_LIBS)
 ginacincludedir = $(includedir)/ginac
 ginacinclude_HEADERS = ginac.h add.h archive.h assertion.h basic.h class_info.h \

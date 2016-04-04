@@ -140,7 +140,7 @@ public:
 	 */
 	void compile_src_file(const std::string filename, bool clean_up)
 	{
-		std::string strcompile = "ginac-excompiler " + filename;
+		std::string strcompile = LIBEXECDIR "ginac-excompiler " + filename;
 		if (system(strcompile.c_str())) {
 			throw std::runtime_error("excompiler::compile_src_file: error compiling source file!");
 		}

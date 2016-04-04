@@ -171,6 +171,10 @@ find_program(FIG2DEV fig2dev)
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/config.cmake.in ${CMAKE_CURRENT_BINARY_DIR}/config.h)
 add_definitions(-DHAVE_CONFIG_H)
 
+if (NOT LIBEXECDIR)
+	set (LIBEXECDIR "${CMAKE_INSTALL_PREFIX}/libexec")
+endif()
+
 add_subdirectory(ginac)
 add_subdirectory(tools)
 add_subdirectory(check)

@@ -12,5 +12,5 @@ if (CMAKE_COMPILER_IS_GNUCC)
           "${CMAKE_CURRENT_BINARY_DIR}/ginac-excompiler"
 	)
 
-	install(PROGRAMS ginac-excompiler DESTINATION "${BIN_INSTALL_DIR}")
-endif  (CMAKE_COMPILER_IS_GNUCC)
+	install(PROGRAMS ginac-excompiler DESTINATION "${LIBEXECDIR}")
+endif (CMAKE_COMPILER_IS_GNUCC)

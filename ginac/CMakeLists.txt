@@ -147,6 +147,7 @@ set(ginaclib_private_headers
 )
 
 add_library(ginac ${ginaclib_sources})
+add_definitions(-DLIBEXECDIR="${LIBEXECDIR}/")
 set_target_properties(ginac PROPERTIES
 	SOVERSION ${ginaclib_soversion}
 	VERSION ${ginaclib_version})
