@@ -179,7 +179,7 @@ public:
 /** Check if obj is a T, including base classes. */
 template <class T>
 inline bool is_a(const print_context & obj)
-{ return dynamic_cast<const T *>(&obj) != 0; }
+{ return dynamic_cast<const T *>(&obj) != nullptr; }
 
 
 class basic;
@@ -199,9 +199,9 @@ public:
 	typedef void (*F)(const T &, const C &, unsigned);
 
 	print_ptrfun_handler(F f_) : f(f_) {}
-	print_ptrfun_handler *duplicate() const { return new print_ptrfun_handler(*this); }
+	print_ptrfun_handler *duplicate() const override { return new print_ptrfun_handler(*this); }
 
-	void operator()(const basic & obj, const print_context & c, unsigned level) const
+	void operator()(const basic & obj, const print_context & c, unsigned level) const override
 	{
 		// Call the supplied function
 		f(dynamic_cast<const T &>(obj), dynamic_cast<const C &>(c), level);
@@ -218,9 +218,9 @@ public:
 	typedef void (T::*F)(const C & c, unsigned level) const;
 
 	print_memfun_handler(F f_) : f(f_) {}
-	print_memfun_handler *duplicate() const { return new print_memfun_handler(*this); }
+	print_memfun_handler *duplicate() const override { return new print_memfun_handler(*this); }
 
-	void operator()(const basic & obj, const print_context & c, unsigned level) const
+	void operator()(const basic & obj, const print_context & c, unsigned level) const override
 	{
 		// Call the supplied member function
 		return (dynamic_cast<const T &>(obj).*f)(dynamic_cast<const C &>(c), level);
@@ -238,9 +238,9 @@ private:
  *  implements the actual function call. */
 class print_functor {
 public:
-	print_functor() : impl(0) {}
+	print_functor() : impl(nullptr) {}
 	print_functor(const print_functor & other) : impl(other.impl.get() ? other.impl->duplicate() : 0) {}
-	print_functor(std::auto_ptr<print_functor_impl> impl_) : impl(impl_) {}
+	print_functor(std::unique_ptr<print_functor_impl> impl_) : impl(std::move(impl_)) {}
 
 	template <class T, class C>
 	print_functor(void f(const T &, const C &, unsigned)) : impl(new print_ptrfun_handler<T, C>(f)) {}
@@ -252,7 +252,7 @@ public:
 	{
 		if (this != &other) {
 			print_functor_impl *p = other.impl.get();
-			impl.reset(p ? other.impl->duplicate() : 0);
+			impl.reset(p ? other.impl->duplicate() : nullptr);
 		}
 		return *this;
 	}
@@ -265,7 +265,7 @@ public:
 	bool is_valid() const { return impl.get(); }
 
 private:
-	std::auto_ptr<print_functor_impl> impl;
+	std::unique_ptr<print_functor_impl> impl;
 };
 
 

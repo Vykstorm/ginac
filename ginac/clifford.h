@@ -46,21 +46,21 @@ public:
 	clifford(const ex & b, const ex & mu,  const ex & metr, unsigned char rl = 0, int comm_sign = -1);
 
 	// internal constructors
-	clifford(unsigned char rl, const ex & metr, int comm_sign, const exvector & v, bool discardable = false);
-	clifford(unsigned char rl, const ex & metr, int comm_sign, std::auto_ptr<exvector> vp);
+	clifford(unsigned char rl, const ex & metr, int comm_sign, const exvector & v);
+	clifford(unsigned char rl, const ex & metr, int comm_sign, exvector && v);
 
 	// functions overriding virtual functions from base classes
 public:
-	unsigned precedence() const { return 65; }
-	void archive(archive_node& n) const;
-	void read_archive(const archive_node& n, lst& sym_lst);
+	unsigned precedence() const override { return 65; }
+	void archive(archive_node& n) const override;
+	void read_archive(const archive_node& n, lst& sym_lst) override;
 protected:
-	ex eval_ncmul(const exvector & v) const;
-	bool match_same_type(const basic & other) const;
-	ex thiscontainer(const exvector & v) const;
-	ex thiscontainer(std::auto_ptr<exvector> vp) const;
-	unsigned return_type() const { return return_types::noncommutative; }
-	return_type_t return_type_tinfo() const;
+	ex eval_ncmul(const exvector & v) const override;
+	bool match_same_type(const basic & other) const override;
+	ex thiscontainer(const exvector & v) const override;
+	ex thiscontainer(exvector && v) const override;
+	unsigned return_type() const override { return return_types::noncommutative; }
+	return_type_t return_type_tinfo() const override;
 	// non-virtual functions in this class
 public:
 	unsigned char get_representation_label() const { return representation_label; }
@@ -69,14 +69,15 @@ public:
 	bool same_metric(const ex & other) const;
 	int get_commutator_sign() const { return commutator_sign; } //**< See the member variable commutator_sign */
 
-	inline size_t nops() const {return inherited::nops() + 1; }
-	ex op(size_t i) const;
-	ex & let_op(size_t i);
-	ex subs(const exmap & m, unsigned options = 0) const;
+	inline size_t nops() const override {return inherited::nops() + 1; }
+	ex op(size_t i) const override;
+	ex & let_op(size_t i) override;
+	ex subs(const exmap & m, unsigned options = 0) const override;
 
 protected:
 	void do_print_dflt(const print_dflt & c, unsigned level) const;
 	void do_print_latex(const print_latex & c, unsigned level) const;
+	void do_print_tree(const print_tree & c, unsigned level) const;
 
 	// member variables
 protected:
@@ -106,7 +107,7 @@ class cliffordunit : public tensor
 
 	// functions overriding virtual functions from base classes
 public:
-	bool contract_with(exvector::iterator self, exvector::iterator other, exvector & v) const;
+	bool contract_with(exvector::iterator self, exvector::iterator other, exvector & v) const override;
 
 	// non-virtual functions in this class
 protected:
@@ -123,7 +124,7 @@ class diracgamma : public cliffordunit
 
 	// functions overriding virtual functions from base classes
 public:
-	bool contract_with(exvector::iterator self, exvector::iterator other, exvector & v) const;
+	bool contract_with(exvector::iterator self, exvector::iterator other, exvector & v) const override;
 
 	// non-virtual functions in this class
 protected:
@@ -140,7 +141,7 @@ class diracgamma5 : public tensor
 	GINAC_DECLARE_REGISTERED_CLASS(diracgamma5, tensor)
 
 	// functions overriding virtual functions from base classes
-	ex conjugate() const;
+	ex conjugate() const override;
 
 	// non-virtual functions in this class
 protected:
@@ -157,7 +158,7 @@ class diracgammaL : public tensor
 	GINAC_DECLARE_REGISTERED_CLASS(diracgammaL, tensor)
 
 	// functions overriding virtual functions from base classes
-	ex conjugate() const;
+	ex conjugate() const override;
 
 	// non-virtual functions in this class
 protected:
@@ -174,7 +175,7 @@ class diracgammaR : public tensor
 	GINAC_DECLARE_REGISTERED_CLASS(diracgammaR, tensor)
 
 	// functions overriding virtual functions from base classes
-	ex conjugate() const;
+	ex conjugate() const override;
 
 	// non-virtual functions in this class
 protected:

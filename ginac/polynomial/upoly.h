@@ -169,7 +169,7 @@ template<typename T> bool divide(T& p, const typename T::value_type& c)
 
 // Convert Z[x] -> Z/p[x]
 
-static void
+static inline void
 make_umodpoly(umodpoly& up, const upoly& p, const cln::cl_modint_ring& R)
 {
 	for (std::size_t i = p.size(); i-- != 0; )

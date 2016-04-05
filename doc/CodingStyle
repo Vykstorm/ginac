@@ -27,7 +27,7 @@ please try to follow these rules. It will make our (and your) lives easier. :-)
 ----------------------
 
 Any code in GiNaC should comply to the C++ standard, as defined by ISO/IEC
-14882:1998(E). Don't use compiler-specific language extensions unless they
+14882:2011(E). Don't use compiler-specific language extensions unless they
 are surrounded by appropriate "#ifdef"s, and you also provide a compliant
 version of the code in question for other compilers.
 
@@ -208,12 +208,10 @@ after (or before, in the case of postfix '++' and '--') unary operators:
 	x = -(y + z) / 2;
 
 There are no spaces around the '<' and '>' used to designate template
-parameters. Unfortunately, a design flaw in C++ requires putting a space
-between two consecutive closing '>'s. We suggest that in this case you also
-put a space after the opening '<':
+parameters:
 
 	vector<int> vi;
-	vector< list<int> > vli;
+	vector<list<int>> vli;
 
 '*' and '&' in the declaration of pointer-to and reference-to variables
 have a space before, but not after them:

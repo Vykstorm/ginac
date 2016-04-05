@@ -36,7 +36,7 @@ namespace GiNaC {
 class ex;
 class archive_node;
 
-template <template <class T, class = std::allocator<T> > class> class container;
+template <template <class T, class = std::allocator<T>> class> class container;
 typedef container<std::list> lst;
 
 /** To distinguish between different kinds of non-commutative objects */
@@ -149,11 +149,16 @@ public: \
  *  registry (mainly needed for archiving). */
 #define GINAC_DECLARE_REGISTERED_CLASS(classname, supername) \
 	GINAC_DECLARE_REGISTERED_CLASS_NO_CTORS(classname, supername) \
+	template<class B, typename... Args> friend B & dynallocate(Args &&... args); \
 public: \
 	classname(); \
-	virtual classname * duplicate() const { return new classname(*this); } \
+	classname * duplicate() const override { \
+		classname * bp = new classname(*this); \
+		bp->setflag(status_flags::dynallocated); \
+		return bp; \
+	} \
 	\
-	virtual void accept(GiNaC::visitor & v) const \
+	void accept(GiNaC::visitor & v) const override \
 	{ \
 		if (visitor *p = dynamic_cast<visitor *>(&v)) \
 			p->visit(*this); \
@@ -161,7 +166,7 @@ public: \
 			inherited::accept(v); \
 	} \
 protected: \
-	virtual int compare_same_type(const GiNaC::basic & other) const; \
+	int compare_same_type(const GiNaC::basic & other) const override; \
 private:
 
 

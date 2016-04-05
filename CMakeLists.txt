@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.6)
+cmake_minimum_required(VERSION 3.1)
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/modules")
 
 project(GiNaC)
@@ -25,11 +25,12 @@ add_custom_target(info ALL)
 add_custom_target(html)
 add_custom_target(pdf)
 
+set (CMAKE_CXX_STANDARD 11)
+
 find_package(CLN 1.2.2 REQUIRED)
 include_directories(${CLN_INCLUDE_DIR})
 
 include(CheckIncludeFile)
-check_include_file("stdint.h" HAVE_STDINT_H)
 check_include_file("unistd.h" HAVE_UNISTD_H)
 
 include_directories(${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_CURRENT_BINARY_DIR}/ginac)
@@ -169,6 +170,10 @@ find_program(FIG2DEV fig2dev)
 
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/config.cmake.in ${CMAKE_CURRENT_BINARY_DIR}/config.h)
 add_definitions(-DHAVE_CONFIG_H)
+
+if (NOT LIBEXECDIR)
+	set (LIBEXECDIR "${CMAKE_INSTALL_PREFIX}/libexec")
+endif()
 
 add_subdirectory(ginac)
 add_subdirectory(tools)

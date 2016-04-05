@@ -98,7 +98,7 @@ static ex exp_expand(const ex & arg, unsigned options)
 		for (const_iterator i = exp_arg.begin(); i != exp_arg.end(); ++i)
 			prodseq.push_back(exp(*i));
 
-		return (new mul(prodseq))->setflag(status_flags::dynallocated | status_flags::expanded);
+		return dynallocate<mul>(prodseq).setflag(status_flags::expanded);
 	}
 
 	return exp(exp_arg).hold();
@@ -242,25 +242,19 @@ static ex log_series(const ex &arg,
 			// in this case n more (or less) terms are needed
 			// (sadly, to generate them, we have to start from the beginning)
 			if (n == 0 && coeff == 1) {
-				epvector epv;
-				ex acc = (new pseries(rel, epv))->setflag(status_flags::dynallocated);
-				epv.reserve(2);
-				epv.push_back(expair(-1, _ex0));
-				epv.push_back(expair(Order(_ex1), order));
-				ex rest = pseries(rel, epv).add_series(argser);
+				ex rest = pseries(rel, epvector{expair(-1, _ex0), expair(Order(_ex1), order)}).add_series(argser);
+				ex acc = dynallocate<pseries>(rel, epvector());
 				for (int i = order-1; i>0; --i) {
-					epvector cterm;
-					cterm.reserve(1);
-					cterm.push_back(expair(i%2 ? _ex1/i : _ex_1/i, _ex0));
-					acc = pseries(rel, cterm).add_series(ex_to<pseries>(acc));
+					epvector cterm { expair(i%2 ? _ex1/i : _ex_1/i, _ex0) };
+					acc = pseries(rel, std::move(cterm)).add_series(ex_to<pseries>(acc));
 					acc = (ex_to<pseries>(rest)).mul_series(ex_to<pseries>(acc));
 				}
 				return acc;
 			}
 			const ex newarg = ex_to<pseries>((arg/coeff).series(rel, order+n, options)).shift_exponents(-n).convert_to_poly(true);
-			return pseries(rel, seq).add_series(ex_to<pseries>(log(newarg).series(rel, order, options)));
+			return pseries(rel, std::move(seq)).add_series(ex_to<pseries>(log(newarg).series(rel, order, options)));
 		} else  // it was a monomial
-			return pseries(rel, seq);
+			return pseries(rel, std::move(seq));
 	}
 	if (!(options & series_options::suppress_branchcut) &&
 	     arg_pt.info(info_flags::negative)) {
@@ -272,9 +266,12 @@ static ex log_series(const ex &arg,
 		const symbol foo;
 		const ex replarg = series(log(arg), s==foo, order).subs(foo==point, subs_options::no_pattern);
 		epvector seq;
-		seq.push_back(expair(-I*csgn(arg*I)*Pi, _ex0));
+		if (order > 0) {
+			seq.reserve(2);
+			seq.push_back(expair(-I*csgn(arg*I)*Pi, _ex0));
+		}
 		seq.push_back(expair(Order(_ex1), order));
-		return series(replarg - I*Pi + pseries(rel, seq), rel, order);
+		return series(replarg - I*Pi + pseries(rel, std::move(seq)), rel, order);
 	}
 	throw do_taylor();  // caught by function::series()
 }
@@ -936,9 +933,12 @@ static ex atan_series(const ex &arg,
 		else
 			Order0correction += log((I*arg_pt+_ex1)/(I*arg_pt+_ex_1))*I*_ex1_2;
 		epvector seq;
-		seq.push_back(expair(Order0correction, _ex0));
+		if (order > 0) {
+			seq.reserve(2);
+			seq.push_back(expair(Order0correction, _ex0));
+		}
 		seq.push_back(expair(Order(_ex1), order));
-		return series(replarg - pseries(rel, seq), rel, order);
+		return series(replarg - pseries(rel, std::move(seq)), rel, order);
 	}
 	throw do_taylor();
 }
@@ -1543,9 +1543,12 @@ static ex atanh_series(const ex &arg,
 		else
 			Order0correction += log((arg_pt+_ex1)/(arg_pt+_ex_1))*_ex_1_2;
 		epvector seq;
-		seq.push_back(expair(Order0correction, _ex0));
+		if (order > 0) {
+			seq.reserve(2);
+			seq.push_back(expair(Order0correction, _ex0));
+		}
 		seq.push_back(expair(Order(_ex1), order));
-		return series(replarg - pseries(rel, seq), rel, order);
+		return series(replarg - pseries(rel, std::move(seq)), rel, order);
 	}
 	throw do_taylor();
 }

@@ -76,7 +76,7 @@ public:
 	 */
 	~excompiler()
 	{
-		for (std::vector<filedesc>::const_iterator it = filelist.begin(); it != filelist.end(); ++it) {
+		for (auto it = filelist.begin(); it != filelist.end(); ++it) {
 			clean_up(it);
 		}
 	}
@@ -140,7 +140,7 @@ public:
 	 */
 	void compile_src_file(const std::string filename, bool clean_up)
 	{
-		std::string strcompile = "ginac-excompiler " + filename;
+		std::string strcompile = LIBEXECDIR "ginac-excompiler " + filename;
 		if (system(strcompile.c_str())) {
 			throw std::runtime_error("excompiler::compile_src_file: error compiling source file!");
 		}
@@ -153,9 +153,9 @@ public:
 	 */
 	void* link_so_file(const std::string filename, bool clean_up)
 	{
-		void* module = NULL;
+		void* module = nullptr;
 		module = dlopen(filename.c_str(), RTLD_NOW);
-		if (module == NULL)	{
+		if (module == nullptr)	{
 			throw std::runtime_error("excompiler::link_so_file: could not open compiled module!");
 		}
 
@@ -169,7 +169,7 @@ public:
 	 */
 	void unlink(const std::string filename)
 	{
-		for (std::vector<filedesc>::iterator it = filelist.begin(); it != filelist.end();) {
+		for (auto it = filelist.begin(); it != filelist.end();) {
 			if (it->name == filename) {
 				clean_up(it);
 				it = filelist.erase(it);
@@ -195,7 +195,7 @@ static excompiler global_excompiler;
 void compile_ex(const ex& expr, const symbol& sym, FUNCP_1P& fp, const std::string filename)
 {
 	symbol x("x");
-	ex expr_with_x = expr.subs(lst(sym==x));
+	ex expr_with_x = expr.subs(lst{sym==x});
 
 	std::ofstream ofs;
 	std::string unique_filename = filename;
@@ -220,7 +220,7 @@ void compile_ex(const ex& expr, const symbol& sym, FUNCP_1P& fp, const std::stri
 void compile_ex(const ex& expr, const symbol& sym1, const symbol& sym2, FUNCP_2P& fp, const std::string filename)
 {
 	symbol x("x"), y("y");
-	ex expr_with_xy = expr.subs(lst(sym1==x, sym2==y));
+	ex expr_with_xy = expr.subs(lst{sym1==x, sym2==y});
 
 	std::ofstream ofs;
 	std::string unique_filename = filename;

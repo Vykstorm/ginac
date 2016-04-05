@@ -73,23 +73,10 @@ static unsigned exam_paranoia2()
 	f = e*y;
 	g = f - e*y;
 
-	// After .expand(), g should be zero:
-	if (!g.expand().is_zero()) {
-		clog << "e = (x + z*x); f = e*y; expand(f - e*y) erroneously returned "
-		     << g.expand() << endl;
-		++result;
-	}
 	// After .eval(), g should be zero:
-	if (!g.eval().is_zero()) {
-		clog << "e = (x + z*x); f = e*y; eval(f - e*y) erroneously returned "
-		     << g.eval() << endl;
-		++result;
-	}
-	// This actually worked already back in April 1999.
-	// But we are *very* paranoic!
-	if (!g.expand().eval().is_zero()) {
-		clog << "e = (x + z*x); f = e*y; eval(expand(f - e*y)) erroneously returned "
-		     << g.expand().eval() << endl;
+	if (!g.is_zero()) {
+		clog << "e = (x + z*x); f = e*y; g = (f - e*y) erroneously returned g == "
+		     << g << endl;
 		++result;
 	}
 
@@ -113,16 +100,6 @@ static unsigned exam_paranoia3()
 		     << f << endl;
 		++result;
 	}
-	if (!f.eval().is_equal(y)) {
-		clog << "e = x*y - y; eval(e.subs(x == 2)) erroneously returned "
-		     << f.eval() << endl;
-		++result;
-	}
-	if (!f.expand().is_equal(y)) {
-		clog << "e = x*y - y; expand(e.subs(x == 2)) erroneously returned "
-		     << f.expand() << endl;
-		++result;
-	}
 
 	return result;
 }
@@ -141,11 +118,6 @@ static unsigned exam_paranoia4()
 	if (!g.is_zero()) {
 		clog << "e = pow(x,2) + x + 1; f = pow(x,2) + x + 1; g = e-f; g erroneously returned "
 		     << g << endl;
-		++result;
-	}
-	if (!g.is_zero()) {
-		clog << "e = pow(x,2) + x + 1; f = pow(x,2) + x + 1; g = e-f; g.eval() erroneously returned "
-		     << g.eval() << endl;
 		++result;
 	}
 
@@ -264,7 +236,7 @@ static unsigned exam_paranoia10()
 	ex r;
 	
 	try {
-		r = pow(b,e).eval();
+		r = pow(b, e);
 		if (!(r-2*sqrt(ex(2))).is_zero()) {
 			clog << "2^(3/2) erroneously returned " << r << " instead of 2*sqrt(2)" << endl;
 			++result;
@@ -474,15 +446,15 @@ static unsigned exam_paranoia18()
 	unsigned result = 0;
 
 	ex sqrt2 = sqrt(ex(2));
-	ex e = 1 + 2*(sqrt2+1)*(sqrt2-1);
-	if (e.real_part() != 3) {
+	ex e1 = 1 + 2*(sqrt2+1)*(sqrt2-1);
+	if (e1.real_part() != 3) {
 		clog << "real_part(1+2*(sqrt(2)+1)*(sqrt(2)-1)) failed to evaluate to 3\n";
 		++result;
 	}
 
 	ex sqrt3 = sqrt(ex(3));
-	ex f = 2 + 2*(sqrt2+1)*(sqrt2-1) - 2*(sqrt3+1)*(sqrt3-1);
-	if (f.real_part() != 0) {
+	ex e2 = 2 + 2*(sqrt2+1)*(sqrt2-1) - 2*(sqrt3+1)*(sqrt3-1);
+	if (e2.real_part() != 0) {
 		clog << "real_part(2+2*(sqrt(2)+1)*(sqrt(2)-1)-3*(sqrt(3)+1)*(sqrt(3)-1)) failed to evaluate to 0\n";
 		++result;
 	}
@@ -578,8 +550,35 @@ static unsigned exam_paranoia22()
 	return 0;
 }
 
-// Bug in sqrfree_yun (fixed 2016-02-02).
+// Bug in expairseq::evalchildren().
 static unsigned exam_paranoia23()
+{
+	unsigned result = 0;
+	symbol x("x");
+
+	epvector v1;
+	v1.push_back(expair(1, 1));
+	v1.push_back(expair(2*x, -1));
+	ex e1 = add(v1);  // Should be e==1-2*x,
+	if (!e1.is_equal(1-2*x)) {
+		clog << "Failure constructing " << e1 << " from add.\n";
+		++result;
+	}
+
+	epvector v2;
+	v2.push_back(expair(x, 1));
+	v2.push_back(expair(1,-1));
+	ex e2 = mul(v2);  // Should be e==x;
+	if (!e2.is_equal(x)) {
+		clog << "Failure constructing " << e2 << " from mul.\n";
+		++result;
+	}
+
+	return result;
+}
+
+// Bug in sqrfree_yun (fixed 2016-02-02).
+static unsigned exam_paranoia24()
 {
 	unsigned result = 0;
 	symbol x("x");
@@ -654,6 +653,7 @@ unsigned exam_paranoia()
 	result += exam_paranoia21();  cout << '.' << flush;
 	result += exam_paranoia22();  cout << '.' << flush;
 	result += exam_paranoia23();  cout << '.' << flush;
+	result += exam_paranoia24();  cout << '.' << flush;
 	
 	return result;
 }

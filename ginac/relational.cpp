@@ -171,20 +171,9 @@ ex relational::map(map_function & f) const
 
 	if (!are_ex_trivially_equal(lh, mapped_lh)
 	 || !are_ex_trivially_equal(rh, mapped_rh))
-		return (new relational(mapped_lh, mapped_rh, o))->setflag(status_flags::dynallocated);
+		return dynallocate<relational>(mapped_lh, mapped_rh, o);
 	else
 		return *this;
-}
-
-ex relational::eval(int level) const
-{
-	if (level==1)
-		return this->hold();
-	
-	if (level == -max_recursion_level)
-		throw(std::runtime_error("max recursion level reached"));
-	
-	return (new relational(lh.eval(level-1),rh.eval(level-1),o))->setflag(status_flags::dynallocated | status_flags::evaluated);
 }
 
 ex relational::subs(const exmap & m, unsigned options) const
@@ -301,17 +290,7 @@ unsigned relational::calchash() const
 // new virtual functions which can be overridden by derived classes
 //////////
 
-/** Left hand side of relational. */
-ex relational::lhs() const
-{
-	return lh;
-}
-
-/** Right hand side of relational. */
-ex relational::rhs() const
-{
-	return rh;    
-}
+// none
 
 //////////
 // non-virtual functions in this class
@@ -319,7 +298,7 @@ ex relational::rhs() const
 
 relational::safe_bool relational::make_safe_bool(bool cond) const
 {
-	return cond? &safe_bool_helper::nonnull : 0;
+	return cond? &safe_bool_helper::nonnull : nullptr;
 }
 
 /** Cast the relational into a Boolean, mainly for evaluation within an

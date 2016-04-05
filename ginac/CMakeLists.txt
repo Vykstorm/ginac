@@ -43,9 +43,11 @@ set(ginaclib_sources
     polynomial/gcd_uvar.cpp
     polynomial/mgcd.cpp
     polynomial/mod_gcd.cpp
+    polynomial/normalize.cpp
     polynomial/optimal_vars_finder.cpp
     polynomial/pgcd.cpp
     polynomial/primpart_content.cpp
+    polynomial/remainder.cpp
     polynomial/upoly_io.cpp
     power.cpp
     print.cpp
@@ -69,6 +71,7 @@ set(ginaclib_public_headers
     class_info.h
     clifford.h
     color.h
+    compiler.h
     constant.h
     container.h
     ex.h
@@ -111,11 +114,9 @@ set(ginaclib_public_headers
 
 set(ginaclib_private_headers
     remember.h
-    tostring.h
     utils.h
     crc32.h
     hash_seed.h
-    compiler.h
     parser/lexer.h
     parser/debug.h
     polynomial/gcd_euclid.h
@@ -146,6 +147,7 @@ set(ginaclib_private_headers
 )
 
 add_library(ginac ${ginaclib_sources})
+add_definitions(-DLIBEXECDIR="${LIBEXECDIR}/")
 set_target_properties(ginac PROPERTIES
 	SOVERSION ${ginaclib_soversion}
 	VERSION ${ginaclib_version})

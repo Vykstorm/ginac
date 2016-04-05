@@ -20,7 +20,7 @@
  *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-string data[] = {
+string polylogdata[] = {
 "1",
 "1",
 "1/5",

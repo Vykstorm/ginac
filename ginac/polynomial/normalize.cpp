@@ -1,7 +1,6 @@
-/** @file tostring.h
+/** @file normalize.h
  *
- *  Convert object to its string representation (output form). This is an
- *  internal header file. */
+ *  Functions to normalize polynomials in a field. */
 
 /*
  *  GiNaC Copyright (C) 1999-2016 Johannes Gutenberg University Mainz, Germany
@@ -21,21 +20,30 @@
  *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#ifndef GINAC_TOSTRING_H
-#define GINAC_TOSTRING_H
-
-#include <sstream>
+#include "normalize.h"
 
 namespace GiNaC {
 
-template<class T>
-std::string ToString(const T & t)
+/// Make the univariate polynomial @a a \in F[x] unit normal.
+/// F should be a field.
+/// Returns true if the polynomial @x is already unit normal, and false
+/// otherwise.
+bool normalize_in_field(umodpoly& a, cln::cl_MI* content_)
 {
-	std::ostringstream buf;
-	buf << t;
-	return buf.str();
+	if (a.size() == 0)
+		return true;
+	if (lcoeff(a) == the_one(a[0])) {
+		if (content_)
+			*content_ = the_one(a[0]);
+		return true;
+	}
+
+	const cln::cl_MI lc_1 = recip(lcoeff(a));
+	for (std::size_t k = a.size(); k-- != 0; )
+		a[k] = a[k]*lc_1;
+	if (content_)
+		*content_ = lc_1;
+	return false;
 }
 
 } // namespace GiNaC
-
-#endif // ndef GINAC_TOSTRING_H

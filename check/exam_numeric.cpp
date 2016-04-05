@@ -366,7 +366,7 @@ static unsigned exam_numeric6()
 
 					// Read back expression from string
 					string x_as_string = s.str();
-					ex x_again(x_as_string, lst(sym));
+					ex x_again(x_as_string, lst{sym});
 
 					// They should be equal
 					if (!x_again.is_equal(x)) {

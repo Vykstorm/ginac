@@ -61,6 +61,15 @@ public:
 	/** Create node with two children. */
 	symmetry(symmetry_type t, const symmetry &c1, const symmetry &c2);
 
+	// functions overriding virtual functions from base classes
+public:
+	/** Save (a.k.a. serialize) object into archive. */
+	void archive(archive_node& n) const override;
+	/** Read (a.k.a. deserialize) object from archive. */
+	void read_archive(const archive_node& n, lst& syms) override;
+protected:
+	unsigned calchash() const override;
+
 	// non-virtual functions in this class
 public:
 	/** Get symmetry type. */
@@ -84,15 +93,9 @@ public:
 	bool has_nonsymmetric() const;
 	/** Check whether this node involves a cyclic symmetry. */
 	bool has_cyclic() const;
-
-	/** Save (a.k.a. serialize) object into archive. */
-	void archive(archive_node& n) const;
-	/** Read (a.k.a. deserialize) object from archive. */
-	void read_archive(const archive_node& n, lst& syms);
 protected:
 	void do_print(const print_context & c, unsigned level) const;
 	void do_print_tree(const print_tree & c, unsigned level) const;
-	unsigned calchash() const;
 
 	// member variables
 private:

@@ -109,7 +109,6 @@ static bool func_arg_info(const ex & arg, unsigned inf)
 		case info_flags::prime:
 		case info_flags::crational_polynomial:
 		case info_flags::rational_function:
-		case info_flags::algebraic:
 		case info_flags::positive:
 		case info_flags::negative:
 		case info_flags::nonnegative:
@@ -310,7 +309,7 @@ static ex abs_expand(const ex & arg, unsigned options)
 			else
 				prodseq.push_back(abs(*i));
 		}
-		return (new mul(prodseq))->setflag(status_flags::dynallocated | status_flags::expanded);
+		return dynallocate<mul>(prodseq).setflag(status_flags::expanded);
 	}
 
 	if (options & expand_options::expand_function_args)
@@ -354,9 +353,9 @@ static ex abs_power(const ex & arg, const ex & exp)
 {
 	if ((is_a<numeric>(exp) && ex_to<numeric>(exp).is_even()) || exp.info(info_flags::even)) {
 		if (arg.info(info_flags::real) || arg.is_equal(arg.conjugate()))
-			return power(arg, exp);
+			return pow(arg, exp);
 		else
-			return power(arg, exp/2)*power(arg.conjugate(), exp/2);
+			return pow(arg, exp/2) * pow(arg.conjugate(), exp/2);
 	} else
 		return power(abs(arg), exp).hold();
 }
@@ -453,9 +452,8 @@ static ex step_series(const ex & arg,
 	    && !(options & series_options::suppress_branchcut))
 		throw (std::domain_error("step_series(): on imaginary axis"));
 	
-	epvector seq;
-	seq.push_back(expair(step(arg_pt), _ex0));
-	return pseries(rel,seq);
+	epvector seq { expair(step(arg_pt), _ex0) };
+	return pseries(rel, std::move(seq));
 }
 
 static ex step_conjugate(const ex& arg)
@@ -532,9 +530,8 @@ static ex csgn_series(const ex & arg,
 	    && !(options & series_options::suppress_branchcut))
 		throw (std::domain_error("csgn_series(): on imaginary axis"));
 	
-	epvector seq;
-	seq.push_back(expair(csgn(arg_pt), _ex0));
-	return pseries(rel,seq);
+	epvector seq { expair(csgn(arg_pt), _ex0) };
+	return pseries(rel, std::move(seq));
 }
 
 static ex csgn_conjugate(const ex& arg)
@@ -640,9 +637,8 @@ static ex eta_series(const ex & x, const ex & y,
 	    (y_pt.info(info_flags::numeric) && y_pt.info(info_flags::negative)) ||
 	    ((x_pt*y_pt).info(info_flags::numeric) && (x_pt*y_pt).info(info_flags::negative)))
 			throw (std::domain_error("eta_series(): on discontinuity"));
-	epvector seq;
-	seq.push_back(expair(eta(x_pt,y_pt), _ex0));
-	return pseries(rel,seq);
+	epvector seq { expair(eta(x_pt,y_pt), _ex0) };
+	return pseries(rel, std::move(seq));
 }
 
 static ex eta_conjugate(const ex & x, const ex & y)
@@ -745,9 +741,8 @@ static ex Li2_series(const ex &x, const relational &rel, int order, unsigned opt
 			// substitute the argument's series expansion
 			ser = ser.subs(s==x.series(rel, order), subs_options::no_pattern);
 			// maybe that was terminating, so add a proper order term
-			epvector nseq;
-			nseq.push_back(expair(Order(_ex1), order));
-			ser += pseries(rel, nseq);
+			epvector nseq { expair(Order(_ex1), order) };
+			ser += pseries(rel, std::move(nseq));
 			// reexpanding it will collapse the series again
 			return ser.series(rel, order);
 			// NB: Of course, this still does not allow us to compute anything
@@ -770,9 +765,8 @@ static ex Li2_series(const ex &x, const relational &rel, int order, unsigned opt
 			// substitute the argument's series expansion
 			ser = ser.subs(s==x.series(rel, order), subs_options::no_pattern);
 			// maybe that was terminating, so add a proper order term
-			epvector nseq;
-			nseq.push_back(expair(Order(_ex1), order));
-			ser += pseries(rel, nseq);
+			epvector nseq { expair(Order(_ex1), order) };
+			ser += pseries(rel, std::move(nseq));
 			// reexpanding it will collapse the series again
 			return ser.series(rel, order);
 		}
@@ -794,7 +788,7 @@ static ex Li2_series(const ex &x, const relational &rel, int order, unsigned opt
 				seq.push_back(expair((replarg.op(i)/power(s-foo,i)).series(foo==point,1,options).op(0).subs(foo==s, subs_options::no_pattern),i));
 			// append an order term:
 			seq.push_back(expair(Order(_ex1), replarg.nops()-1));
-			return pseries(rel, seq);
+			return pseries(rel, std::move(seq));
 		}
 	}
 	// all other cases should be safe, by now:
@@ -1004,11 +998,10 @@ static ex Order_eval(const ex & x)
 static ex Order_series(const ex & x, const relational & r, int order, unsigned options)
 {
 	// Just wrap the function into a pseries object
-	epvector new_seq;
 	GINAC_ASSERT(is_a<symbol>(r.lhs()));
 	const symbol &s = ex_to<symbol>(r.lhs());
-	new_seq.push_back(expair(Order(_ex1), numeric(std::min(x.ldegree(s), order))));
-	return pseries(r, new_seq);
+	epvector new_seq { expair(Order(_ex1), numeric(std::min(x.ldegree(s), order))) };
+	return pseries(r, std::move(new_seq));
 }
 
 static ex Order_conjugate(const ex & x)
@@ -1051,7 +1044,7 @@ ex lsolve(const ex &eqns, const ex &symbols, unsigned options)
 	if (eqns.info(info_flags::relation_equal)) {
 		if (!symbols.info(info_flags::symbol))
 			throw(std::invalid_argument("lsolve(): 2nd argument must be a symbol"));
-		const ex sol = lsolve(lst(eqns),lst(symbols));
+		const ex sol = lsolve(lst{eqns}, lst{symbols});
 		
 		GINAC_ASSERT(sol.nops()==1);
 		GINAC_ASSERT(is_exactly_a<relational>(sol.op(0)));
@@ -1109,12 +1102,12 @@ ex lsolve(const ex &eqns, const ex &symbols, unsigned options)
 	} catch (const std::runtime_error & e) {
 		// Probably singular matrix or otherwise overdetermined system:
 		// It is consistent to return an empty list
-		return lst();
+		return lst{};
 	}
 	GINAC_ASSERT(solution.cols()==1);
 	GINAC_ASSERT(solution.rows()==symbols.nops());
 	
-	// return list of equations of the form lst(var1==sol1,var2==sol2,...)
+	// return list of equations of the form lst{var1==sol1,var2==sol2,...}
 	lst sollist;
 	for (size_t i=0; i<symbols.nops(); i++)
 		sollist.append(symbols.op(i)==solution(i,0));
@@ -1224,7 +1217,7 @@ fsolve(const ex& f_in, const symbol& x, const numeric& x1, const numeric& x2)
 			// determined by the secant between the values xx[0] and xx[1].
 			// Don't set the secant_weight to one because that could disturb
 			// the convergence in some corner cases!
-			static const double secant_weight = 0.984375;  // == 63/64 < 1
+			constexpr double secant_weight = 0.984375;  // == 63/64 < 1
 			numeric xxmid = (1-secant_weight)*0.5*(xx[0]+xx[1])
 			    + secant_weight*(xx[0]+fx[0]*(xx[0]-xx[1])/(fx[1]-fx[0]));
 			ex fxmid_ = f.subs(x == xxmid).evalf();

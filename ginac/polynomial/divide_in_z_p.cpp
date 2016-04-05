@@ -101,7 +101,7 @@ bool divide_in_z_p(const ex &a, const ex &b, ex &q, const exvector& vars, const 
 		if (p != 0)
 			r = r.smod(numeric(p));
 		if (r.is_zero()) {
-			q = (new add(v))->setflag(status_flags::dynallocated);
+			q = dynallocate<add>(v);
 			return true;
 		}
 		rdeg = r.degree(x);

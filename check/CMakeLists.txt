@@ -33,6 +33,7 @@ set(ginac_tests
 	exam_misc
 	exam_mod_gcd
 	exam_cra
+	exam_real_imag
 	bugme_chinrem_gcd
 	factor_univariate_bug
 	pgcd_relatively_prime_bug

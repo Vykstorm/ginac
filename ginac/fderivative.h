@@ -55,22 +55,21 @@ public:
 	fderivative(unsigned ser, const paramset & params, const exvector & args);
 
 	// internal constructors
-	fderivative(unsigned ser, const paramset & params, std::auto_ptr<exvector> vp);
+	fderivative(unsigned ser, const paramset & params, exvector && v);
 
 	// functions overriding virtual functions from base classes
 public:
-	void print(const print_context & c, unsigned level = 0) const;
-	ex eval(int level = 0) const;
-	ex evalf(int level = 0) const;
-	ex series(const relational & r, int order, unsigned options = 0) const;
-	ex thiscontainer(const exvector & v) const;
-	ex thiscontainer(std::auto_ptr<exvector> vp) const;
-	void archive(archive_node& n) const;
-	void read_archive(const archive_node& n, lst& syms);
+	void print(const print_context & c, unsigned level = 0) const override;
+	ex eval() const override;
+	ex series(const relational & r, int order, unsigned options = 0) const override;
+	ex thiscontainer(const exvector & v) const override;
+	ex thiscontainer(exvector && v) const override;
+	void archive(archive_node& n) const override;
+	void read_archive(const archive_node& n, lst& syms) override;
 protected:
-	ex derivative(const symbol & s) const;
-	bool is_equal_same_type(const basic & other) const;
-	bool match_same_type(const basic & other) const;
+	ex derivative(const symbol & s) const override;
+	bool is_equal_same_type(const basic & other) const override;
+	bool match_same_type(const basic & other) const override;
 
 	// non-virtual functions in this class
 protected:

@@ -26,6 +26,7 @@
 #include "basic.h"
 #include "ex.h"
 #include "archive.h"
+#include "compiler.h"
 
 #include <string>
 #include <vector>
@@ -98,40 +99,35 @@ class matrix : public basic
 	// other constructors
 public:
 	matrix(unsigned r, unsigned c);
-	matrix(unsigned r, unsigned c, const exvector & m2);
 	matrix(unsigned r, unsigned c, const lst & l);
+	matrix(std::initializer_list<std::initializer_list<ex>> l);
 
-	// First step of initialization of matrix with a comma-separated sequence
-	// of expressions. Subsequent steps are handled by matrix_init<>::operator,().
-	matrix_init<ex, exvector::iterator> operator=(const ex & x)
-	{
-		m[0] = x;
-		return matrix_init<ex, exvector::iterator>(++m.begin());
-	}
-	
+	matrix_init<ex, exvector::iterator> operator=(const ex & x) deprecated;
+protected:
+	matrix(unsigned r, unsigned c, const exvector & m2);
+	matrix(unsigned r, unsigned c, exvector && m2);
 	// functions overriding virtual functions from base classes
 public:
-	size_t nops() const;
-	ex op(size_t i) const;
-	ex & let_op(size_t i);
-	ex eval(int level=0) const;
-	ex evalm() const {return *this;}
-	ex subs(const exmap & m, unsigned options = 0) const;
-	ex eval_indexed(const basic & i) const;
-	ex add_indexed(const ex & self, const ex & other) const;
-	ex scalar_mul_indexed(const ex & self, const numeric & other) const;
-	bool contract_with(exvector::iterator self, exvector::iterator other, exvector & v) const;
-	ex conjugate() const;
-	ex real_part() const;
-	ex imag_part() const;
+	size_t nops() const override;
+	ex op(size_t i) const override;
+	ex & let_op(size_t i) override;
+	ex evalm() const override {return *this;}
+	ex subs(const exmap & m, unsigned options = 0) const override;
+	ex eval_indexed(const basic & i) const override;
+	ex add_indexed(const ex & self, const ex & other) const override;
+	ex scalar_mul_indexed(const ex & self, const numeric & other) const override;
+	bool contract_with(exvector::iterator self, exvector::iterator other, exvector & v) const override;
+	ex conjugate() const override;
+	ex real_part() const override;
+	ex imag_part() const override;
 
 	/** Save (a.k.a. serialize) object into archive. */
-	void archive(archive_node& n) const;
+	void archive(archive_node& n) const override;
 	/** Read (a.k.a. deserialize) object from archive. */
-	void read_archive(const archive_node& n, lst& syms);
+	void read_archive(const archive_node& n, lst& syms) override;
 protected:
-	bool match_same_type(const basic & other) const;
-	unsigned return_type() const { return return_types::noncommutative; };
+	bool match_same_type(const basic & other) const override;
+	unsigned return_type() const override { return return_types::noncommutative; };
 	
 	// non-virtual functions in this class
 public:
@@ -177,6 +173,13 @@ protected:
 };
 GINAC_DECLARE_UNARCHIVER(matrix); 
 
+// First step of initialization of matrix with a comma-separated sequence
+// of expressions. Subsequent steps are handled by matrix_init<>::operator,().
+inline matrix_init<ex, exvector::iterator> matrix::operator=(const ex & x)
+{
+	m[0] = x;
+	return matrix_init<ex, exvector::iterator>(++m.begin());
+}
 
 // wrapper functions around member functions
 
@@ -186,11 +189,8 @@ inline size_t nops(const matrix & m)
 inline ex expand(const matrix & m, unsigned options = 0)
 { return m.expand(options); }
 
-inline ex eval(const matrix & m, int level = 0)
-{ return m.eval(level); }
-
-inline ex evalf(const matrix & m, int level = 0)
-{ return m.evalf(level); }
+inline ex evalf(const matrix & m)
+{ return m.evalf(); }
 
 inline unsigned rows(const matrix & m)
 { return m.rows(); }
@@ -223,6 +223,7 @@ extern ex lst_to_matrix(const lst & l);
 
 /** Convert list of diagonal elements to matrix. */
 extern ex diag_matrix(const lst & l);
+extern ex diag_matrix(std::initializer_list<ex> l);
 
 /** Create an r times c unit matrix. */
 extern ex unit_matrix(unsigned r, unsigned c);

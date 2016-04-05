@@ -90,7 +90,7 @@ typedef ex (*fcnp)(const exprseq &e);
 typedef ex (*fcnp2)(const exprseq &e, int serial);
 
 struct fcn_desc {
-	fcn_desc() : p(NULL), num_params(0), is_ginac(false), serial(0) {}
+	fcn_desc() : p(nullptr), num_params(0), is_ginac(false), serial(0) {}
 	fcn_desc(fcnp func, int num) : p(func), num_params(num), is_ginac(false), serial(0) {}
 	fcn_desc(fcnp2 func, int num, int ser) : p((fcnp)func), num_params(num), is_ginac(true), serial(ser) {}
 
@@ -238,11 +238,11 @@ line	: ';'
 
 exp	: T_NUMBER		{$$ = $1;}
 	| T_SYMBOL		{
-		exmap::const_iterator i = assigned_symbol_table.find($1);
+		auto i = assigned_symbol_table.find($1);
 		if (i == assigned_symbol_table.end())
 			$$ = $1;
 		else
-			$$ = i->second.eval();
+			$$ = i->second;
 	}
 	| '\'' T_SYMBOL '\''	{$$ = $2;}
 	| T_LITERAL		{$$ = $1;}
@@ -251,7 +251,7 @@ exp	: T_NUMBER		{$$ = $1;}
 	| T_QUOTE2		{$$ = exstack[1];}
 	| T_QUOTE3		{$$ = exstack[2];}
 	| T_SYMBOL '(' exprseq ')' {
-		fcn_tab::const_iterator i = find_function($1, $3.nops());
+		auto i = find_function($1, $3.nops());
 		if (i->second.is_ginac) {
 			$$ = ((fcnp2)(i->second.p))(ex_to<exprseq>($3), i->second.serial);
 		} else {
@@ -279,7 +279,7 @@ exp	: T_NUMBER		{$$ = $1;}
 	| '[' matrix ']'	{$$ = lst_to_matrix(ex_to<lst>($2));}
 	;
 
-exprseq	: exp			{$$ = exprseq($1);}
+exprseq	: exp			{$$ = exprseq{$1};}
 	| exprseq ',' exp	{exprseq es(ex_to<exprseq>($1)); $$ = es.append($3);}
 	;
 
@@ -287,15 +287,15 @@ list_or_empty: /* empty */	{$$ = *new lst;}
 	| list			{$$ = $1;}
 	;
 
-list	: exp			{$$ = lst($1);}
+list	: exp			{$$ = lst{$1};}
 	| list ',' exp		{lst l(ex_to<lst>($1)); $$ = l.append($3);}
 	;
 
-matrix	: '[' row ']'		{$$ = lst($2);}
+matrix	: '[' row ']'		{$$ = lst{$2};}
 	| matrix ',' '[' row ']' {lst l(ex_to<lst>($1)); $$ = l.append($4);}
 	;
 
-row	: exp			{$$ = lst($1);}
+row	: exp			{$$ = lst{$1};}
 	| row ',' exp		{lst l(ex_to<lst>($1)); $$ = l.append($3);}
 	;
 
@@ -331,8 +331,7 @@ static ex f_collect_common_factors(const exprseq &e) {return collect_common_fact
 static ex f_convert_H_to_Li(const exprseq &e) {return convert_H_to_Li(e[0], e[1]);}
 static ex f_degree(const exprseq &e) {return e[0].degree(e[1]);}
 static ex f_denom(const exprseq &e) {return e[0].denom();}
-static ex f_eval1(const exprseq &e) {return e[0].eval();}
-static ex f_evalf1(const exprseq &e) {return e[0].evalf();}
+static ex f_evalf(const exprseq &e) {return e[0].evalf();}
 static ex f_evalm(const exprseq &e) {return e[0].evalm();}
 static ex f_eval_integ(const exprseq &e) {return e[0].eval_integ();}
 static ex f_expand(const exprseq &e) {return e[0].expand();}
@@ -344,7 +343,7 @@ static ex f_lcoeff(const exprseq &e) {return e[0].lcoeff(e[1]);}
 static ex f_ldegree(const exprseq &e) {return e[0].ldegree(e[1]);}
 static ex f_lsolve(const exprseq &e) {return lsolve(e[0], e[1]);}
 static ex f_nops(const exprseq &e) {return e[0].nops();}
-static ex f_normal1(const exprseq &e) {return e[0].normal();}
+static ex f_normal(const exprseq &e) {return e[0].normal();}
 static ex f_numer(const exprseq &e) {return e[0].numer();}
 static ex f_numer_denom(const exprseq &e) {return e[0].numer_denom();}
 static ex f_pow(const exprseq &e) {return pow(e[0], e[1]);}
@@ -414,25 +413,13 @@ static ex f_divide(const exprseq &e)
 		return fail();
 }
 
-static ex f_eval2(const exprseq &e)
-{
-	CHECK_ARG(1, numeric, eval);
-	return e[0].eval(ex_to<numeric>(e[1]).to_int());
-}
-
-static ex f_evalf2(const exprseq &e)
-{
-	CHECK_ARG(1, numeric, evalf);
-	return e[0].evalf(ex_to<numeric>(e[1]).to_int());
-}
-
 static ex f_find(const exprseq &e)
 {
 	exset found;
 	e[0].find(e[1], found);
 	lst l;
-	for (exset::const_iterator i = found.begin(); i != found.end(); ++i)
-		l.append(*i);
+	for (auto & i : found)
+		l.append(i);
 	return l;
 }
 
@@ -472,7 +459,7 @@ class apply_map_function : public map_function {
 public:
 	apply_map_function(const ex & a) : apply(a) {}
 	virtual ~apply_map_function() {}
-	ex operator()(const ex & e) { return apply.subs(wild() == e, true); }
+	ex operator()(const ex & e) override { return apply.subs(wild() == e, true); }
 };
 
 static ex f_map(const exprseq &e)
@@ -486,17 +473,11 @@ static ex f_match(const exprseq &e)
 	exmap repls;
 	if (e[0].match(e[1], repls)) {
 		lst repl_lst;
-		for (exmap::const_iterator i = repls.begin(); i != repls.end(); ++i)
-			repl_lst.append(relational(i->first, i->second, relational::equal));
+		for (auto & i : repls)
+			repl_lst.append(relational(i.first, i.second, relational::equal));
 		return repl_lst;
 	}
 	throw std::runtime_error("FAIL");
-}
-
-static ex f_normal2(const exprseq &e)
-{
-	CHECK_ARG(1, numeric, normal);
-	return e[0].normal(ex_to<numeric>(e[1]).to_int());
 }
 
 static ex f_op(const exprseq &e)
@@ -618,10 +599,7 @@ static const fcn_init builtin_fcns[] = {
 	{"diff", f_diff2, 2},
 	{"diff", f_diff3, 3},
 	{"divide", f_divide, 2},
-	{"eval", f_eval1, 1},
-	{"eval", f_eval2, 2},
-	{"evalf", f_evalf1, 1},
-	{"evalf", f_evalf2, 2},
+	{"evalf", f_evalf, 1},
 	{"evalm", f_evalm, 1},
 	{"eval_integ", f_eval_integ, 1},
 	{"expand", f_expand, 1},
@@ -642,8 +620,7 @@ static const fcn_init builtin_fcns[] = {
 	{"map", f_map, 2},
 	{"match", f_match, 2},
 	{"nops", f_nops, 1},
-	{"normal", f_normal1, 1},
-	{"normal", f_normal2, 2},
+	{"normal", f_normal, 1},
 	{"numer", f_numer, 1},
 	{"numer_denom", f_numer_denom, 1},
 	{"op", f_op, 2},
@@ -670,7 +647,7 @@ static const fcn_init builtin_fcns[] = {
 	{"transpose", f_transpose, 1},
 	{"unassign", f_unassign, 1},
 	{"unit", f_unit, 2},
-	{NULL, f_dummy, 0}           // End marker
+	{nullptr, f_dummy, 0}        // End marker
 };
 
 struct fcn_help_init {
@@ -708,7 +685,7 @@ static const fcn_help_init builtin_help[] = {
 	{"H", "harmonic polylogarithm"},
 	{"Order", "order term function (for truncated power series)"},
 	{"Derivative", "inert differential operator"},
-	{NULL, NULL}	// End marker
+	{nullptr, nullptr}  // End marker
 };
 
 #include "ginsh_extensions.h"
@@ -729,19 +706,16 @@ static void insert_fcns(const fcn_init *p)
 
 static ex f_ginac_function(const exprseq &es, int serial)
 {
-	return GiNaC::function(serial, es).eval(1);
+	return GiNaC::function(serial, es);
 }
 
 // All registered GiNaC functions
 namespace GiNaC {
 static void ginsh_get_ginac_functions(void)
 {
-	vector<function_options> gfv = function::get_registered_functions();
-	vector<function_options>::const_iterator i = gfv.begin(), end = gfv.end();
 	unsigned serial = 0;
-	while (i != end) {
-		fcns.insert(make_pair(i->get_name(), fcn_desc(f_ginac_function, i->get_nparams(), serial)));
-		++i;
+	for (auto & i : function::get_registered_functions()) {
+		fcns.insert(make_pair(i.get_name(), fcn_desc(f_ginac_function, i.get_nparams(), serial)));
 		serial++;
 	}
 }
@@ -866,7 +840,7 @@ static char *fcn_generator(const char *text, int state)
 		if (strncmp(fcn_name, text, len) == 0)
 			return strdup(fcn_name);
 	}
-	return NULL;
+	return nullptr;
 }
 
 #ifdef HAVE_LIBREADLINE
@@ -949,7 +923,7 @@ int main(int argc, char **argv)
 	file_list = argv + 1;
 	if (num_files) {
 		yyin = fopen(*file_list, "r");
-		if (yyin == NULL) {
+		if (yyin == nullptr) {
 			cerr << "Can't open " << *file_list << endl;
 			exit(1);
 		}

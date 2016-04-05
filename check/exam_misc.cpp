@@ -96,7 +96,7 @@ static unsigned exam_sqrfree()
 	ex e1, e2;
 	
 	e1 = (1+x)*pow((2+x),2)*pow((3+x),3)*pow((4+x),4);
-	e2 = sqrfree(expand(e1),lst(x));
+	e2 = sqrfree(expand(e1),lst{x});
 	if (e1 != e2) {
 		clog << "sqrfree(expand(" << e1 << ")) erroneously returned "
 		     << e2 << endl;
@@ -110,19 +110,19 @@ static unsigned exam_sqrfree()
 		     << e2 << endl;
 		++result;
 	}
-	e2 = sqrfree(expand(e1),lst(x));
+	e2 = sqrfree(expand(e1),lst{x});
 	if (e1 != e2) {
 		clog << "sqrfree(expand(" << e1 << "),[x]) erroneously returned "
 		     << e2 << endl;
 		++result;
 	}
-	e2 = sqrfree(expand(e1),lst(y));
+	e2 = sqrfree(expand(e1),lst{y});
 	if (e1 != e2) {
 		clog << "sqrfree(expand(" << e1 << "),[y]) erroneously returned "
 		     << e2 << endl;
 		++result;
 	}
-	e2 = sqrfree(expand(e1),lst(x,y));
+	e2 = sqrfree(expand(e1),lst{x,y});
 	if (e1 != e2) {
 		clog << "sqrfree(expand(" << e1 << "),[x,y]) erroneously returned "
 		     << e2 << endl;

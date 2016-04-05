@@ -58,7 +58,7 @@ template <> void sprod::print(const print_context & c, unsigned level) const
 	c.s << "<" << sp.left << "|" << sp.right << ">";
 }
 
-template <> ex sprod::eval(int level) const
+template <> ex sprod::eval() const
 {
 	// symmetric scalar product
 	const sprod_s & sp = get_struct();

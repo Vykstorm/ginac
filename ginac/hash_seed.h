@@ -38,7 +38,7 @@ static inline unsigned make_hash_seed(const std::type_info& tinfo)
 	// This pointer is the same for all objects of the same type.
 	// Hence we can use it.
 	const void* mangled_name_ptr = (const void*)tinfo.name();
-	unsigned v = golden_ratio_hash((p_int)mangled_name_ptr);
+	unsigned v = golden_ratio_hash((uintptr_t)mangled_name_ptr);
 	return v;
 }
 #else

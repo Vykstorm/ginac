@@ -278,10 +278,7 @@ detail here. Please refer to the GiNaC documentation.
 .BI divide( expression ", " expression )
 \- exact polynomial division
 .br
-.BI eval( "expression [" ", " level] )
-\- evaluates an expression, replacing symbols by their assigned value
-.br
-.BI evalf( "expression [" ", " level] )
+.BI evalf( expression )
 \- evaluates an expression to a floating point number
 .br
 .BI evalm( expression )
@@ -335,7 +332,7 @@ detail here. Please refer to the GiNaC documentation.
 .BI nops( expression )
 \- number of operands in expression
 .br
-.BI normal( "expression [" ", " level] )
+.BI normal( expression )
 \- rational function normalization
 .br
 .BI numer( expression )

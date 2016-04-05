@@ -44,7 +44,8 @@ namespace GiNaC {
 
 GINAC_IMPLEMENT_REGISTERED_CLASS_OPT(clifford, indexed,
   print_func<print_dflt>(&clifford::do_print_dflt).
-  print_func<print_latex>(&clifford::do_print_latex))
+  print_func<print_latex>(&clifford::do_print_latex).
+  print_func<print_tree>(&clifford::do_print_tree))
 
 GINAC_IMPLEMENT_REGISTERED_CLASS_OPT(diracone, tensor,
   print_func<print_dflt>(&diracone::do_print).
@@ -105,11 +106,11 @@ clifford::clifford(const ex & b, const ex & mu, const ex & metr, unsigned char r
 	GINAC_ASSERT(is_a<idx>(mu));
 }
 
-clifford::clifford(unsigned char rl, const ex & metr, int comm_sign, const exvector & v, bool discardable) : inherited(not_symmetric(), v, discardable), representation_label(rl), metric(metr), commutator_sign(comm_sign)
+clifford::clifford(unsigned char rl, const ex & metr, int comm_sign, const exvector & v) : inherited(not_symmetric(), v), representation_label(rl), metric(metr), commutator_sign(comm_sign)
 {
 }
 
-clifford::clifford(unsigned char rl, const ex & metr, int comm_sign, std::auto_ptr<exvector> vp) : inherited(not_symmetric(), vp), representation_label(rl), metric(metr), commutator_sign(comm_sign)
+clifford::clifford(unsigned char rl, const ex & metr, int comm_sign, exvector && v) : inherited(not_symmetric(), std::move(v)), representation_label(rl), metric(metr), commutator_sign(comm_sign)
 {
 }
 
@@ -161,15 +162,15 @@ ex clifford::get_metric(const ex & i, const ex & j, bool symmetrised) const
 				return simplify_indexed(indexed(metric.op(0)*_ex1_2, i, j) + indexed(metric.op(0)*_ex1_2, j, i));
 			}
 		} else {
-			return metric.subs(lst(metric.op(1) == i, metric.op(2) == j), subs_options::no_pattern);
+			return metric.subs(lst{metric.op(1) == i, metric.op(2) == j}, subs_options::no_pattern);
 		}
 	} else {
 		exvector indices = metric.get_free_indices();
 		if (symmetrised)
-			return _ex1_2*simplify_indexed(metric.subs(lst(indices[0] == i, indices[1] == j), subs_options::no_pattern)
-									+ metric.subs(lst(indices[0] == j, indices[1] == i), subs_options::no_pattern));
+			return _ex1_2*simplify_indexed(metric.subs(lst{indices[0] == i, indices[1] == j}, subs_options::no_pattern)
+			                             + metric.subs(lst{indices[0] == j, indices[1] == i}, subs_options::no_pattern));
 		else
-			return metric.subs(lst(indices[0] == i, indices[1] == j), subs_options::no_pattern);
+			return metric.subs(lst{indices[0] == i, indices[1] == j}, subs_options::no_pattern);
 	}
 }
 
@@ -294,6 +295,17 @@ void clifford::do_print_latex(const print_latex & c, unsigned level) const
 	}
 }
 
+void clifford::do_print_tree(const print_tree & c, unsigned level) const
+{
+	c.s << std::string(level, ' ') << class_name() << " @" << this
+	    << std::hex << ", hash=0x" << hashvalue << ", flags=0x" << flags << std::dec
+	    << ", " << seq.size()-1 << " indices"
+	    << ", symmetry=" << symtree << std::endl;
+	metric.print(c, level + c.delta_indent);
+	seq[0].print(c, level + c.delta_indent);
+	printindices(c, level + c.delta_indent);
+}
+
 DEFAULT_COMPARE(diracone)
 DEFAULT_COMPARE(cliffordunit)
 DEFAULT_COMPARE(diracgamma)
@@ -321,14 +333,14 @@ static void base_and_index(const ex & c, ex & b, ex & i)
 		i = _ex0;
 		b = _ex1;
 	} else { // slash object, generate new dummy index
-		varidx ix((new symbol)->setflag(status_flags::dynallocated), ex_to<idx>(c.op(1)).get_dim());
+		varidx ix(dynallocate<symbol>(), ex_to<idx>(c.op(1)).get_dim());
 		b = indexed(c.op(0), ix.toggle_variance());
 		i = ix;
 	}
 }
 
 /** Predicate for finding non-clifford objects. */
-struct is_not_a_clifford : public std::unary_function<ex, bool> {
+struct is_not_a_clifford {
 	bool operator()(const ex & e)
 	{
 		return !is_a<clifford>(e);
@@ -399,7 +411,7 @@ bool diracgamma::contract_with(exvector::iterator self, exvector::iterator other
 			if (std::find_if(self + 1, other, is_not_a_clifford()) != other)
 				return false;
 
-			*self = ncmul(exvector(std::reverse_iterator<exvector::const_iterator>(other), std::reverse_iterator<exvector::const_iterator>(self + 1)), true);
+			*self = ncmul(exvector(std::reverse_iterator<exvector::const_iterator>(other), std::reverse_iterator<exvector::const_iterator>(self + 1)));
 			std::fill(self + 1, other, _ex1);
 			*other = _ex_2;
 			return true;
@@ -411,9 +423,9 @@ bool diracgamma::contract_with(exvector::iterator self, exvector::iterator other
 			if (std::find_if(self + 1, other, is_not_a_clifford()) != other)
 				return false;
 
-			exvector::iterator next_to_last = other - 1;
-			ex S = ncmul(exvector(self + 1, next_to_last), true);
-			ex SR = ncmul(exvector(std::reverse_iterator<exvector::const_iterator>(next_to_last), std::reverse_iterator<exvector::const_iterator>(self + 1)), true);
+			auto next_to_last = other - 1;
+			ex S = ncmul(exvector(self + 1, next_to_last));
+			ex SR = ncmul(exvector(std::reverse_iterator<exvector::const_iterator>(next_to_last), std::reverse_iterator<exvector::const_iterator>(self + 1)));
 
 			*self = (*next_to_last) * S + SR * (*next_to_last);
 			std::fill(self + 1, other, _ex1);
@@ -427,8 +439,8 @@ bool diracgamma::contract_with(exvector::iterator self, exvector::iterator other
 			if (std::find_if(self + 1, other, is_not_a_clifford()) != other)
 				return false;
 
-			exvector::iterator next_to_last = other - 1;
-			ex S = ncmul(exvector(self + 1, next_to_last), true);
+			auto next_to_last = other - 1;
+			ex S = ncmul(exvector(self + 1, next_to_last));
 
 			*self = 2 * (*next_to_last) * S - (*self) * S * (*other) * (*next_to_last);
 			std::fill(self + 1, other + 1, _ex1);
@@ -462,7 +474,7 @@ bool cliffordunit::contract_with(exvector::iterator self, exvector::iterator oth
 		    && unit.same_metric(*other))
 			return false;
 
-		exvector::iterator before_other = other - 1;
+		auto before_other = other - 1;
 		ex mu = self->op(1);
 		ex mu_toggle = other->op(1);
 		ex alpha = before_other->op(1);
@@ -495,7 +507,7 @@ bool cliffordunit::contract_with(exvector::iterator self, exvector::iterator oth
 				return false;
 			}
 			
-			ex S = ncmul(exvector(self + 1, before_other), true);
+			ex S = ncmul(exvector(self + 1, before_other));
 
 			if (is_a<clifford>(*before_other) && ex_to<clifford>(*before_other).get_representation_label() == rl) {
 				*self = 2 * (*self) * S * unit.get_metric(alpha, mu_toggle, true) - (*self) * S * (*other) * (*before_other);
@@ -520,11 +532,9 @@ ex clifford::eval_ncmul(const exvector & v) const
 	s.reserve(v.size());
 
 	// Remove superfluous ONEs
-	exvector::const_iterator cit = v.begin(), citend = v.end();
-	while (cit != citend) {
-		if (!is_a<clifford>(*cit) || !is_a<diracone>(cit->op(0)))
-			s.push_back(*cit);
-		cit++;
+	for (auto & it : v) {
+		if (!is_a<clifford>(it) || !is_a<diracone>(it.op(0)))
+			s.push_back(it);
 	}
 
 	bool something_changed = false;
@@ -532,11 +542,11 @@ ex clifford::eval_ncmul(const exvector & v) const
 
 	// Anticommutate gamma5/L/R's to the front
 	if (s.size() >= 2) {
-		exvector::iterator first = s.begin(), next_to_last = s.end() - 2;
+		auto first = s.begin(), next_to_last = s.end() - 2;
 		while (true) {
-			exvector::iterator it = next_to_last;
+			auto it = next_to_last;
 			while (true) {
-				exvector::iterator it2 = it + 1;
+				auto it2 = it + 1;
 				if (is_a<clifford>(*it) && is_a<clifford>(*it2)) {
 					ex e1 = it->op(0), e2 = it2->op(0);
 
@@ -663,7 +673,7 @@ ex clifford::eval_ncmul(const exvector & v) const
 			} else if (!a_is_cliffordunit && !b_is_cliffordunit && ag.is_equal(bg)) {
 
 				// a\ a\ -> a^2
-				varidx ix((new symbol)->setflag(status_flags::dynallocated), ex_to<idx>(a.op(1)).minimal_dim(ex_to<idx>(b.op(1))));
+				varidx ix(dynallocate<symbol>(), ex_to<idx>(a.op(1)).minimal_dim(ex_to<idx>(b.op(1))));
 				
 				a = indexed(ag, ix) * indexed(ag, ix.toggle_variance());
 				b = dirac_ONE(representation_label);
@@ -685,9 +695,9 @@ ex clifford::thiscontainer(const exvector & v) const
 	return clifford(representation_label, metric, commutator_sign, v);
 }
 
-ex clifford::thiscontainer(std::auto_ptr<exvector> vp) const
+ex clifford::thiscontainer(exvector && v) const
 {
-	return clifford(representation_label, metric, commutator_sign, vp);
+	return clifford(representation_label, metric, commutator_sign, std::move(v));
 }
 
 ex diracgamma5::conjugate() const
@@ -697,12 +707,12 @@ ex diracgamma5::conjugate() const
 
 ex diracgammaL::conjugate() const
 {
-	return (new diracgammaR)->setflag(status_flags::dynallocated);
+	return dynallocate<diracgammaR>();
 }
 
 ex diracgammaR::conjugate() const
 {
-	return (new diracgammaL)->setflag(status_flags::dynallocated);
+	return dynallocate<diracgammaL>();
 }
 
 //////////
@@ -711,7 +721,7 @@ ex diracgammaR::conjugate() const
 
 ex dirac_ONE(unsigned char rl)
 {
-	static ex ONE = (new diracone)->setflag(status_flags::dynallocated);
+	static ex ONE = dynallocate<diracone>();
 	return clifford(ONE, rl);
 }
 
@@ -728,8 +738,7 @@ static unsigned get_dim_uint(const ex& e)
 
 ex clifford_unit(const ex & mu, const ex & metr, unsigned char rl)
 {
-	//static ex unit = (new cliffordunit)->setflag(status_flags::dynallocated);
-	ex unit = (new cliffordunit)->setflag(status_flags::dynallocated);
+	ex unit = dynallocate<cliffordunit>();
 
 	if (!is_a<idx>(mu))
 		throw(std::invalid_argument("clifford_unit(): index of Clifford unit must be of type idx or varidx"));
@@ -743,10 +752,10 @@ ex clifford_unit(const ex & mu, const ex & metr, unsigned char rl)
 		unsigned n = M.rows();
 		bool symmetric = true;
 
-		//static idx xi((new symbol)->setflag(status_flags::dynallocated), n),
-		//	chi((new symbol)->setflag(status_flags::dynallocated), n);
-		idx xi((new symbol)->setflag(status_flags::dynallocated), n),
-			chi((new symbol)->setflag(status_flags::dynallocated), n);
+		//static idx xi(dynallocate<symbol>(), n),
+		//           chi(dynallocate<symbol>(), n);
+		idx xi(dynallocate<symbol>(), n),
+		    chi(dynallocate<symbol>(), n);
 		if ((n ==  M.cols()) && (n == get_dim_uint(mu))) {
 			for (unsigned i = 0; i < n; i++) {
 				for (unsigned j = i+1; j < n; j++) {
@@ -760,10 +769,10 @@ ex clifford_unit(const ex & mu, const ex & metr, unsigned char rl)
 			throw(std::invalid_argument("clifford_unit(): metric for Clifford unit must be a square matrix with the same dimensions as index"));
 		}
 	} else if (indices.size() == 0) { // a tensor or other expression without indices
-		//static varidx xi((new symbol)->setflag(status_flags::dynallocated), ex_to<idx>(mu).get_dim()),
-		//	chi((new symbol)->setflag(status_flags::dynallocated), ex_to<idx>(mu).get_dim());
-		varidx xi((new symbol)->setflag(status_flags::dynallocated), ex_to<idx>(mu).get_dim()),
-			chi((new symbol)->setflag(status_flags::dynallocated), ex_to<idx>(mu).get_dim());
+		//static varidx xi(dynallocate<symbol>(), ex_to<idx>(mu).get_dim()),
+		//              chi(dynallocate<symbol>(), ex_to<idx>(mu).get_dim());
+		varidx xi(dynallocate<symbol>(), ex_to<idx>(mu).get_dim()),
+		       chi(dynallocate<symbol>(), ex_to<idx>(mu).get_dim());
 		return clifford(unit, mu, indexed(metr, xi, chi), rl);
 	}  else 
 		throw(std::invalid_argument("clifford_unit(): metric for Clifford unit must be of type tensor, matrix or an expression with two free indices"));
@@ -771,31 +780,31 @@ ex clifford_unit(const ex & mu, const ex & metr, unsigned char rl)
 
 ex dirac_gamma(const ex & mu, unsigned char rl)
 {
-	static ex gamma = (new diracgamma)->setflag(status_flags::dynallocated);
+	static ex gamma = dynallocate<diracgamma>();
 
 	if (!is_a<varidx>(mu))
 		throw(std::invalid_argument("dirac_gamma(): index of Dirac gamma must be of type varidx"));
 
-	static varidx xi((new symbol)->setflag(status_flags::dynallocated), ex_to<varidx>(mu).get_dim()),
-		chi((new symbol)->setflag(status_flags::dynallocated), ex_to<varidx>(mu).get_dim());
-	return clifford(gamma, mu, indexed((new minkmetric)->setflag(status_flags::dynallocated), symmetric2(), xi, chi), rl);
+	static varidx xi(dynallocate<symbol>(), ex_to<varidx>(mu).get_dim()),
+	              chi(dynallocate<symbol>(), ex_to<varidx>(mu).get_dim());
+	return clifford(gamma, mu, indexed(dynallocate<minkmetric>(), symmetric2(), xi, chi), rl);
 }
 
 ex dirac_gamma5(unsigned char rl)
 {
-	static ex gamma5 = (new diracgamma5)->setflag(status_flags::dynallocated);
+	static ex gamma5 = dynallocate<diracgamma5>();
 	return clifford(gamma5, rl);
 }
 
 ex dirac_gammaL(unsigned char rl)
 {
-	static ex gammaL = (new diracgammaL)->setflag(status_flags::dynallocated);
+	static ex gammaL = dynallocate<diracgammaL>();
 	return clifford(gammaL, rl);
 }
 
 ex dirac_gammaR(unsigned char rl)
 {
-	static ex gammaR = (new diracgammaR)->setflag(status_flags::dynallocated);
+	static ex gammaR = dynallocate<diracgammaR>();
 	return clifford(gammaR, rl);
 }
 
@@ -805,9 +814,9 @@ ex dirac_slash(const ex & e, const ex & dim, unsigned char rl)
 	// vector as its base expression and a (dummy) index that just serves
 	// for storing the space dimensionality
 
-	static varidx xi((new symbol)->setflag(status_flags::dynallocated), dim),
-		chi((new symbol)->setflag(status_flags::dynallocated), dim);
-   return clifford(e, varidx(0, dim), indexed((new minkmetric)->setflag(status_flags::dynallocated), symmetric2(), xi, chi), rl);
+	static varidx xi(dynallocate<symbol>(), dim),
+	              chi(dynallocate<symbol>(), dim);
+	return clifford(e, varidx(0, dim), indexed(dynallocate<minkmetric>(), symmetric2(), xi, chi), rl);
 }
 
 /** Extract representation label from tinfo key (as returned by
@@ -894,10 +903,10 @@ ex dirac_trace(const ex & e, const std::set<unsigned char> & rls, const ex & trO
 			return e;
 
 		// Substitute gammaL/R and expand product, if necessary
-		ex e_expanded = e.subs(lst(
+		ex e_expanded = e.subs(lst{
 			dirac_gammaL(rl) == (dirac_ONE(rl)-dirac_gamma5(rl))/2,
 			dirac_gammaR(rl) == (dirac_ONE(rl)+dirac_gamma5(rl))/2
-		), subs_options::no_pattern).expand();
+		}, subs_options::no_pattern).expand();
 		if (!is_a<ncmul>(e_expanded))
 			return dirac_trace(e_expanded, rls, trONE);
 
@@ -994,9 +1003,9 @@ ex dirac_trace(const ex & e, const lst & rll, const ex & trONE)
 {
 	// Convert list to set
 	std::set<unsigned char> rls;
-	for (lst::const_iterator i = rll.begin(); i != rll.end(); ++i) {
-		if (i->info(info_flags::nonnegint))
-			rls.insert(ex_to<numeric>(*i).to_int());
+	for (const auto & i : rll) {
+		if (i.info(info_flags::nonnegint))
+			rls.insert(ex_to<numeric>(i).to_int());
 	}
 
 	return dirac_trace(e, rls, trONE);
@@ -1024,10 +1033,10 @@ ex canonicalize_clifford(const ex & e_)
 		// Scan for any ncmul objects
 		exmap srl;
 		ex aux = e.to_rational(srl);
-		for (exmap::iterator i = srl.begin(); i != srl.end(); ++i) {
+		for (auto & i : srl) {
 
-			ex lhs = i->first;
-			ex rhs = i->second;
+			ex lhs = i.first;
+			ex rhs = i.second;
 
 			if (is_exactly_a<ncmul>(rhs)
 					&& rhs.return_type() == return_types::noncommutative
@@ -1036,7 +1045,7 @@ ex canonicalize_clifford(const ex & e_)
 				// Expand product, if necessary
 				ex rhs_expanded = rhs.expand();
 				if (!is_a<ncmul>(rhs_expanded)) {
-					i->second = canonicalize_clifford(rhs_expanded);
+					i.second = canonicalize_clifford(rhs_expanded);
 					continue;
 
 				} else if (!is_a<clifford>(rhs.op(0)))
@@ -1048,7 +1057,7 @@ ex canonicalize_clifford(const ex & e_)
 					v.push_back(rhs.op(j));
 
 				// Stupid recursive bubble sort because we only want to swap adjacent gammas
-				exvector::iterator it = v.begin(), next_to_last = v.end() - 1;
+				auto it = v.begin(), next_to_last = v.end() - 1;
 				if (is_a<diracgamma5>(it->op(0)) || is_a<diracgammaL>(it->op(0)) || is_a<diracgammaR>(it->op(0)))
 					++it;
 
@@ -1065,8 +1074,8 @@ ex canonicalize_clifford(const ex & e_)
 						ex sum = ncmul(v);
 						it[0] = save1;
 						it[1] = save0;
-						sum += ex_to<clifford>(save0).get_commutator_sign() * ncmul(v, true);
-						i->second = canonicalize_clifford(sum);
+						sum += ex_to<clifford>(save0).get_commutator_sign() * ncmul(std::move(v));
+						i.second = canonicalize_clifford(sum);
 						goto next_sym;
 					}
 					++it;
@@ -1252,15 +1261,13 @@ static ex get_clifford_comp(const ex & e, const ex & c)
 						
 						if (ind_vec.size() > 0) {
 							found_dummy = true;
-							exvector::const_iterator it = ind_vec.begin(), itend = ind_vec.end();
-							while (it != itend) {
-								ex curridx = *it;
+							for (auto & it : ind_vec) {
+								ex curridx = it;
 								ex curridx_toggle = is_a<varidx>(curridx)
 									? ex_to<varidx>(curridx).toggle_variance()
 									: curridx;
-								S = S * e.op(j).subs(lst(curridx == ival,
-									curridx_toggle == ival), subs_options::no_pattern);
-								++it;
+								S = S * e.op(j).subs(lst{curridx == ival, curridx_toggle == ival},
+								                     subs_options::no_pattern);
 							}
 						} else
 							S = S * e.op(j);
@@ -1339,11 +1346,11 @@ ex clifford_moebius_map(const ex & a, const ex & b, const ex & c, const ex & d, 
 	} else {
 		if (is_a<indexed>(G)) {
 			D = ex_to<idx>(G.op(1)).get_dim();
-			varidx mu((new symbol)->setflag(status_flags::dynallocated), D);
+			varidx mu(dynallocate<symbol>(), D);
 			cu = clifford_unit(mu, G, rl);
 		} else if (is_a<matrix>(G)) {
 			D = ex_to<matrix>(G).rows(); 
-			idx mu((new symbol)->setflag(status_flags::dynallocated), D);
+			idx mu(dynallocate<symbol>(), D);
 			cu = clifford_unit(mu, G, rl);
 		} else throw(std::invalid_argument("clifford_moebius_map(): metric should be an indexed object, matrix, or a Clifford unit"));
 		

@@ -41,41 +41,42 @@ public:
 	add(const exvector & v);
 	add(const epvector & v);
 	add(const epvector & v, const ex & oc);
-	add(std::auto_ptr<epvector> vp, const ex & oc);
+	add(epvector && v);
+	add(epvector && v, const ex & oc);
 	
 	// functions overriding virtual functions from base classes
 public:
-	unsigned precedence() const {return 40;}
-	bool info(unsigned inf) const;
-	bool is_polynomial(const ex & var) const;
-	int degree(const ex & s) const;
-	int ldegree(const ex & s) const;
-	ex coeff(const ex & s, int n=1) const;
-	ex eval(int level=0) const;
-	ex evalm() const;
-	ex series(const relational & r, int order, unsigned options = 0) const;
-	ex normal(exmap & repl, exmap & rev_lookup, int level=0) const;
-	numeric integer_content() const;
-	ex smod(const numeric &xi) const;
-	numeric max_coefficient() const;
-	ex conjugate() const;
-	ex real_part() const;
-	ex imag_part() const;
-	exvector get_free_indices() const;
-	ex eval_ncmul(const exvector & v) const;
+	unsigned precedence() const override {return 40;}
+	bool info(unsigned inf) const override;
+	bool is_polynomial(const ex & var) const override;
+	int degree(const ex & s) const override;
+	int ldegree(const ex & s) const override;
+	ex coeff(const ex & s, int n=1) const override;
+	ex eval() const override;
+	ex evalm() const override;
+	ex series(const relational & r, int order, unsigned options = 0) const override;
+	ex normal(exmap & repl, exmap & rev_lookup) const override;
+	numeric integer_content() const override;
+	ex smod(const numeric &xi) const override;
+	numeric max_coefficient() const override;
+	ex conjugate() const override;
+	ex real_part() const override;
+	ex imag_part() const override;
+	exvector get_free_indices() const override;
+	ex eval_ncmul(const exvector & v) const override;
 protected:
-	ex derivative(const symbol & s) const;
-	unsigned return_type() const;
-	return_type_t return_type_tinfo() const;
-	ex thisexpairseq(const epvector & v, const ex & oc, bool do_index_renaming = false) const;
-	ex thisexpairseq(std::auto_ptr<epvector> vp, const ex & oc, bool do_index_renaming = false) const;
-	expair split_ex_to_pair(const ex & e) const;
+	ex derivative(const symbol & s) const override;
+	unsigned return_type() const override;
+	return_type_t return_type_tinfo() const override;
+	ex thisexpairseq(const epvector & v, const ex & oc, bool do_index_renaming = false) const override;
+	ex thisexpairseq(epvector && vp, const ex & oc, bool do_index_renaming = false) const override;
+	expair split_ex_to_pair(const ex & e) const override;
 	expair combine_ex_with_coeff_to_pair(const ex & e,
-	                                     const ex & c) const;
+	                                     const ex & c) const override;
 	expair combine_pair_with_coeff_to_pair(const expair & p,
-	                                       const ex & c) const;
-	ex recombine_pair_to_ex(const expair & p) const;
-	ex expand(unsigned options=0) const;
+	                                       const ex & c) const override;
+	ex recombine_pair_to_ex(const expair & p) const override;
+	ex expand(unsigned options=0) const override;
 
 	// non-virtual functions in this class
 protected:

@@ -13,7 +13,8 @@ CMAKE_FILES = CMakeLists.txt \
 	      INSTALL.CMake \
 	      cmake/modules/FindCLN.cmake \
 	      cmake/modules/FindReadline.cmake \
-	      cmake/modules/FindGiNaC.cmake
+	      cmake/modules/FindGiNaC.cmake \
+	      cmake/modules/FindLibDL.cmake
 
 BUILD_HELPERS = scripts/yaptu.py scripts/fixupind.py
 

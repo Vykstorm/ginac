@@ -32,7 +32,6 @@
 #include "ex.h"
 #include "operators.h"
 #include "archive.h"
-#include "tostring.h"
 #include "utils.h"
 
 #include <limits>
@@ -225,7 +224,7 @@ numeric::numeric(const char *s)
 			// E to lower case
 			term = term.replace(term.find("E"),1,"e");
 			// append _<Digits> to term
-			term += "_" + ToString((unsigned)Digits);
+			term += "_" + std::to_string((unsigned)Digits);
 			// construct float using cln::cl_F(const char *) ctor.
 			if (imaginary)
 				ctorval = ctorval + cln::complex(cln::cl_I(0),cln::cl_F(term.c_str()));
@@ -715,8 +714,6 @@ bool numeric::info(unsigned inf) const
 			return is_odd();
 		case info_flags::prime:
 			return is_prime();
-		case info_flags::algebraic:
-			return !is_real();
 	}
 	return false;
 }
@@ -776,10 +773,8 @@ bool numeric::has(const ex &other, unsigned options) const
 
 
 /** Evaluation of numbers doesn't do anything at all. */
-ex numeric::eval(int level) const
+ex numeric::eval() const
 {
-	// Warning: if this is ever gonna do something, the ex ctors from all kinds
-	// of numbers should be checking for status_flags::evaluated.
 	return this->hold();
 }
 
@@ -789,11 +784,9 @@ ex numeric::eval(int level) const
  *  currently set.  In case the object already was a floating point number the
  *  precision is trimmed to match the currently set default.
  *
- *  @param level  ignored, only needed for overriding basic::evalf.
  *  @return  an ex-handle to a numeric. */
-ex numeric::evalf(int level) const
+ex numeric::evalf() const
 {
-	// level can safely be discarded for numeric objects.
 	return numeric(cln::cl_float(1.0, cln::default_float_format) * value);
 }
 
@@ -930,9 +923,8 @@ const numeric &numeric::add_dyn(const numeric &other) const
 		return other;
 	else if (&other==_num0_p)
 		return *this;
-	
-	return static_cast<const numeric &>((new numeric(value + other.value))->
-	                                    setflag(status_flags::dynallocated));
+
+	return dynallocate<numeric>(value + other.value);
 }
 
 
@@ -946,9 +938,8 @@ const numeric &numeric::sub_dyn(const numeric &other) const
 	// hack is supposed to keep the number of distinct numeric objects low.
 	if (&other==_num0_p || cln::zerop(other.value))
 		return *this;
-	
-	return static_cast<const numeric &>((new numeric(value - other.value))->
-	                                    setflag(status_flags::dynallocated));
+
+	return dynallocate<numeric>(value - other.value);
 }
 
 
@@ -965,8 +956,7 @@ const numeric &numeric::mul_dyn(const numeric &other) const
 	else if (&other==_num1_p)
 		return *this;
 	
-	return static_cast<const numeric &>((new numeric(value * other.value))->
-	                                    setflag(status_flags::dynallocated));
+	return dynallocate<numeric>(value * other.value);
 }
 
 
@@ -984,8 +974,8 @@ const numeric &numeric::div_dyn(const numeric &other) const
 		return *this;
 	if (cln::zerop(cln::the<cln::cl_N>(other.value)))
 		throw std::overflow_error("division by zero");
-	return static_cast<const numeric &>((new numeric(value / other.value))->
-	                                    setflag(status_flags::dynallocated));
+
+	return dynallocate<numeric>(value / other.value);
 }
 
 
@@ -1011,8 +1001,8 @@ const numeric &numeric::power_dyn(const numeric &other) const
 		else
 			return *_num0_p;
 	}
-	return static_cast<const numeric &>((new numeric(cln::expt(value, other.value)))->
-	                                     setflag(status_flags::dynallocated));
+
+	return dynallocate<numeric>(cln::expt(value, other.value));
 }
 
 
@@ -1749,7 +1739,7 @@ class lanczos_coeffs
 		std::vector<cln::cl_N> *current_vector;
 };
 
-std::vector<cln::cl_N>* lanczos_coeffs::coeffs = 0;
+std::vector<cln::cl_N>* lanczos_coeffs::coeffs = nullptr;
 
 bool lanczos_coeffs::sufficiently_accurate(int digits)
 {	if (digits<=20) {
@@ -2024,7 +2014,7 @@ lanczos_coeffs::lanczos_coeffs()
 	coeffs[3].swap(coeffs_120);
 }
 
-static const cln::float_format_t guess_precision(const cln::cl_N& x)
+static cln::float_format_t guess_precision(const cln::cl_N& x)
 {
 	cln::float_format_t prec = cln::default_float_format;
 	if (!instanceof(realpart(x), cln::cl_RA_ring))
@@ -2539,9 +2529,8 @@ _numeric_digits& _numeric_digits::operator=(long prec)
 	cln::default_float_format = cln::float_format(prec);
 
 	// call registered callbacks
-	std::vector<digits_changed_callback>::const_iterator it = callbacklist.begin(),	end = callbacklist.end();
-	for (; it != end; ++it) {
-		(*it)(digitsdiff);
+	for (auto it : callbacklist) {
+		(it)(digitsdiff);
 	}
 
 	return *this;

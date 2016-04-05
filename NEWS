@@ -1,5 +1,38 @@
 This file records noteworthy changes.
 
+1.7.0 (TDB)
+* Make use of C++11 features:
+  - Use new language features 'auto', 'nullptr', 'constexpr', range-based for
+    loops, the contextual keyword 'override', static 'noexcept' operator, etc.
+  - Add initializer list ctors for container<>, lst and nested initializer
+    lists ctor for class matrix.
+  - Add many rvalue reference overloads for ctors from std containers. (Note
+    that whether they really speed up things depends on whether evaluation
+    leaves the container unchanged or not.)
+  - Rvalue reference overloads for ctors from std containers made it possible
+    to remove the manual 'discardable' hack and std::auto_ptr<T> for good.
+  - New dynallocate<T>(args...) helper functions obsolete manual allocation
+    on the heap and setting the dynallocated status flag.
+  - Got rid of C++98ish algorithm features (bind2nd, etc.) and replaced them
+    with lambdas.
+* Make add::eval(), mul::eval() more careful so they return an evaluated,
+  canonical expression without compromise.
+* Remove 'level' argument of all .eval() methods. This has become possible by
+  ensuring that add::eval() and mul::eval() evaluate their own structure
+  without compromise (this was not guaranteed before). If all ex are evaluated,
+  any object which is an aggregate of such ex will only ever have to
+  evaluate itself, obsoleting the need for recursing.
+* Remove 'level' arguments of all .evalf() and .normal() methods. They were
+  modeled after the .eval() methods.
+* Make relational::rhs() and lhs() nonvirtual.
+* Add support for power::info(info_flags::real).
+* Remove broken info_flags::algebraic.
+* Remove unmaintained support for Cint.
+* Remove unfinished andcode for hash table-based expairseq.
+* Remove deprecated ex::to_rational(lst) and ex::to_polynomial(lst).
+* ginac-excompiler installs in $LIBEXECDIR now, not in $BINDIR.
+* Many minor performance enhancements.
+
 1.6.7 (29 February 2016)
 * Fix elusive bug in sqrfree(), normal(), numer(), and denom().
 

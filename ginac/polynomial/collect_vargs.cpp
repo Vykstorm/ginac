@@ -118,7 +118,7 @@ collect_term(ex_collect_priv_t& ec, const ex& e, const exvector& vars)
 		key[i] = var_i_pow;
 		pre_coeff = pre_coeff.coeff(vars[i], var_i_pow);
 	}
-	ex_collect_priv_t::iterator i = ec.find(key);
+	auto i = ec.find(key);
 	if (i != ec.end())
 		i->second += pre_coeff;
 	else
@@ -127,7 +127,7 @@ collect_term(ex_collect_priv_t& ec, const ex& e, const exvector& vars)
 
 static void wipe_out_zeros(ex_collect_priv_t& m)
 {
-	ex_collect_priv_t::iterator i = m.begin();
+	auto i = m.begin();
 	while (i != m.end()) {
 		// be careful to not invalide iterator, use post-increment
 		// for that, see e.g.
@@ -139,8 +139,8 @@ static void wipe_out_zeros(ex_collect_priv_t& m)
 	}
 }
 
-GiNaC::ex
-ex_collect_to_ex(const ex_collect_t& ec, const GiNaC::exvector& vars)
+ex
+ex_collect_to_ex(const ex_collect_t& ec, const exvector& vars)
 {
 	exvector ev;
 	ev.reserve(ec.size());
@@ -155,13 +155,13 @@ ex_collect_to_ex(const ex_collect_t& ec, const GiNaC::exvector& vars)
 				"expression has " << exp_vector.size() << " instead");
 
 			if (exp_vector[j] != 0)
-				tv.push_back(power(vars[j], exp_vector[j]));
+				tv.push_back(pow(vars[j], exp_vector[j]));
 		}
 		tv.push_back(ec[i].second);
-		ex tmp = (new mul(tv))->setflag(status_flags::dynallocated);
+		ex tmp = dynallocate<mul>(tv);
 		ev.push_back(tmp);
 	}
-	ex ret = (new add(ev))->setflag(status_flags::dynallocated);
+	ex ret = dynallocate<add>(ev);
 	return ret;
 }
 

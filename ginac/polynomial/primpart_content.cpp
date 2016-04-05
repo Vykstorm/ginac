@@ -68,7 +68,7 @@ void primpart_content(ex& pp, ex& c, ex e, const exvector& vars,
 
 	// Start from the leading coefficient (which is stored as a last
 	// element of the terms array)
-	ex_collect_t::reverse_iterator i = ec.rbegin();
+	auto i = ec.rbegin();
 	ex g = i->second;
 	// there are at least two terms, so it's safe to...
 	++i;
