@@ -30,6 +30,9 @@ AC_CACHE_CHECK([for standard C++ header files], [ginac_cv_std_cxx_headers], [
 	AC_LANG_PUSH([C++])
 	AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
 		#include <algorithm>
+		#include <cstddef>
+		#include <cstdio>
+		#include <cstdlib>
 		#include <cstring>
 		#include <cstddef>
 		#include <cstdint>
@@ -81,7 +84,7 @@ else
 	AC_CACHE_CHECK([for version of libreadline], [ginac_cv_rl_supported], [
 		ginac_cv_rl_supported="no"
 		AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
-			#include <stdio.h>
+			#include <cstdio>
 			#include <readline/readline.h>
 			#if !defined(RL_VERSION_MAJOR) || !defined(RL_VERSION_MINOR)
 			#error "Ancient/unsupported version of readline"

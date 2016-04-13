@@ -22,10 +22,9 @@
 #ifndef GINSH_H
 #define GINSH_H
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
 #include <map>
 #include <iostream>
 #include <string>
