@@ -5979,7 +5979,7 @@ If both flags are set (as in the last call), then GiNaC tries to get
 the maximal expansion. For example, for the exponent GiNaC firstly expands
 the argument and then the function. For the logarithm and absolute value,
 GiNaC uses the opposite order: firstly expands the function and then its
-argument. Of course, a user can fine-tune this behaviour by sequential
+argument. Of course, a user can fine-tune this behavior by sequential
 calls of several @code{expand()} methods with desired flags.
 
 @node Multiple polylogarithms, Complex expressions, Built-in functions, Methods and functions

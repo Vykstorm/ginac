@@ -133,7 +133,7 @@ const ex Sigma::evaluate(const symbol &x, const unsigned grad) const
 }
 
 
-/** Class of vertices of type Sigma_flipped, sitting in the upper fermionline of Vacuum; no consequences for Gamma. */
+/** Class of vertices of type Sigma_flipped, sitting in the upper fermion line of Vacuum; no consequences for Gamma. */
 class Sigma_flipped : public Sigma {
 public:
 	Sigma_flipped(ijpair ij = ijpair(0,0)) : Sigma(ij) { }

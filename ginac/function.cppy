@@ -448,7 +448,7 @@ ex function::evalf() const
 }
 
 /**
- *  This method is defined to be in line with behaviour of function::return_type()
+ *  This method is defined to be in line with behavior of function::return_type()
  */
 ex function::eval_ncmul(const exvector & v) const
 {
@@ -764,7 +764,7 @@ ex function::expl_derivative(const symbol & s) const // explicit differentiation
 			// end of generated lines
 		}
 	}
-	// There is no fallback for explicit deriviative.
+	// There is no fallback for explicit derivative.
 	throw(std::logic_error("function::expl_derivative(): explicit derivation is called, but no such function defined"));
 }
 

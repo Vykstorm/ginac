@@ -1,7 +1,7 @@
 /** @file exam_paranoia.cpp
  *
  *  This set of tests checks for some of GiNaC's oopses which showed up during
- *  development.  Things were evaluated wrongly and so.  Such a sick behaviour
+ *  development.  Things were evaluated wrongly and so.  Such a sick behavior
  *  shouldn't occur any more.  But we are paranoic and we want to exclude these
  *  these oopses for good, so we run those stupid tests... */
 

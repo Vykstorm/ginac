@@ -571,7 +571,7 @@ unsigned exam_clifford()
 	result += clifford_check6<varidx>(ex_to<matrix>(diag_matrix({-1, 0, 1, -1})))+clifford_check6<idx>(ex_to<matrix>(diag_matrix({-1, 0, 1, -1})));; cout << '.' << flush;
 	result += clifford_check6<varidx>(ex_to<matrix>(diag_matrix({-3, 0, 2, -1})))+clifford_check6<idx>(ex_to<matrix>(diag_matrix({-3, 0, 2, -1})));; cout << '.' << flush;
 
-	realsymbol s("s"), t("t"); // symbolic entries in matric
+	realsymbol s("s"), t("t"); // symbolic entries in matrix
 	result += clifford_check6<varidx>(ex_to<matrix>(diag_matrix({-1, 1, s, t})))+clifford_check6<idx>(ex_to<matrix>(diag_matrix({-1, 1, s, t})));; cout << '.' << flush;
 
 	matrix A(4, 4);

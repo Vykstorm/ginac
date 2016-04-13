@@ -158,7 +158,7 @@ ex parser::parse_unary_expr()
 	// -(a) 
 	// +a
 	// +(a)
-	// Delegete the work to parse_binop_rhs(), otherwise we end up
+	// Delegate the work to parse_binop_rhs(), otherwise we end up
 	// duplicating it here. 
 	ex lhs = _ex0; // silly trick
 	ex e = parse_binop_rhs(0, lhs);

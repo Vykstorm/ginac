@@ -34,7 +34,7 @@ using namespace std;
  *  their hash values.  If the hash values are unpredictable, then so are
  *  the canonical orderings.  If the canonical orderings are unpredictable,
  *  all subsequent times are subject to some variation.  This variation,
- *  however is natural and desireable for two reasons: First, we cannot know
+ *  however is natural and desirable for two reasons: First, we cannot know
  *  how many symbols have been generated before in real world computations.
  *  Second, the following timings are subject to some semi-random variation
  *  anyways because short timings need to be repeated until enough time has

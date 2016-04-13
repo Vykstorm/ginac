@@ -129,7 +129,7 @@ static void wipe_out_zeros(ex_collect_priv_t& m)
 {
 	auto i = m.begin();
 	while (i != m.end()) {
-		// be careful to not invalide iterator, use post-increment
+		// be careful to not invalidate the iterator, use post-increment
 		// for that, see e.g.
 		// http://coding.derkeiler.com/Archive/C_CPP/comp.lang.cpp/2004-02/0502.html
 		if (i->second.is_zero())

@@ -164,7 +164,7 @@ static unsigned exam_operator_semantics()
 		++result;
 	}
 	
-	// Prefix/postfix increment/decrement behaviour:
+	// Prefix/postfix increment/decrement behavior:
 	e1 = 7; e2 = 4;
 	i1 = 7; i2 = 4;
 	e1 = (--e2 = 2)++;

@@ -31,7 +31,7 @@
 namespace GiNaC {
 
 /**
- * Flags to control the behaviour of gcd() and friends
+ * Flags to control the behavior of gcd() and friends
  */
 struct gcd_options
 {

@@ -89,7 +89,7 @@ numeric::numeric()
 numeric::numeric(int i)
 {
 	// Not the whole int-range is available if we don't cast to long
-	// first.  This is due to the behaviour of the cl_I-ctor, which
+	// first.  This is due to the behavior of the cl_I-ctor, which
 	// emphasizes efficiency.  However, if the integer is small enough
 	// we save space and dereferences by using an immediate type.
 	// (C.f. <cln/object.h>)
@@ -110,7 +110,7 @@ numeric::numeric(int i)
 numeric::numeric(unsigned int i)
 {
 	// Not the whole uint-range is available if we don't cast to ulong
-	// first.  This is due to the behaviour of the cl_I-ctor, which
+	// first.  This is due to the behavior of the cl_I-ctor, which
 	// emphasizes efficiency.  However, if the integer is small enough
 	// we save space and dereferences by using an immediate type.
 	// (C.f. <cln/object.h>)
@@ -2217,7 +2217,7 @@ const numeric bernoulli(const numeric &nn)
 
 	results.reserve(n/2);
 	for (unsigned p=next_r; p<=n;  p+=2) {
-		cln::cl_I  c = 1;  // seed for binonmial coefficients
+		cln::cl_I  c = 1;  // seed for binomial coefficients
 		cln::cl_RA b = cln::cl_RA(p-1)/-2;
 		// The CLN manual says: "The conversion from `unsigned int' works only
 		// if the argument is < 2^29" (This is for 32 Bit machines. More

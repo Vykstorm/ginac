@@ -52,7 +52,7 @@ static cln::cl_I extract_integer_content(ex& Apr, const ex& A)
 		}
 	} else {
 		Apr = (A/icont_).expand();
-		// A is a polynomail over rationals, so GCD is defined
+		// A is a polynomial over rationals, so GCD is defined
 		// up to arbitrary rational number.
 		return n1;
 	}
