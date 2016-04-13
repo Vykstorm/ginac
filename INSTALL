@@ -19,9 +19,9 @@ To build the GiNaC tutorial and reference manual the doxygen utility
 TeX are necessary.
 
 Known to work with:
- - Linux on x86 and x86_64 using 
-   - GCC 4.8, 4.9, 5.1, 5.2, and 5.3
-   - Clang 3.5.0
+ - Linux on x86 and x86_64 using
+   - GCC 4.8, 4.9, 5.1, 5.2, 5.3, and 6.1
+   - Clang 3.5, 3.6, 3.7, 3.8
 
 Known not to work with:
  - Clang 2.7 and earlier due to poor C++ support.
@@ -34,7 +34,7 @@ libtool (>= 1.5), python (>= 2.5), bison (>= 2.3), flex (>= 2.5.33) to be instal
 INSTALLATION
 ============
 
-To install from a source .tar.bz2 distribution:
+To install from an unpacked source .tar.bz2 distribution:
 
  $ ./configure
  $ make
@@ -71,16 +71,11 @@ A few of the more important ones:
 More detailed installation instructions can be found in the documentation,
 in the doc/ directory.
 
-The time the "make" step takes depends on optimization levels. To give you
-a rough idea of what you have to expect the following table may be helpful.
-It was measured on an Athlon X2/3GHz with 4Gb of RAM.
-
-step          | GCC optimization  | comment
-              |   -O1   |   -O2   |
---------------+---------+---------+----------------------------------------
-make          |   ~1m   |   ~2m   | shared library only (--disable-static),
-              |         |         | parallel compilation (MAKEFLAGS=-j2)
-make check    |   ~6m   |   ~6m   | largely due to compilation
+The time to build the library depends to a large degree on optimization levels.
+Using the default high optimization, 'make' takes a few minutes on a fast
+machine and 'make check' takes some more minutes. You can speed this up with a
+parallel build with 'make -j2' or higher, depending on the number of available
+CPU cores.
 
 
 To install from git 
