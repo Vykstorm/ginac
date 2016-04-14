@@ -26,6 +26,7 @@ This file records noteworthy changes.
   modeled after the .eval() methods.
 * Make relational::rhs() and lhs() nonvirtual.
 * Add support for power::info(info_flags::real).
+* Add fderivative::derivatives() method.
 * Remove broken info_flags::algebraic.
 * Remove unmaintained support for Cint.
 * Remove unfinished andcode for hash table-based expairseq.

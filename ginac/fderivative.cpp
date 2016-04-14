@@ -215,4 +215,20 @@ bool fderivative::match_same_type(const basic & other) const
 	return parameter_set == o.parameter_set && inherited::match_same_type(other);
 }
 
+/** Expose this object's derivative structure.
+ *
+ *  Parameter numbers occurring more than once stand for repeated
+ *  differentiation with respect to that parameter. If a symbolic function
+ *  f(x,y) is differentiated with respect to x, this method will return {0}.
+ *  If f(x,y) is differentiated twice with respect to y, it will return {1,1}.
+ *  (This corresponds to the way this object is printed.)
+ *
+ *  @return  multiset of function's parameter numbers that are abstractly
+ *  differentiated. */
+const paramset& fderivative::derivatives() const
+{
+	return parameter_set;
+}
+
+
 } // namespace GiNaC

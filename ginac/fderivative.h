@@ -72,6 +72,8 @@ protected:
 	bool match_same_type(const basic & other) const override;
 
 	// non-virtual functions in this class
+public:
+	const paramset& derivatives() const;
 protected:
 	void do_print(const print_context & c, unsigned level) const;
 	void do_print_csrc(const print_csrc & c, unsigned level) const;
