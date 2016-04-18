@@ -92,7 +92,8 @@ struct map_function {
 
 /** Degenerate base class for visitors. basic and derivative classes
  *  support Robert C. Martin's Acyclic Visitor pattern (cf.
- *  http://objectmentor.com/publications/acv.pdf). */
+ *  http://condor.depaul.edu/dmumaugh/OOT/Design-Principles/acv.pdf
+ *  or chapter 10 of Andrei Alexandrescu's "Modern C++ Design"). */
 class visitor {
 protected:
 	virtual ~visitor() {}
