@@ -962,13 +962,14 @@ expair mul::combine_ex_with_coeff_to_pair(const ex & e,
 	if (is_exactly_a<symbol>(e))
 		return expair(e, c);
 
+	// trivial case: exponent 1
+	if (c.is_equal(_ex1))
+		return split_ex_to_pair(e);
+
 	// to avoid duplication of power simplification rules,
 	// we create a temporary power object
 	// otherwise it would be hard to correctly evaluate
 	// expression like (4^(1/3))^(3/2)
-	if (c.is_equal(_ex1))
-		return split_ex_to_pair(e);
-
 	return split_ex_to_pair(pow(e,c));
 }
 
@@ -978,19 +979,26 @@ expair mul::combine_pair_with_coeff_to_pair(const expair & p,
 	GINAC_ASSERT(is_exactly_a<numeric>(p.coeff));
 	GINAC_ASSERT(is_exactly_a<numeric>(c));
 
+	// First, try a common shortcut:
+	if (is_exactly_a<symbol>(p.rest))
+		return expair(p.rest, p.coeff * c);
+
+	// trivial case: exponent 1
+	if (c.is_equal(_ex1))
+		return p;
+	if (p.coeff.is_equal(_ex1))
+		return expair(p.rest, c);
+
 	// to avoid duplication of power simplification rules,
 	// we create a temporary power object
 	// otherwise it would be hard to correctly evaluate
 	// expression like (4^(1/3))^(3/2)
-	if (c.is_equal(_ex1))
-		return p;
-
 	return split_ex_to_pair(pow(recombine_pair_to_ex(p),c));
 }
 
 ex mul::recombine_pair_to_ex(const expair & p) const
 {
-	if (ex_to<numeric>(p.coeff).is_equal(*_num1_p)) 
+	if (p.coeff.is_equal(_ex1))
 		return p.rest;
 	else
 		return dynallocate<power>(p.rest, p.coeff);
