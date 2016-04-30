@@ -1,6 +1,6 @@
 This file records noteworthy changes.
 
-1.7.0 (TDB)
+1.7.0 (30 April 2016)
 * Make use of C++11 features:
   - Use new language features 'auto', 'nullptr', 'constexpr', range-based for
     loops, the contextual keyword 'override', static 'noexcept' operator, etc.
