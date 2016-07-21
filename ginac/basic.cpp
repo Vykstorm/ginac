@@ -585,10 +585,11 @@ bool basic::match(const ex & pattern, exmap& repl_lst) const
 ex basic::subs_one_level(const exmap & m, unsigned options) const
 {
 	if (options & subs_options::no_pattern) {
-		auto it = m.find(*this);
+		ex thisex = *this;  // NB: *this may be deleted here.
+		auto it = m.find(thisex);
 		if (it != m.end())
 			return it->second;
-		return *this;
+		return thisex;
 	} else {
 		for (auto & it : m) {
 			exmap repl_lst;
