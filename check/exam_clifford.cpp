@@ -542,11 +542,48 @@ static unsigned clifford_check8()
 {
 	unsigned result = 0;
 
-	realsymbol a("a");
+	realsymbol a("a"), b("b"), x("x");
 	varidx mu(symbol("mu", "\\mu"), 1);
 
 	ex e = clifford_unit(mu, diag_matrix({-1})), e0 = e.subs(mu==0);
 	result += ( exp(a*e0)*e0*e0 == -exp(e0*a) ) ? 0 : 1;
+
+	ex P = color_T(idx(a,8))*color_T(idx(b,8))*(x*dirac_ONE()+sqrt(x-1)*e0);
+	ex P_prime = color_T(idx(a,8))*color_T(idx(b,8))*(x*dirac_ONE()-sqrt(x-1)*e0);
+
+	result += check_equal(clifford_prime(P), P_prime);
+	result += check_equal(clifford_star(P), P);
+	result += check_equal(clifford_bar(P), P_prime);
+
+	return result;
+}
+
+static unsigned clifford_check9()
+{
+	unsigned result = 0;
+
+	realsymbol a("a"), b("b"), x("x");;
+	varidx mu(symbol("mu", "\\mu"), 4),  nu(symbol("nu", "\\nu"), 4);
+
+	ex e = clifford_unit(mu, lorentz_g(mu, nu));
+	ex e0 = e.subs(mu==0);
+	ex e1 = e.subs(mu==1);
+	ex e2 = e.subs(mu==2);
+	ex e3 = e.subs(mu==3);
+	ex one = dirac_ONE();
+
+	ex P = color_T(idx(a,8))*color_T(idx(b,8))
+	       *(x*one+sqrt(x-1)*e0+sqrt(x-2)*e0*e1 +sqrt(x-3)*e0*e1*e2 +sqrt(x-4)*e0*e1*e2*e3);
+	ex P_prime = color_T(idx(a,8))*color_T(idx(b,8))
+	       *(x*one-sqrt(x-1)*e0+sqrt(x-2)*e0*e1 -sqrt(x-3)*e0*e1*e2 +sqrt(x-4)*e0*e1*e2*e3);
+	ex P_star = color_T(idx(a,8))*color_T(idx(b,8))
+	       *(x*one+sqrt(x-1)*e0+sqrt(x-2)*e1*e0 +sqrt(x-3)*e2*e1*e0 +sqrt(x-4)*e3*e2*e1*e0);
+	ex P_bar = color_T(idx(a,8))*color_T(idx(b,8))
+	       *(x*one-sqrt(x-1)*e0+sqrt(x-2)*e1*e0 -sqrt(x-3)*e2*e1*e0 +sqrt(x-4)*e3*e2*e1*e0);
+
+	result += check_equal(clifford_prime(P), P_prime);
+	result += check_equal(clifford_star(P), P_star);
+	result += check_equal(clifford_bar(P), P_bar);
 
 	return result;
 }
@@ -617,6 +654,8 @@ unsigned exam_clifford()
 	result += clifford_check7(-2*delta_tensor(xi, chi), dim); cout << '.' << flush;
 
 	result += clifford_check8(); cout << '.' << flush;
+
+	result += clifford_check9(); cout << '.' << flush;
 
 	return result;
 }

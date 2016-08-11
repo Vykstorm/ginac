@@ -282,12 +282,16 @@ ex canonicalize_clifford(const ex & e);
  *  clifford units. */
 ex clifford_prime(const ex & e);
 
+/** An auxillary function performing clifford_star() and clifford_bar().*/
+ex clifford_star_bar(const ex & e, bool do_bar, unsigned options);
+
 /** Main anti-automorphism of the Clifford algebra: makes reversion
  *  and changes signs of all clifford units. */
-inline ex clifford_bar(const ex & e) { return clifford_prime(e.conjugate()); }
+inline ex clifford_bar(const ex & e) { return clifford_star_bar(e, true, 0); }
 
-/** Reversion of the Clifford algebra, coincides with the conjugate(). */
-inline ex clifford_star(const ex & e) { return e.conjugate(); }
+/** Reversion of the Clifford algebra, reverse the order of all clifford units
+ *  in ncmul. */
+inline ex clifford_star(const ex & e) { return clifford_star_bar(e, false, 0); }
 
 /** Replaces dirac_ONE's (with a representation_label no less than rl) in e with 1.
  *  For the default value rl = 0 remove all of them. Aborts if e contains any 

@@ -1087,6 +1087,47 @@ next_sym:	;
 	}
 }
 
+ex clifford_star_bar(const ex & e, bool do_bar, unsigned options)
+{
+	pointer_to_map_function_2args<bool, unsigned> fcn(clifford_star_bar, do_bar, options | 1);
+
+	// is a child, no need to expand
+	ex e1= (options & 1 ? e : e.expand());
+
+	if (is_a<ncmul>(e1) ) { // reversing order of clifford units
+		exvector ev, cv;
+		ev.reserve(e1.nops());
+		cv.reserve(e1.nops());
+		// separate clifford and non-clifford entries
+		for (int i= 0; i < e1.nops(); ++i) {
+			if (is_a<clifford>(e1.op(i)) && is_a<cliffordunit>(e1.op(i).op(0)))
+				cv.push_back(e1.op(i));
+			else
+				ev.push_back(e1.op(i));
+		}
+		for (auto i=cv.rbegin(); i!=cv.rend(); ++i) { // reverse order of Clifford units
+			ev.push_back(i->conjugate());
+		}
+		// For clifford_bar an odd number of clifford units reverts the sign
+		if (do_bar && (cv.size() % 2 == 1))
+			return -dynallocate<ncmul>(std::move(ev));
+		else
+			return dynallocate<ncmul>(std::move(ev));
+	} else if (is_a<clifford>(e1) && is_a<cliffordunit>(e1.op(0))) {
+		if (do_bar)
+			return -e;
+		else
+			return e;
+	} else if (is_a<power>(e1)) {
+		// apply the procedure to the base of a power
+		return pow(clifford_star_bar(e1.op(0), do_bar, 0), e1.op(1));
+	} else if (is_a<add>(e1) || is_a<mul>(e1) || e.info(info_flags::list)) {
+		// recurse into subexpressions
+		return e1.map(fcn);
+	} else  // nothing meaningful can be done
+		return e;
+}
+
 ex clifford_prime(const ex & e)
 {
 	pointer_to_map_function fcn(clifford_prime);
