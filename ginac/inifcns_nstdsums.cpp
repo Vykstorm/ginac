@@ -337,10 +337,10 @@ cln::cl_N Li_projection(int n, const cln::cl_N& x, const cln::float_format_t& pr
 			// the switching point was empirically determined. the optimal point
 			// depends on hardware, Digits, ... so an approx value is okay.
 			// it solves also the problem with precision due to the u=-log(1-x) transformation
-			if (cln::abs(cln::realpart(x)) < 0.25) {
-				
+			if (cln::abs(x) < 0.25) {
 				return Li2_do_sum(x);
 			} else {
+				// Li2_do_sum practically doesn't converge near x == ±I
 				return Li2_do_sum_Xn(x);
 			}
 		} else {
@@ -366,9 +366,10 @@ cln::cl_N Li_projection(int n, const cln::cl_N& x, const cln::float_format_t& pr
 		if (cln::realpart(x) < 0.5) {
 			// choose the faster algorithm
 			// with n>=12 the "normal" summation always wins against the method with Xn
-			if ((cln::abs(cln::realpart(x)) < 0.3) || (n >= 12)) {
+			if ((cln::abs(x) < 0.3) || (n >= 12)) {
 				return Lin_do_sum(n, x);
 			} else {
+				// Li2_do_sum practically doesn't converge near x == ±I
 				return Lin_do_sum_Xn(n, x);
 			}
 		} else {
