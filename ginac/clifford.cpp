@@ -1264,72 +1264,68 @@ ex lst_to_clifford(const ex & v, const ex & e) {
 
 /** Auxiliary structure to define a function for striping one Clifford unit
  * from vectors. Used in  clifford_to_lst(). */
-static ex get_clifford_comp(const ex & e, const ex & c) 
+static ex get_clifford_comp(const ex & e, const ex & c, bool root=true)
 {
-	pointer_to_map_function_1arg<const ex &> fcn(get_clifford_comp, c);
+	// make expansion on the top-level call only
+	ex e1=(root? e.expand() : e);
+
+	pointer_to_map_function_2args<const ex &, bool> fcn(get_clifford_comp, c, false);
 	int ival = ex_to<numeric>(ex_to<idx>(c.op(1)).get_value()).to_int();
-		
-	if (is_a<add>(e) || e.info(info_flags::list) // || is_a<pseries>(e) || is_a<integral>(e)
-		|| is_a<matrix>(e)) 
-		return e.map(fcn);
-	else if (is_a<ncmul>(e) || is_a<mul>(e)) {
-		// find a Clifford unit with the same metric, delete it and substitute its index
-		size_t ind = e.nops() + 1;
-		for (size_t j = 0; j < e.nops(); j++) {
-			if (is_a<clifford>(e.op(j)) && ex_to<clifford>(c).same_metric(e.op(j))) {
-				if (ind > e.nops()) {
-					ind = j;
-				} else {
+	int rl=ex_to<clifford>(c).get_representation_label();
+
+	if ( (is_a<add>(e1) || e1.info(info_flags::list) || is_a<matrix>(e1))) {
+		return e1.map(fcn);
+	} else if (is_a<ncmul>(e1) || is_a<mul>(e1)) {
+		// searches are done within products only
+		exvector ev, all_dummy=get_all_dummy_indices(e1);
+		bool found=false, same_value_found=false;
+		ex dummy_ind=0;
+		ev.reserve(e1.nops());
+		for (int i=0; i < e1.nops();++i) {
+			// look for a Clifford unit with the same metric and representation label,
+			// if found remember its index
+			if (is_a<clifford>(e1.op(i)) && ex_to<clifford>(e1.op(i)).get_representation_label() == rl
+				&& is_a<cliffordunit>(e1.op(i).op(0)) && ex_to<clifford>(e1.op(i)).same_metric(c)) { // same Clifford unit
+				if (found)
 					throw(std::invalid_argument("get_clifford_comp(): expression is a Clifford multi-vector"));
-				}
-			}
+				found=true;
+				if (ex_to<idx>(e1.op(i).op(1)).is_numeric() &&
+				    (ival == ex_to<numeric>(ex_to<idx>(e1.op(i).op(1)).get_value()).to_int())) {
+					same_value_found = true; // desired index value is found
+				} else if ((std::find(all_dummy.begin(), all_dummy.end(), e1.op(i).op(1)) != all_dummy.end())
+				           || (is_a<varidx>(e1.op(i).op(1))
+				               && std::find(all_dummy.begin(), all_dummy.end(),
+				                            ex_to<varidx>(e1.op(i).op(1)).toggle_variance()) != all_dummy.end())) {
+					dummy_ind=(e1.op(i).op(1)); // suitable dummy index found
+				} else
+					ev.push_back(e.op(i)); // another index value
+			} else
+				ev.push_back(e1.op(i));
 		}
-		if (ind < e.nops()) {
-			ex S = 1;
-			bool same_value_index, found_dummy;
-			same_value_index = ( ex_to<idx>(e.op(ind).op(1)).is_numeric()
-								 &&  (ival == ex_to<numeric>(ex_to<idx>(e.op(ind).op(1)).get_value()).to_int()) );
-			found_dummy = same_value_index;
-			// Run through the expression collecting all non-clifford factors
-			for (size_t j=0; j < e.nops(); j++) {
-				if (j != ind) {
-					if (same_value_index) {
-						S = S * e.op(j);
-					} else {
-						exvector ind_vec;
-						if (is_a<indexed>(e.op(j)))
-							ind_vec = ex_to<indexed>(e.op(j)).get_dummy_indices(ex_to<indexed>(e.op(ind)));
-						
-						if (ind_vec.size() > 0) {
-							found_dummy = true;
-							for (auto & it : ind_vec) {
-								ex curridx = it;
-								ex curridx_toggle = is_a<varidx>(curridx)
-									? ex_to<varidx>(curridx).toggle_variance()
-									: curridx;
-								S = S * e.op(j).subs(lst{curridx == ival, curridx_toggle == ival},
-								                     subs_options::no_pattern);
-							}
-						} else
-							S = S * e.op(j);
-					}
-				}
-			}
-			return (found_dummy ? S : 0);
-		} else
+
+		if (! found) // no Clifford units found at all
 			throw(std::invalid_argument("get_clifford_comp(): expression is not a Clifford vector to the given units"));
-	} else if (e.is_zero()) 
-		return e;
-	else if (is_a<clifford>(e) && ex_to<clifford>(e).same_metric(c))
-		if ( ex_to<idx>(e.op(1)).is_numeric() &&
-			 (ival != ex_to<numeric>(ex_to<idx>(e.op(1)).get_value()).to_int()) )
+
+		ex res=dynallocate<ncmul>(std::move(ev));
+		if (same_value_found) {
+			return  res;
+		} else if (! dummy_ind.is_zero()) { // a dummy index was found
+			if (is_a<varidx>(dummy_ind))
+				dummy_ind = ex_to<varidx>(dummy_ind).toggle_variance();
+			return res.subs(dummy_ind==ival, subs_options::no_pattern);
+		} else // found a Clifford unit with another index
 			return 0;
-		else 
+	} else if (e1.is_zero()) {
+		return 0;
+	} else if (is_a<clifford>(e1) && is_a<cliffordunit>(e1.op(0)) && ex_to<clifford>(e1).same_metric(c)) {
+		if (ex_to<idx>(e1.op(1)).is_numeric() &&
+		    (ival == ex_to<numeric>(ex_to<idx>(e1.op(1)).get_value()).to_int()) )
 			return 1;
-	else
+		else
+			return 0;
+	} else
 		throw(std::invalid_argument("get_clifford_comp(): expression is not usable as a Clifford vector"));
 }
-
 
 lst clifford_to_lst(const ex & e, const ex & c, bool algebraic)
 {
@@ -1345,7 +1341,7 @@ lst clifford_to_lst(const ex & e, const ex & c, bool algebraic)
 				|| (! is_a<numeric>(pow(c.subs(mu == i, subs_options::no_pattern), 2))))
 				algebraic = false;
 	lst V; 
-	ex v0 = remove_dirac_ONE(canonicalize_clifford(e+clifford_prime(e)).normal())/2;
+	ex v0 = remove_dirac_ONE(canonicalize_clifford(e+clifford_prime(e)))/2;
 	if (! v0.is_zero())
 		V.append(v0);
 	ex e1 = canonicalize_clifford(e - v0 * dirac_ONE(ex_to<clifford>(c).get_representation_label())); 
@@ -1356,13 +1352,13 @@ lst clifford_to_lst(const ex & e, const ex & c, bool algebraic)
 						/ (2*pow(c.subs(mu == i, subs_options::no_pattern), 2))));
 	} else {
 		try {
-			for (unsigned int i = 0; i < D; i++) 
+			for (unsigned int i = 0; i < D; i++)
 				V.append(get_clifford_comp(e1, c.subs(c.op(1) == i, subs_options::no_pattern)));
 		} catch  (std::exception &p) {
 			/* Try to expand dummy summations to simplify the expression*/
 			e1 = canonicalize_clifford(expand_dummy_sum(e, true));
 			V.remove_all();
-			v0 = remove_dirac_ONE(canonicalize_clifford(e1+clifford_prime(e1)).normal())/2;
+			v0 = remove_dirac_ONE(canonicalize_clifford(e1+clifford_prime(e1)))/2;
 			if (! v0.is_zero()) {
 				V.append(v0);
 				e1 = canonicalize_clifford(e1 - v0 * dirac_ONE(ex_to<clifford>(c).get_representation_label())); 
