@@ -26,11 +26,11 @@
 #ifdef __GNUC__
 #define unlikely(cond) __builtin_expect((cond), 0)
 #define likely(cond) __builtin_expect((cond), 1)
-#define deprecated __attribute__ ((deprecated));
+#define attribute_deprecated __attribute__ ((deprecated))
 #else
 #define unlikely(cond) (cond)
 #define likely(cond) (cond)
-#define deprecated
+#define attribute_deprecated
 #endif
 
 #ifdef _MSC_VER

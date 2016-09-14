@@ -102,7 +102,7 @@ public:
 	matrix(unsigned r, unsigned c, const lst & l);
 	matrix(std::initializer_list<std::initializer_list<ex>> l);
 
-	matrix_init<ex, exvector::iterator> operator=(const ex & x) deprecated;
+	matrix_init<ex, exvector::iterator> operator=(const ex & x) attribute_deprecated;
 protected:
 	matrix(unsigned r, unsigned c, const exvector & m2);
 	matrix(unsigned r, unsigned c, exvector && m2);
