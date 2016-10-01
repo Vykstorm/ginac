@@ -30,7 +30,7 @@
 #define GINACLIB_MINOR_VERSION 7
 
 /* Micro version of GiNaC */
-#define GINACLIB_MICRO_VERSION 0
+#define GINACLIB_MICRO_VERSION 1
 
 // GiNaC library version information. It has very little to do with GiNaC
 // version number. In particular, library version is OS dependent. 
@@ -50,7 +50,7 @@
 // for numbers that are omitted, except for shrinking the available space
 // of leftover numbers. Not something we need to worry about yet. ;-)
 #define GINAC_LT_CURRENT  6
-#define GINAC_LT_REVISION 0
+#define GINAC_LT_REVISION 1
 #define GINAC_LT_AGE      0
 
 /*

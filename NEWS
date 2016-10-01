@@ -1,5 +1,12 @@
 This file records noteworthy changes.
 
+1.7.1 (2 October 2016)
+* Fix crash in basic::subs(), visible in classes which don't override it.
+* Fix convergence failure in Li_projection.
+* Fix cliffor_bar() and clifford_star().
+* Improve performance of clifford_to_lst().
+* Fix compilation issues, reduce compiler warnings.
+
 1.7.0 (30 April 2016)
 * Make use of C++11 features:
   - Use new language features 'auto', 'nullptr', 'constexpr', range-based for
