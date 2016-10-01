@@ -125,32 +125,35 @@ private:
 
 typedef class_info<registered_class_options> registered_class_info;
 
-
-/** Primary macro for inclusion in the declaration of each registered class. */
-#define GINAC_DECLARE_REGISTERED_CLASS_NO_CTORS(classname, supername) \
-public: \
-	typedef supername inherited; \
+/** Common part of GINAC_DECLARE_REGISTERED_CLASS_NO_CTORS and GINAC_DECLARE_REGISTERED_CLASS. */
+#define GINAC_DECLARE_REGISTERED_CLASS_COMMON(classname)	\
 private: \
 	static GiNaC::registered_class_info reg_info; \
 public: \
 	static GiNaC::registered_class_info &get_class_info_static() { return reg_info; } \
-	virtual const GiNaC::registered_class_info &get_class_info() const { return classname::get_class_info_static(); } \
-	virtual GiNaC::registered_class_info &get_class_info() { return classname::get_class_info_static(); } \
-	virtual const char *class_name() const { return classname::get_class_info_static().options.get_name(); } \
 	class visitor { \
 	public: \
 		virtual void visit(const classname &) = 0; \
 		virtual ~visitor() {}; \
 	};
 
+/** Primary macro for inclusion in the declaration of each registered class. */
+#define GINAC_DECLARE_REGISTERED_CLASS_NO_CTORS(classname, supername) \
+	GINAC_DECLARE_REGISTERED_CLASS_COMMON(classname) \
+	typedef supername inherited; \
+	virtual const GiNaC::registered_class_info &get_class_info() const { return classname::get_class_info_static(); } \
+	virtual GiNaC::registered_class_info &get_class_info() { return classname::get_class_info_static(); } \
+	virtual const char *class_name() const { return classname::get_class_info_static().options.get_name(); } \
+private:
+
 /** Macro for inclusion in the declaration of each registered class.
  *  It declares some functions that are common to all classes derived
  *  from 'basic' as well as all required stuff for the GiNaC class
  *  registry (mainly needed for archiving). */
 #define GINAC_DECLARE_REGISTERED_CLASS(classname, supername) \
-	GINAC_DECLARE_REGISTERED_CLASS_NO_CTORS(classname, supername) \
+	GINAC_DECLARE_REGISTERED_CLASS_COMMON(classname) \
 	template<class B, typename... Args> friend B & dynallocate(Args &&... args); \
-public: \
+	typedef supername inherited; \
 	classname(); \
 	classname * duplicate() const override { \
 		classname * bp = new classname(*this); \
@@ -165,6 +168,9 @@ public: \
 		else \
 			inherited::accept(v); \
 	} \
+	const GiNaC::registered_class_info &get_class_info() const override { return classname::get_class_info_static(); } \
+	GiNaC::registered_class_info &get_class_info() override { return classname::get_class_info_static(); } \
+	const char *class_name() const override { return classname::get_class_info_static().options.get_name(); } \
 protected: \
 	int compare_same_type(const GiNaC::basic & other) const override; \
 private:

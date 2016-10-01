@@ -59,22 +59,31 @@ public:
 };
 
 
+/** Common part of GINAC_DECLARE_PRINT_CONTEXT_BASE and GINAC_DECLARE_PRINT_CONTEXT_DERIVED. */
+#define GINAC_DECLARE_PRINT_CONTEXT_COMMON(classname)	\
+public: \
+	friend class function_options; \
+	friend class registered_class_options; \
+	static const GiNaC::print_context_class_info &get_class_info_static(); \
+	classname();
+
+#define GINAC_DECLARE_PRINT_CONTEXT_BASE(classname) \
+	GINAC_DECLARE_PRINT_CONTEXT_COMMON(classname) \
+	virtual const GiNaC::print_context_class_info &get_class_info() const { return classname::get_class_info_static(); } \
+	virtual const char *class_name() const { return classname::get_class_info_static().options.get_name(); } \
+	virtual classname * duplicate() const { return new classname(*this); } \
+private:
+
 /** Macro for inclusion in the declaration of a print_context class.
  *  It declares some functions that are common to all classes derived
  *  from 'print_context' as well as all required stuff for the GiNaC
  *  registry. */
 #define GINAC_DECLARE_PRINT_CONTEXT(classname, supername) \
-public: \
+	GINAC_DECLARE_PRINT_CONTEXT_COMMON(classname) \
 	typedef supername inherited; \
-	friend class function_options; \
-	friend class registered_class_options; \
-public: \
-	static const GiNaC::print_context_class_info &get_class_info_static(); \
-	virtual const GiNaC::print_context_class_info &get_class_info() const { return classname::get_class_info_static(); } \
-	virtual const char *class_name() const { return classname::get_class_info_static().options.get_name(); } \
-	\
-	classname(); \
-	virtual classname * duplicate() const { return new classname(*this); } \
+	const GiNaC::print_context_class_info &get_class_info() const override { return classname::get_class_info_static(); } \
+	const char *class_name() const override { return classname::get_class_info_static().options.get_name(); } \
+	classname * duplicate() const override { return new classname(*this); } \
 private:
 
 /** Macro for inclusion in the implementation of each print_context class. */
@@ -92,7 +101,7 @@ extern unsigned next_print_context_id;
 /** Base class for print_contexts. */
 class print_context
 {
-	GINAC_DECLARE_PRINT_CONTEXT(print_context, void)
+	GINAC_DECLARE_PRINT_CONTEXT_BASE(print_context)
 public:
 	print_context(std::ostream &, unsigned options = 0);
 	virtual ~print_context() {}
