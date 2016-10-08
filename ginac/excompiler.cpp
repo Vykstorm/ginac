@@ -38,6 +38,8 @@
 #ifdef HAVE_LIBDL
 #include <dlfcn.h>
 #endif // def HAVE_LIBDL
+#include <unistd.h>
+#include <stdlib.h>
 #include <fstream>
 #include <ios>
 #include <sstream>
@@ -48,7 +50,7 @@
 namespace GiNaC {
 
 #ifdef HAVE_LIBDL
-	
+
 /**
  * Small class that manages modules opened by libdl. It is used by compile_ex
  * and link_ex in order to have a clean-up of opened modules and their
@@ -112,12 +114,14 @@ public:
 			const char* filename_pattern = "./GiNaCXXXXXX";
 			char* new_filename = new char[strlen(filename_pattern)+1];
 			strcpy(new_filename, filename_pattern);
-			if (!mktemp(new_filename)) {
+			int fd = mkstemp(new_filename);
+			if (fd == -1) {
 				delete[] new_filename;
-				throw std::runtime_error("mktemp failed");
+				throw std::runtime_error("mkstemp failed");
 			}
 			filename = std::string(new_filename);
 			ofs.open(new_filename, std::ios::out);
+			close(fd);
 			delete[] new_filename;
 		} else {
 			// use parameter as filename
@@ -155,7 +159,7 @@ public:
 	{
 		void* module = nullptr;
 		module = dlopen(filename.c_str(), RTLD_NOW);
-		if (module == nullptr)	{
+		if (module == nullptr) {
 			throw std::runtime_error("excompiler::link_so_file: could not open compiled module!");
 		}
 
