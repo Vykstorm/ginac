@@ -442,7 +442,7 @@ static void print_real_csrc(const print_context & c, const cln::cl_R & x)
 		// Rational number
 		const cln::cl_I numer = cln::numerator(cln::the<cln::cl_RA>(x));
 		const cln::cl_I denom = cln::denominator(cln::the<cln::cl_RA>(x));
-		if (cln::plusp(x) > 0) {
+		if (cln::plusp(x)) {
 			c.s << "(";
 			print_integer_csrc(c, numer);
 		} else {
