@@ -55,10 +55,6 @@ dnl actually works
 GINACLIB_LIBS='-L${libdir} -lginac'
 AC_LIB_LINKFLAGS_FROM_LIBS([GINACLIB_RPATH], [$GINACLIB_LIBS])
 
-dnl Check for data types which are needed by the hash function 
-dnl (golden_ratio_hash).
-AC_CHECK_TYPE(long long)
-
 dnl Check for stuff needed for building the GiNaC interactive shell (ginsh).
 AC_CHECK_HEADERS(unistd.h)
 GINAC_HAVE_RUSAGE
