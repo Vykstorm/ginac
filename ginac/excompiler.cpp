@@ -36,10 +36,16 @@
 #include "symbol.h"
 
 #ifdef HAVE_LIBDL
-#include <dlfcn.h>
+# include <dlfcn.h>
 #endif // def HAVE_LIBDL
-#include <unistd.h>
-#include <stdlib.h>
+#ifdef HAVE_UNISTD_H
+# include <unistd.h>
+#else
+# ifdef _MSC_VER
+#  include <io.h>  // for close(3)
+# endif // def _MSC_VER
+#endif // def HAVE_UNISTD_H
+#include <cstdlib>
 #include <fstream>
 #include <ios>
 #include <sstream>

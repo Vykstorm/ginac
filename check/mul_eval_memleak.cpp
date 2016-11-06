@@ -96,7 +96,6 @@ g(1301*scale^(-1)))*eps^(-1)+F))\
 #include <sys/types.h>
 #include <sys/time.h>
 #include <sys/resource.h>
-#include <unistd.h>
 
 static void set_VM_limit(const unsigned long MB) {
 	const unsigned mem_lim_kb = MB*1024*1024;

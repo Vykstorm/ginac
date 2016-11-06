@@ -22,7 +22,6 @@
 
 #ifdef HAVE_RUSAGE
 #include <sys/resource.h>
-#include <unistd.h>
 #include <sys/time.h>
 #else
 #include <ctime>
