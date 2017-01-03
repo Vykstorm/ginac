@@ -157,7 +157,7 @@ private:
 	classname(); \
 	classname * duplicate() const override { \
 		classname * bp = new classname(*this); \
-		bp->setflag(status_flags::dynallocated); \
+		bp->setflag(GiNaC::status_flags::dynallocated);	\
 		return bp; \
 	} \
 	\
