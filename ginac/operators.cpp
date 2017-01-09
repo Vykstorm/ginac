@@ -247,32 +247,32 @@ const numeric operator--(numeric & lh, int)
 
 const relational operator==(const ex & lh, const ex & rh)
 {
-	return dynallocate<relational>(lh, rh, relational::equal);
+	return relational(lh, rh, relational::equal);
 }
 
 const relational operator!=(const ex & lh, const ex & rh)
 {
-	return dynallocate<relational>(lh, rh, relational::not_equal);
+	return relational(lh, rh, relational::not_equal);
 }
 
 const relational operator<(const ex & lh, const ex & rh)
 {
-	return dynallocate<relational>(lh, rh, relational::less);
+	return relational(lh, rh, relational::less);
 }
 
 const relational operator<=(const ex & lh, const ex & rh)
 {
-	return dynallocate<relational>(lh, rh, relational::less_or_equal);
+	return relational(lh, rh, relational::less_or_equal);
 }
 
 const relational operator>(const ex & lh, const ex & rh)
 {
-	return dynallocate<relational>(lh, rh, relational::greater);
+	return relational(lh, rh, relational::greater);
 }
 
 const relational operator>=(const ex & lh, const ex & rh)
 {
-	return dynallocate<relational>(lh, rh, relational::greater_or_equal);
+	return relational(lh, rh, relational::greater_or_equal);
 }
 
 // input/output stream operators and manipulators
