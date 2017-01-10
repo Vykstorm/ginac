@@ -1,5 +1,10 @@
 This file records noteworthy changes.
 
+1.7.2 (10 January 2017)
+* Fix memory leak in operators returning relationals, introduced in 1.7.0.
+* Make macro GINAC_DECLARE_REGISTERED_CLASS() work outside namespace GiNaC.
+* Fix some build issues.
+
 1.7.1 (2 October 2016)
 * Fix crash in basic::subs(), visible in classes which don't override it.
 * Fix convergence failure in Li_projection.
