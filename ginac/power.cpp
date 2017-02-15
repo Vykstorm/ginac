@@ -979,9 +979,9 @@ ex power::expand_add(const add & a, long n, unsigned options)
 		// Multinomial expansion of power(+(x,...,z;0),k)*c^(n-k):
 		// Iterate over all partitions of k with exactly as many parts as
 		// there are symbolic terms in the basis (including zero parts).
-		partition_generator partitions(k, a.seq.size());
+		partition_with_zero_parts_generator partitions(k, a.seq.size());
 		do {
-			const std::vector<int>& partition = partitions.current();
+			const std::vector<unsigned>& partition = partitions.get();
 			// All monomials of this partition have the same number of terms and the same coefficient.
 			const unsigned msize = std::count_if(partition.begin(), partition.end(), [](int i) { return i > 0; });
 			const numeric coeff = multinomial_coefficient(partition) * binomial_coefficient;
@@ -989,7 +989,7 @@ ex power::expand_add(const add & a, long n, unsigned options)
 			// Iterate over all compositions of the current partition.
 			composition_generator compositions(partition);
 			do {
-				const std::vector<int>& exponent = compositions.current();
+				const std::vector<unsigned>& exponent = compositions.get();
 				epvector monomial;
 				monomial.reserve(msize);
 				numeric factor = coeff;

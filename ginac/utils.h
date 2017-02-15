@@ -272,32 +272,32 @@ again:
 	}
 }
 
-/** Generate all bounded combinatorial partitions of an integer n with exactly
- *  m parts (including zero parts) in non-decreasing order.
+/** Base class for generating all bounded combinatorial partitions of an integer
+ *  n with exactly m parts in non-decreasing order.
  */
-class partition_generator {
-private:
+class basic_partition_generator {
+protected:
 	// Partitions n into m parts, not including zero parts.
 	// (Cf. OEIS sequence A008284; implementation adapted from Jörg Arndt's
 	// FXT library)
 	struct mpartition2
 	{
 		// partition: x[1] + x[2] + ... + x[m] = n and sentinel x[0] == 0
-		std::vector<int> x;
-		int n;   // n>0
-		int m;   // 0<m<=n
+		std::vector<unsigned> x;
+		unsigned n;   // n>0
+		unsigned m;   // 0<m<=n
 		mpartition2(unsigned n_, unsigned m_)
 		  : x(m_+1), n(n_), m(m_)
 		{
-			for (int k=1; k<m; ++k)
+			for (unsigned k=1; k<m; ++k)
 				x[k] = 1;
 			x[m] = n - m + 1;
 		}
 		bool next_partition()
 		{
-			int u = x[m];  // last element
-			int k = m;
-			int s = u;
+			unsigned u = x[m];  // last element
+			unsigned k = m;
+			unsigned s = u;
 			while (--k) {
 				s += x[k];
 				if (x[k] + 2 <= u)
@@ -305,7 +305,7 @@ private:
 			}
 			if (k==0)
 				return false;  // current is last
-			int f = x[k] + 1;
+			unsigned f = x[k] + 1;
 			while (k < m) {
 				x[k] = f;
 				s -= f;
@@ -314,26 +314,40 @@ private:
 			x[m] = s;
 			return true;
 		}
-	} mpgen;
-	int m;  // number of parts 0<m<=n
-	mutable std::vector<int> partition;  // current partition
+	};
+	mpartition2 mpgen;
+	basic_partition_generator(unsigned n_, unsigned m_)
+	  : mpgen(n_, m_)
+	{ }
+};
+
+/** Generate all bounded combinatorial partitions of an integer n with exactly
+ *  m parts (including zero parts) in non-decreasing order.
+ */
+class partition_with_zero_parts_generator : public basic_partition_generator {
+private:
+	unsigned m;  // number of parts 0<m
+	mutable std::vector<unsigned> partition;  // current partition
+	mutable bool current_updated;  // whether partition vector has been updated
 public:
-	partition_generator(unsigned n_, unsigned m_)
-	  : mpgen(n_, 1), m(m_), partition(m_)
+	partition_with_zero_parts_generator(unsigned n_, unsigned m_)
+	  : basic_partition_generator(n_, 1), m(m_), partition(m_), current_updated(false)
 	{ }
 	// returns current partition in non-decreasing order, padded with zeros
-	const std::vector<int>& current() const
+	const std::vector<unsigned>& get() const
 	{
-		for (int i = 0; i < m - mpgen.m; ++i)
-			partition[i] = 0;  // pad with zeros
+		if (!current_updated) {
+			for (unsigned i = 0; i < m - mpgen.m; ++i)
+				partition[i] = 0;  // pad with zeros
 
-		for (int i = m - mpgen.m; i < m; ++i)
-			partition[i] = mpgen.x[i - m + mpgen.m + 1];
-
+			for (unsigned i = m - mpgen.m; i < m; ++i)
+				partition[i] = mpgen.x[i - m + mpgen.m + 1];
+		}
 		return partition;
 	}
 	bool next()
 	{
+		current_updated = false;
 		if (!mpgen.next_partition()) {
 			if (mpgen.m == m || mpgen.m == mpgen.n)
 				return false;  // current is last
@@ -341,6 +355,33 @@ public:
 			mpgen = mpartition2(mpgen.n, mpgen.m + 1);
 		}
 		return true;
+	}
+};
+
+/** Generate all bounded combinatorial partitions of an integer n with exactly
+ *  m parts (not including zero parts) in non-decreasing order.
+ */
+class partition_generator : public basic_partition_generator {
+private:
+	mutable std::vector<unsigned> partition;  // current partition
+	mutable bool current_updated;  // whether partition vector has been updated
+public:
+	partition_generator(unsigned n_, unsigned m_)
+	  : basic_partition_generator(n_, m_), partition(m_), current_updated(false)
+	{ }
+	// returns current partition in non-decreasing order, padded with zeros
+	const std::vector<unsigned>& get() const
+	{
+		if (!current_updated) {
+			for (unsigned i = 0; i < mpgen.m; ++i)
+				partition[i] = mpgen.x[i + 1];
+		}
+		return partition;
+	}
+	bool next()
+	{
+		current_updated = false;
+		return mpgen.next_partition();
 	}
 };
 
@@ -356,9 +397,9 @@ private:
 	struct coolmulti {
 		// element of singly linked list
 		struct element {
-			int value;
+			unsigned value;
 			element* next;
-			element(int val, element* n)
+			element(unsigned val, element* n)
 			  : value(val), next(n) {}
 			~element()
 			{   // recurses down to the end of the singly linked list
@@ -367,7 +408,7 @@ private:
 		};
 		element *head, *i, *after_i;
 		// NB: Partition must be sorted in non-decreasing order.
-		explicit coolmulti(const std::vector<int>& partition)
+		explicit coolmulti(const std::vector<unsigned>& partition)
 		  : head(nullptr), i(nullptr), after_i(nullptr)
 		{
 			for (unsigned n = 0; n < partition.size(); ++n) {
@@ -403,22 +444,26 @@ private:
 	} cmgen;
 	bool atend;  // needed for simplifying iteration over permutations
 	bool trivial;  // likewise, true if all elements are equal
-	mutable std::vector<int> composition;  // current compositions
+	mutable std::vector<unsigned> composition;  // current compositions
+	mutable bool current_updated;  // whether composition vector has been updated
 public:
-	explicit composition_generator(const std::vector<int>& partition)
-	  : cmgen(partition), atend(false), trivial(true), composition(partition.size())
+	explicit composition_generator(const std::vector<unsigned>& partition)
+	  : cmgen(partition), atend(false), trivial(true), composition(partition.size()), current_updated(false)
 	{
 		for (unsigned i=1; i<partition.size(); ++i)
 			trivial = trivial && (partition[0] == partition[i]);
 	}
-	const std::vector<int>& current() const
+	const std::vector<unsigned>& get() const
 	{
-		coolmulti::element* it = cmgen.head;
-		size_t i = 0;
-		while (it != nullptr) {
-			composition[i] = it->value;
-			it = it->next;
-			++i;
+		if (!current_updated) {
+			coolmulti::element* it = cmgen.head;
+			size_t i = 0;
+			while (it != nullptr) {
+				composition[i] = it->value;
+				it = it->next;
+				++i;
+			}
+			current_updated = true;
 		}
 		return composition;
 	}
@@ -430,6 +475,7 @@ public:
 		if (trivial || atend)
 			return false;
 		cmgen.next_permutation();
+		current_updated = false;
 		atend = cmgen.finished();
 		return true;
 	}
@@ -439,7 +485,7 @@ public:
  *  n = p1+p2+...+pk, i.e. p is a partition of n.
  */
 const numeric
-multinomial_coefficient(const std::vector<int> & p);
+multinomial_coefficient(const std::vector<unsigned> & p);
 
 
 // Collection of `construct on first use' wrappers for safely avoiding

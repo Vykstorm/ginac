@@ -23,7 +23,6 @@
 
 #include "ex.h"
 #include "numeric.h"
-#include "operators.h"
 #include "utils.h"
 #include "version.h"
 
@@ -58,14 +57,14 @@ unsigned log2(unsigned n)
  *  n = p1+p2+...+pk, i.e. p is a partition of n.
  */
 const numeric
-multinomial_coefficient(const std::vector<int> & p)
+multinomial_coefficient(const std::vector<unsigned> & p)
 {
 	numeric n = 0, d = 1;
 	for (auto & it : p) {
-		n += numeric(it);
-		d *= factorial(numeric(it));
+		n = n.add(numeric(it));
+		d = d.mul(factorial(numeric(it)));
 	}
-	return factorial(n) / d;
+	return factorial(n).div(d);
 }
 
 //////////
