@@ -272,6 +272,175 @@ again:
 	}
 }
 
+/** Generate all bounded combinatorial partitions of an integer n with exactly
+ *  m parts (including zero parts) in non-decreasing order.
+ */
+class partition_generator {
+private:
+	// Partitions n into m parts, not including zero parts.
+	// (Cf. OEIS sequence A008284; implementation adapted from Jörg Arndt's
+	// FXT library)
+	struct mpartition2
+	{
+		// partition: x[1] + x[2] + ... + x[m] = n and sentinel x[0] == 0
+		std::vector<int> x;
+		int n;   // n>0
+		int m;   // 0<m<=n
+		mpartition2(unsigned n_, unsigned m_)
+		  : x(m_+1), n(n_), m(m_)
+		{
+			for (int k=1; k<m; ++k)
+				x[k] = 1;
+			x[m] = n - m + 1;
+		}
+		bool next_partition()
+		{
+			int u = x[m];  // last element
+			int k = m;
+			int s = u;
+			while (--k) {
+				s += x[k];
+				if (x[k] + 2 <= u)
+					break;
+			}
+			if (k==0)
+				return false;  // current is last
+			int f = x[k] + 1;
+			while (k < m) {
+				x[k] = f;
+				s -= f;
+				++k;
+			}
+			x[m] = s;
+			return true;
+		}
+	} mpgen;
+	int m;  // number of parts 0<m<=n
+	mutable std::vector<int> partition;  // current partition
+public:
+	partition_generator(unsigned n_, unsigned m_)
+	  : mpgen(n_, 1), m(m_), partition(m_)
+	{ }
+	// returns current partition in non-decreasing order, padded with zeros
+	const std::vector<int>& current() const
+	{
+		for (int i = 0; i < m - mpgen.m; ++i)
+			partition[i] = 0;  // pad with zeros
+
+		for (int i = m - mpgen.m; i < m; ++i)
+			partition[i] = mpgen.x[i - m + mpgen.m + 1];
+
+		return partition;
+	}
+	bool next()
+	{
+		if (!mpgen.next_partition()) {
+			if (mpgen.m == m || mpgen.m == mpgen.n)
+				return false;  // current is last
+			// increment number of parts
+			mpgen = mpartition2(mpgen.n, mpgen.m + 1);
+		}
+		return true;
+	}
+};
+
+/** Generate all compositions of a partition of an integer n, starting with the
+ *  compositions which has non-decreasing order.
+ */
+class composition_generator {
+private:
+	// Generates all distinct permutations of a multiset.
+	// (Based on Aaron Williams' algorithm 1 from "Loopless Generation of
+	// Multiset Permutations using a Constant Number of Variables by Prefix
+	// Shifts." <http://webhome.csc.uvic.ca/~haron/CoolMulti.pdf>)
+	struct coolmulti {
+		// element of singly linked list
+		struct element {
+			int value;
+			element* next;
+			element(int val, element* n)
+			  : value(val), next(n) {}
+			~element()
+			{   // recurses down to the end of the singly linked list
+				delete next;
+			}
+		};
+		element *head, *i, *after_i;
+		// NB: Partition must be sorted in non-decreasing order.
+		explicit coolmulti(const std::vector<int>& partition)
+		  : head(nullptr), i(nullptr), after_i(nullptr)
+		{
+			for (unsigned n = 0; n < partition.size(); ++n) {
+				head = new element(partition[n], head);
+				if (n <= 1)
+					i = head;
+			}
+			after_i = i->next;
+		}
+		~coolmulti()
+		{   // deletes singly linked list
+			delete head;
+		}
+		void next_permutation()
+		{
+			element *before_k;
+			if (after_i->next != nullptr && i->value >= after_i->next->value)
+				before_k = after_i;
+			else
+				before_k = i;
+			element *k = before_k->next;
+			before_k->next = k->next;
+			k->next = head;
+			if (k->value < head->value)
+				i = k;
+			after_i = i->next;
+			head = k;
+		}
+		bool finished() const
+		{
+			return after_i->next == nullptr && after_i->value >= head->value;
+		}
+	} cmgen;
+	bool atend;  // needed for simplifying iteration over permutations
+	bool trivial;  // likewise, true if all elements are equal
+	mutable std::vector<int> composition;  // current compositions
+public:
+	explicit composition_generator(const std::vector<int>& partition)
+	  : cmgen(partition), atend(false), trivial(true), composition(partition.size())
+	{
+		for (unsigned i=1; i<partition.size(); ++i)
+			trivial = trivial && (partition[0] == partition[i]);
+	}
+	const std::vector<int>& current() const
+	{
+		coolmulti::element* it = cmgen.head;
+		size_t i = 0;
+		while (it != nullptr) {
+			composition[i] = it->value;
+			it = it->next;
+			++i;
+		}
+		return composition;
+	}
+	bool next()
+	{
+		// This ugly contortion is needed because the original coolmulti
+		// algorithm requires code duplication of the payload procedure,
+		// one before the loop and one inside it.
+		if (trivial || atend)
+			return false;
+		cmgen.next_permutation();
+		atend = cmgen.finished();
+		return true;
+	}
+};
+
+/** Compute the multinomial coefficient n!/(p1!*p2!*...*pk!) where
+ *  n = p1+p2+...+pk, i.e. p is a partition of n.
+ */
+const numeric
+multinomial_coefficient(const std::vector<int> & p);
+
 
 // Collection of `construct on first use' wrappers for safely avoiding
 // internal object replication without running into the `static
