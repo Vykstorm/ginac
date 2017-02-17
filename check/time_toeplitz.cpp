@@ -61,7 +61,7 @@ static unsigned toeplitz_det(unsigned size)
 
 	// dirty consistency check of result:
 	if (!tdet.subs(a==0).subs(b==0).is_zero()) {
-		clog << "Determaint of Toeplitz matrix " << endl
+		clog << "Determinant of Toeplitz matrix " << endl
 		     << "M==" << M << endl
 		     << "was miscalculated: det(M)==" << tdet << endl;
 		++result;
@@ -76,14 +76,9 @@ unsigned time_toeplitz()
 
 	cout << "timing determinant of polyvariate symbolic Toeplitz matrices" << flush;
 
-	vector<unsigned> sizes;
+	vector<unsigned> sizes = {7, 8, 9, 10};
 	vector<double> times;
 	timer longines;
-
-	sizes.push_back(7);
-	sizes.push_back(8);
-	sizes.push_back(9);
-	sizes.push_back(10);
 
 	for (vector<unsigned>::iterator i=sizes.begin(); i!=sizes.end(); ++i) {
 		int count = 1;

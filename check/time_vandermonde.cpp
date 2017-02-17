@@ -58,7 +58,7 @@ static unsigned vandermonde_det(unsigned size)
 			vanddet *= M(i,1) - M(j,1);
 
 	if (expand(det - vanddet) != 0) {
-		clog << "Determaint of Vandermonde matrix " << endl
+		clog << "Determinant of Vandermonde matrix " << endl
 		     << "M==" << M << endl
 		     << "was miscalculated: det(M)==" << det << endl;
 		++result;
@@ -73,14 +73,9 @@ unsigned time_vandermonde()
 	
 	cout << "timing determinant of univariate symbolic Vandermonde matrices" << flush;
 	
-	vector<unsigned> sizes;
+	vector<unsigned> sizes = {8, 10, 12, 14};
 	vector<double> times;
 	timer swatch;
-	
-	sizes.push_back(8);
-	sizes.push_back(10);
-	sizes.push_back(12);
-	sizes.push_back(14);
 	
 	for (vector<unsigned>::iterator i=sizes.begin(); i!=sizes.end(); ++i) {
 		int count = 1;

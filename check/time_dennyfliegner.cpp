@@ -66,14 +66,9 @@ unsigned time_dennyfliegner()
 	
 	cout << "timing commutative expansion and substitution" << flush;
 	
-	vector<unsigned> sizes;
+	vector<unsigned> sizes = {100, 200, 400, 800};
 	vector<double> times;
 	timer breitling;
-	
-	sizes.push_back(100);
-	sizes.push_back(200);
-	sizes.push_back(400);
-	sizes.push_back(800);
 	
 	for (vector<unsigned>::iterator i=sizes.begin(); i!=sizes.end(); ++i) {
 		breitling.start();

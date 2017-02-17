@@ -55,14 +55,9 @@ unsigned time_gammaseries()
 
 	cout << "timing Laurent series expansion of Gamma function" << flush;
 
-	vector<unsigned> sizes;
+	vector<unsigned> sizes = {20, 25, 30, 35};
 	vector<double> times;
 	timer omega;
-
-	sizes.push_back(20);
-	sizes.push_back(25);
-	sizes.push_back(30);
-	sizes.push_back(35);
 
 	for (vector<unsigned>::iterator i=sizes.begin(); i!=sizes.end(); ++i) {
 		omega.start();
