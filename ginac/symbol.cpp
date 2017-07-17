@@ -157,6 +157,14 @@ std::string symbol::get_name() const
 	return name;
 }
 
+std::string symbol::get_TeX_name() const
+{
+	if (TeX_name.empty()) {
+		return get_default_TeX_name(get_name());
+	}
+	return TeX_name;
+}
+
 // protected
 
 void symbol::do_print(const print_context & c, unsigned level) const

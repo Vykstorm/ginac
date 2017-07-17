@@ -1146,7 +1146,14 @@ This creates a symbol that is printed as "@code{x}" in normal output, but
 as "@code{\Box}" in LaTeX code (@xref{Input/output}, for more
 information about the different output formats of expressions in GiNaC).
 GiNaC automatically creates proper LaTeX code for symbols having names of
-greek letters (@samp{alpha}, @samp{mu}, etc.).
+greek letters (@samp{alpha}, @samp{mu}, etc.). You can retrive the name
+and the LaTeX name of a symbol using the respective methods:
+@cindex @code{get_name()}
+@cindex @code{get_TeX_name()}
+@example
+symbol::get_name() const;
+symbol::get_TeX_name() const;
+@end example
 
 @cindex @code{subs()}
 Symbols in GiNaC can't be assigned values. If you need to store results of

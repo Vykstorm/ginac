@@ -75,6 +75,7 @@ public:
 	void set_name(const std::string & n) { name = n; }
 	void set_TeX_name(const std::string & n) { TeX_name = n; }
 	std::string get_name() const;
+	std::string get_TeX_name() const;
 protected:
 	void do_print(const print_context & c, unsigned level) const;
 	void do_print_latex(const print_latex & c, unsigned level) const;
