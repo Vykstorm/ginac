@@ -75,7 +75,7 @@ function_options::~function_options()
 
 void function_options::initialize()
 {
-	set_name("unnamed_function", "\\\\mbox{unnamed}");
+	set_name("unnamed_function", "\\mbox{unnamed}");
 	nparams = 0;
 	eval_f = evalf_f = real_part_f = imag_part_f = conjugate_f = expand_f
 		= derivative_f = expl_derivative_f = power_f = series_f = nullptr;
@@ -104,7 +104,7 @@ function_options & function_options::set_name(std::string const & n,
 {
 	name = n;
 	if (tn==std::string())
-		TeX_name = "\\\\mbox{"+name+"}";
+		TeX_name = "\\mbox{"+name+"}";
 	else
 		TeX_name = tn;
 	return *this;
