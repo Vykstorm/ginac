@@ -669,7 +669,8 @@ ex power::real_part() const
 	// basis == a+I*b, exponent == c+I*d
 	const ex a = basis.real_part();
 	const ex c = exponent.real_part();
-	if (basis.is_equal(a) && exponent.is_equal(c)) {
+	if (basis.is_equal(a) && exponent.is_equal(c) &&
+	    (a.info(info_flags::nonnegative) || c.info(info_flags::integer))) {
 		// Re(a^c)
 		return *this;
 	}
@@ -704,7 +705,8 @@ ex power::imag_part() const
 	// basis == a+I*b, exponent == c+I*d
 	const ex a = basis.real_part();
 	const ex c = exponent.real_part();
-	if (basis.is_equal(a) && exponent.is_equal(c)) {
+	if (basis.is_equal(a) && exponent.is_equal(c) &&
+	    (a.info(info_flags::nonnegative) || c.info(info_flags::integer))) {
 		// Im(a^c)
 		return 0;
 	}
