@@ -2070,13 +2070,8 @@ static ex hensel_multivar(const ex& a, const ex& x, const vector<EvalPoint>& I,
 		acand *= U[i];
 	}
 	if ( expand(a-acand).is_zero() ) {
-		lst res;
-		for ( size_t i=0; i<U.size(); ++i ) {
-			res.append(U[i]);
-		}
-		return res;
+		return lst(U.begin(), U.end());
 	} else {
-		lst res;
 		return lst{};
 	}
 }
