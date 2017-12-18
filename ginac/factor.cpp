@@ -2500,13 +2500,41 @@ struct apply_factor_map : public map_function {
 	}
 };
 
-} // anonymous namespace
-
-/** Interface function to the outside world. It checks the arguments, tries a
- *  square free factorization, and then calls factor_sqrfree to do the hard
- *  work.
+/** Iterate through explicit factors of e, call yield(f, k) for
+ *  each factor of the form f^k.
+ *
+ *  Note that this function doesn't factor e itself, it only
+ *  iterates through the factors already explicitly present.
  */
-ex factor(const ex& poly, unsigned options)
+template <typename F> void
+factor_iter(const ex &e, F yield)
+{
+	if (is_a<mul>(e)) {
+		for (const auto &f : e) {
+			if (is_a<power>(f)) {
+				yield(f.op(0), f.op(1));
+			} else {
+				yield(f, ex(1));
+			}
+		}
+	} else {
+		if (is_a<power>(e)) {
+			yield(e.op(0), e.op(1));
+		} else {
+			yield(e, ex(1));
+		}
+	}
+}
+
+/** This function factorizes a polynomial. It checks the arguments,
+ *  tries a square free factorization, and then calls factor_sqrfree
+ *  to do the hard work.
+ *
+ *  This function expands its argument, so for polynomials with
+ *  explicit factors it's better to call it on each one separately
+ *  (or use factor() which does just that).
+ */
+static ex factor1(const ex& poly, unsigned options)
 {
 	// check arguments
 	if ( !poly.info(info_flags::polynomial) ) {
@@ -2533,44 +2561,35 @@ ex factor(const ex& poly, unsigned options)
 	ex sfpoly = sqrfree(poly.expand(), syms);
 
 	// factorize the square free components
-	if ( is_a<power>(sfpoly) ) {
-		// case: (polynomial)^exponent
-		const ex& base = sfpoly.op(0);
-		if ( !is_a<add>(base) ) {
-			// simple case: (monomial)^exponent
-			return sfpoly;
-		}
-		ex f = factor_sqrfree(base);
-		return pow(f, sfpoly.op(1));
-	}
-	if ( is_a<mul>(sfpoly) ) {
-		// case: multiple factors
-		ex res = 1;
-		for ( size_t i=0; i<sfpoly.nops(); ++i ) {
-			const ex& t = sfpoly.op(i);
-			if ( is_a<power>(t) ) {
-				const ex& base = t.op(0);
-				if ( !is_a<add>(base) ) {
-					res *= t;
-				} else {
-					ex f = factor_sqrfree(base);
-					res *= pow(f, t.op(1));
-				}
-			} else if ( is_a<add>(t) ) {
-				ex f = factor_sqrfree(t);
-				res *= f;
+	ex res = 1;
+	factor_iter(sfpoly,
+		[&](const ex &f, const ex &k) {
+			if ( is_a<add>(f) ) {
+				res *= pow(factor_sqrfree(f), k);
 			} else {
-				res *= t;
+				// simple case: (monomial)^exponent
+				res *= pow(f, k);
 			}
-		}
-		return res;
-	}
-	if ( is_a<symbol>(sfpoly) ) {
-		return poly;
-	}
-	// case: (polynomial)
-	ex f = factor_sqrfree(sfpoly);
-	return f;
+		});
+	return res;
+}
+
+} // anonymous namespace
+
+/** Interface function to the outside world. It uses factor1()
+ *  on each of the explicitly present factors of poly.
+ */
+ex factor(const ex& poly, unsigned options)
+{
+	ex result = 1;
+	factor_iter(poly,
+		[&](const ex &f1, const ex &k1) {
+			factor_iter(factor1(f1, options),
+				[&](const ex &f2, const ex &k2) {
+					result *= pow(f2, k1*k2);
+				});
+		});
+	return result;
 }
 
 } // namespace GiNaC
