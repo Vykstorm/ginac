@@ -66,7 +66,6 @@
 #include "add.h"
 
 #include <algorithm>
-#include <cmath>
 #include <limits>
 #include <list>
 #include <vector>
@@ -1874,7 +1873,8 @@ static vector<ex> multivar_diophant(const vector<ex>& a_, const ex& x, const ex&
 {
 	vector<ex> a = a_;
 
-	const cl_modint_ring R = find_modint_ring(expt_pos(cl_I(p),k));
+	const cl_I modulus = expt_pos(cl_I(p),k);
+	const cl_modint_ring R = find_modint_ring(modulus);
 	const size_t r = a.size();
 	const size_t nu = I.size() + 1;
 
@@ -1947,10 +1947,7 @@ static vector<ex> multivar_diophant(const vector<ex>& a_, const ex& x, const ex&
 			cl_I cm = the<cl_I>(ex_to<numeric>(z.lcoeff(x)).to_cl_N());
 			upvec delta_s = univar_diophant(amod, x, m, p, k);
 			cl_MI modcm;
-			cl_I poscm = cm;
-			while ( poscm < 0 ) {
-				poscm = poscm + expt_pos(cl_I(p),k);
-			}
+			cl_I poscm = plusp(cm) ? cm : mod(cm, modulus);
 			modcm = cl_MI(R, poscm);
 			for ( size_t j=0; j<delta_s.size(); ++j ) {
 				delta_s[j] = delta_s[j] * modcm;
