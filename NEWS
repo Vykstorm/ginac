@@ -1,5 +1,11 @@
 This file records noteworthy changes.
 
+1.7.3 (dd January 2018)
+* Speed up some corner cases of polynomial factorization.
+* Speed up factorization of pre-factored polynomials.
+* Fix bug in evaluation of real and imaginary parts of powers.
+* Fix some LaTeX output, add new function symbol::get_TeX_name().
+
 1.7.2 (10 January 2017)
 * Fix memory leak in operators returning relationals, introduced in 1.7.0.
 * Make macro GINAC_DECLARE_REGISTERED_CLASS() work outside namespace GiNaC.
