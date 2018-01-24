@@ -1785,32 +1785,39 @@ ex lcm(const ex &a, const ex &b, bool check_args)
  *  @param a  multivariate polynomial over Z[X], treated here as univariate
  *            polynomial in x (needs not be expanded).
  *  @param x  variable to factor in
- *  @return   vector of factors sorted in ascending degree */
-static exvector sqrfree_yun(const ex &a, const symbol &x)
+ *  @return   vector of expairs (factor, exponent), sorted by exponents */
+static epvector sqrfree_yun(const ex &a, const symbol &x)
 {
-	exvector res;
 	ex w = a;
 	ex z = w.diff(x);
 	ex g = gcd(w, z);
 	if (g.is_zero()) {
-		return res;
+		return epvector{};
 	}
 	if (g.is_equal(_ex1)) {
-		res.push_back(a);
-		return res;
+		return epvector{expair(a, _ex1)};
 	}
-	ex y;
+	epvector results;
+	ex exponent = _ex0;
 	do {
 		w = quo(w, g, x);
 		if (w.is_zero()) {
 			return res;
 		}
-		y = quo(z, g, x);
-		z = y - w.diff(x);
+		z = quo(z, g, x) - w.diff(x);
+		exponent = exponent + 1;
+		if (w.is_equal(x)) {
+			// shortcut for x^n with n ∈ ℕ
+			exponent += quo(z, w.diff(x), x);
+			results.push_back(expair(w, exponent));
+			break;
+		}
 		g = gcd(w, z);
-		res.push_back(g);
+		if (!g.is_equal(_ex1)) {
+			results.push_back(expair(g, exponent));
+		}
 	} while (!z.is_zero());
-	return res;
+	return results;
 }
 
 
@@ -1878,30 +1885,28 @@ ex sqrfree(const ex &a, const lst &l)
 	const ex tmp = multiply_lcm(a,lcm);
 
 	// find the factors
-	exvector factors = sqrfree_yun(tmp, x);
+	epvector factors = sqrfree_yun(tmp, x);
 
-	// construct the next list of symbols with the first element popped
-	lst newargs = args;
-	newargs.remove_first();
+	// remove symbol x and proceed recursively with the remaining symbols
+	args.remove_first();
 
 	// recurse down the factors in remaining variables
-	if (newargs.nops()>0) {
+	if (args.nops()>0) {
 		for (auto & it : factors)
-			it = sqrfree(it, newargs);
+			it.rest = sqrfree(it.rest, args);
 	}
 
 	// Done with recursion, now construct the final result
 	ex result = _ex1;
-	int p = 1;
 	for (auto & it : factors)
-		result *= pow(it, p++);
+		result *= pow(it.rest, it.coeff);
 
 	// Yun's algorithm does not account for constant factors.  (For univariate
 	// polynomials it works only in the monic case.)  We can correct this by
 	// inserting what has been lost back into the result.  For completeness
 	// we'll also have to recurse down that factor in the remaining variables.
-	if (newargs.nops()>0)
-		result *= sqrfree(quo(tmp, result, x), newargs);
+	if (args.nops()>0)
+		result *= sqrfree(quo(tmp, result, x), args);
 	else
 		result *= quo(tmp, result, x);
 
@@ -1929,24 +1934,21 @@ ex sqrfree_parfrac(const ex & a, const symbol & x)
 //clog << "red_poly = " << red_poly << ", red_numer = " << red_numer << endl;
 
 	// Factorize denominator and compute cofactors
-	exvector yun = sqrfree_yun(denom, x);
-//clog << "yun factors: " << exprseq(yun) << endl;
-	size_t num_yun = yun.size();
-	exvector factor; factor.reserve(num_yun);
-	exvector cofac; cofac.reserve(num_yun);
-	for (size_t i=0; i<num_yun; i++) {
-		if (!yun[i].is_equal(_ex1)) {
-			for (size_t j=0; j<=i; j++) {
-				factor.push_back(pow(yun[i], j+1));
-				ex prod = _ex1;
-				for (size_t k=0; k<num_yun; k++) {
-					if (k == i)
-						prod *= pow(yun[k], i-j);
-					else
-						prod *= pow(yun[k], k+1);
-				}
-				cofac.push_back(prod.expand());
+	epvector yun = sqrfree_yun(denom, x);
+	size_t yun_max_exponent = yun.empty() ? 0 : ex_to<numeric>(yun.back().coeff).to_int();
+	exvector factor, cofac;
+	for (size_t i=0; i<yun.size(); i++) {
+		numeric i_exponent = ex_to<numeric>(yun[i].coeff);
+		for (size_t j=0; j<i_exponent; j++) {
+			factor.push_back(pow(yun[i].rest, j+1));
+			ex prod = _ex1;
+			for (size_t k=0; k<yun.size(); k++) {
+				if (yun[k].coeff == i_exponent)
+					prod *= pow(yun[k].rest, i_exponent-1-j);
+				else
+					prod *= pow(yun[k].rest, yun[k].coeff);
 			}
+			cofac.push_back(prod.expand());
 		}
 	}
 	size_t num_factors = factor.size();
