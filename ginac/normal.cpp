@@ -1802,7 +1802,7 @@ static epvector sqrfree_yun(const ex &a, const symbol &x)
 	do {
 		w = quo(w, g, x);
 		if (w.is_zero()) {
-			return res;
+			return results;
 		}
 		z = quo(z, g, x) - w.diff(x);
 		exponent = exponent + 1;
