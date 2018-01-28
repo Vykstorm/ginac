@@ -182,6 +182,87 @@ static unsigned exam_factor3()
 	return result;
 }
 
+static unsigned check_factor_expanded(const ex& e)
+{
+	ex ee = e.expand();
+	ex answer = factor(ee);
+	if ( answer.expand() != ee || (!is_a<mul>(answer) && !is_a<power>(answer)) ) {
+		clog << "factorization of " << e << " == " << ee << " gave wrong result: " << answer << endl;
+		return 1;
+	}
+	return 0;
+}
+
+static unsigned exam_factor_wang()
+{
+	// these 15 polynomials are from the appendix of P.S.Wang,
+	// "An Improved Multivariate Polynomial Factoring Algorithm"
+	unsigned result = 0;
+	ex e;
+	symbol x("x"), y("y"), z("z"), u("u");
+
+	e = ex("(z+x*y+10)*(x*z+y+30)*(y*z+x+20)", lst{x, y, z});
+	result += check_factor_expanded(e);
+
+	e = ex("(x^3*(z+y)+y-11)*(x^2*(z^2+y^2)+y+90)", lst{x, y, z});
+	result += check_factor_expanded(e);
+
+	e = ex("(y*z^3+x*y*z+y^2+x^3)*(x*(z^4+1)+z+x^3*y^2)", lst{x, y, z});
+	result += check_factor_expanded(e);
+
+	e = ex("(z^2-x^3*y+3)*(z^2+x*y^3)*(z^2+x^3*y^4)*(y^4*z^2+x^2*z+5)", lst{x, y, z});
+	result += check_factor_expanded(e);
+
+	e = ex("(z^2+x^3*y^4+u^2)*((y^2+x)*z^2+3*u^2*x^3*y^4*z+19*y^2)*(u^2*y^4*z^2+x^2*z+5)", lst{u, x, y, z});
+	result += check_factor_expanded(e);
+
+	e = ex("(w^4*z^3-x*y^2*z^2-w^4*x^5*y^6-w^2*x^3*y)*(-x^5*z^3+y*z+x^2*y^3)"
+	       "*(w^4*z^6+y^2*z^3-w^2*x^2*y^2*z^2+x^5*z-x^4*y^2-w^3*x^3*y)", lst{w, x, y, z});
+	result += check_factor_expanded(e);
+
+	e = ex("(z+y+x-3)^3*(z+y+x-2)^2", lst{x, y, z});
+	result += check_factor_expanded(e);
+
+	e = ex("(-15*y^2*z^16+29*w^4*x^12*y^12*z^3+21*x^3*z^2+3*w^15*y^20)"
+	       "*(-z^31-w^12*z^20+y^18-y^14+x^2*y^2+x^21+w^2)", lst{w, x, y, z});
+	result += check_factor_expanded(e);
+
+	e = ex("u^4*x*z^2*(6*w^2*y^3*z^2+18*u^2*w^3*x*z^2+15*u*z^2+10*u^2*w*x*y^3)"
+	       "*(-44*u*w*x*y^4*z^4-25*u^2*w^3*y*z^4+8*u*w*x^3*z^4-32*u^2*w^4*y^4*z^3"
+	       "+48*u^2*x^2*y^3*z^3-12*y^3*z^2+2*u^2*w*x^2*y^2-11*u*w^2*x^3*y-4*w^2*x)", lst{u, w, x, y, z});
+	result += check_factor_expanded(e);
+
+	e = ex("(31*u^2*x*z+35*w^2*y^2+6*x*y+40*w*x^2)*(u^2*w^2*x*y^2*z^2+24*u^2*w*x*y^2*z^2"
+	       "+12*u^2*x*y^2*z^2+24*u^2*x^2*y*z^2+43*w*x*y*z^2+31*w^2*y*z^2+8*u^2*w^2*z^2"
+	       "+44*u*w^2*z^2+37*u^2*y^2*z+41*y^2*z+12*w*x^2*y*z+21*u^2*w*x*y*z+23*x*y*z"
+	       "+47*u^2*w^2*z+13*u*w^2*x^2*y^2+22*x*y^2+42*u^2*w^2*y^2+29*w^2*y^2+27*u*w^2*x^2*y"
+	       "+37*w^2*x*z+39*u*w*x*z+43*u*x^2*y+24*x*y+9*u^2*w*x^2+22*u^2*w^2)", lst{u, w, x, y, z});
+	result += check_factor_expanded(e);
+
+	e = ex("x*y*(-13*u^3*w^2*x*y*z^3+w^3*z^3+4*u*x*y^2+47*x*y)"
+	       "*(43*u*x^3*y^3*z^3+36*u^2*w^3*x*y*z^3+14*w^3*x^3*y^3*z^2-29*w^3*x*y^3*z^2"
+	       "-20*u^2*w^2*x^2*y^2*z^2+36*u^2*w*x*y^3*z-48*u*x^3*y^2*z+5*u*w*x^2*y^3"
+	       "+36*u*w^2*y^3-9*u*w*y^3-23*u*w*x^3*y^2+46*u*x^3*y^2+8*x*y^2+31*u^2*w^3*y^2"
+	       "-9*u^2*y^2+45*x^3-46*u^2*w*x)", lst{u, w, x, y, z});
+	result += check_factor_expanded(e);
+
+	e = ex("(z+y+x-3)^3", lst{x, y, z});
+	result += check_factor_expanded(e);
+
+	e = ex("(3*z^3+2*w*z-9*y^3-y^2+45*x^3)*(w^2*z^3+47*x*y-w^2)", lst{w, x, y, z});
+	result += check_factor_expanded(e);
+
+	e = ex("(-18*x^4*y^5+22*y^5-26*x^3*y^4-38*x^2*y^4+29*x^2*y^3-41*x^4*y^2+37*x^4)"
+	       "*(33*x^5*y^6+11*y^2+35*x^3*y-22*x^4)", lst{x, y, z});
+	result += check_factor_expanded(e);
+
+	e = ex("x^6*y^3*z^2*(3*z^3+2*w*z-8*x*y^2+14*w^2*y^2-y^2+18*x^3*y)"
+	       "*(-12*w^2*x*y*z^3+w^2*z^3+3*x*y^2+29*x-w^2)", lst{w, x, y, z});
+	result += check_factor_expanded(e);
+
+	return result;
+}
+
 static unsigned check_factorization(const exvector& factors)
 {
 	ex e = dynallocate<mul>(factors);
@@ -218,6 +299,7 @@ unsigned exam_factor()
 	result += exam_factor1(); cout << '.' << flush;
 	result += exam_factor2(); cout << '.' << flush;
 	result += exam_factor3(); cout << '.' << flush;
+	result += exam_factor_wang(); cout << '.' << flush;
 	result += factor_integer_content_bug();
 	cout << '.' << flush;
 
