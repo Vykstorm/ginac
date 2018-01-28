@@ -939,10 +939,11 @@ ex matrix::charpoly(const ex & lambda) const
 
 /** Inverse of this matrix.
  *
+ *  @param algo selects the algorithm (one of solve_algo)
  *  @return    the inverted matrix
  *  @exception logic_error (matrix not square)
  *  @exception runtime_error (singular matrix) */
-matrix matrix::inverse() const
+matrix matrix::inverse(unsigned algo) const
 {
 	if (row != col)
 		throw (std::logic_error("matrix::inverse(): matrix not square"));
@@ -965,7 +966,7 @@ matrix matrix::inverse() const
 	
 	matrix sol(row,col);
 	try {
-		sol = this->solve(vars,identity);
+		sol = this->solve(vars, identity, algo);
 	} catch (const std::runtime_error & e) {
 	    if (e.what()==std::string("matrix::solve(): inconsistent linear system"))
 			throw (std::runtime_error("matrix::inverse(): singular matrix"));

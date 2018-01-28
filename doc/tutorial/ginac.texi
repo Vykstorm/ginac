@@ -1146,7 +1146,7 @@ This creates a symbol that is printed as "@code{x}" in normal output, but
 as "@code{\Box}" in LaTeX code (@xref{Input/output}, for more
 information about the different output formats of expressions in GiNaC).
 GiNaC automatically creates proper LaTeX code for symbols having names of
-greek letters (@samp{alpha}, @samp{mu}, etc.). You can retrive the name
+greek letters (@samp{alpha}, @samp{mu}, etc.). You can retrieve the name
 and the LaTeX name of a symbol using the respective methods:
 @cindex @code{get_name()}
 @cindex @code{get_TeX_name()}
@@ -2175,19 +2175,17 @@ ex matrix::charpoly(const ex & lambda) const;
 unsigned matrix::rank() const;
 @end example
 
-The @samp{algo} argument of @code{determinant()} allows to select
-between different algorithms for calculating the determinant.  The
-asymptotic speed (as parametrized by the matrix size) can greatly differ
-between those algorithms, depending on the nature of the matrix'
-entries.  The possible values are defined in the @file{flags.h} header
-file.  By default, GiNaC uses a heuristic to automatically select an
-algorithm that is likely (but not guaranteed) to give the result most
-quickly.
+The optional @samp{algo} argument of @code{determinant()} allows to
+select between different algorithms for calculating the determinant.
+The asymptotic speed (as parametrized by the matrix size) can greatly
+differ between those algorithms, depending on the nature of the
+matrix' entries.  The possible values are defined in the
+@file{flags.h} header file.  By default, GiNaC uses a heuristic to
+automatically select an algorithm that is likely (but not guaranteed)
+to give the result most quickly.
 
-@cindex @code{inverse()} (matrix)
 @cindex @code{solve()}
-Matrices may also be inverted using the @code{ex matrix::inverse()}
-method and linear systems may be solved with:
+Linear systems can be solved with:
 
 @example
 matrix matrix::solve(const matrix & vars, const matrix & rhs,
@@ -2202,6 +2200,15 @@ times @code{p} and in the case of an underdetermined system will still
 contain some of the indeterminates from @code{vars}.  If the system is
 overdetermined, an exception is thrown.
 
+@cindex @code{inverse()} (matrix)
+To invert a matrix, use the method:
+
+@example
+matrix matrix::inverse(unsigned algo=solve_algo::automatic) const;
+@end example
+
+The @samp{algo} argument is optional.  If given, it must be one of
+@code{solve_algo} defined in @file{flags.h}.
 
 @node Indexed objects, Non-commutative objects, Matrices, Basic concepts
 @c    node-name, next, previous, up
@@ -3338,7 +3345,7 @@ something very close to @code{dirac_gamma(mu)}, although
 @code{dirac_gamma} have more efficient simplification mechanism. 
 @cindex @code{get_metric()}
 Also, the object created by @code{clifford_unit(mu, minkmetric())} is
-not aware about the symmetry of its metric, see the start of the pevious
+not aware about the symmetry of its metric, see the start of the previous
 paragraph. A more accurate analog of 'dirac_gamma(mu)' should be
 specifies as follows:
 

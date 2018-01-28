@@ -49,6 +49,8 @@
 // increasing. This doesn't matter, though: there is not incurred cost
 // for numbers that are omitted, except for shrinking the available space
 // of leftover numbers. Not something we need to worry about yet. ;-)
+// TODO, when setting GINAC_LT_REVISION to 0:
+//  * change matrix inverse to use default argument (twice)
 #define GINAC_LT_CURRENT  7
 #define GINAC_LT_REVISION 3
 #define GINAC_LT_AGE      1
