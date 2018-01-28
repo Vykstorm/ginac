@@ -1,3 +1,4 @@
+
 /** @file exam_matrices.cpp
  *
  *  Here we examine manipulations on GiNaC's symbolic matrices. */
@@ -275,6 +276,35 @@ static unsigned matrix_rank()
 	return result;	
 }
 
+unsigned matrix_solve_nonnormal()
+{
+	symbol a("a"), b("b"), c("c"), x("x");
+	// This matrix has a non-normal zero element!
+	matrix mx {{1,0,0},
+	           {0,1/(x+1)-(x-1)/(x*x-1),1},
+	           {0,0,0}};
+	matrix zero {{0}, {0}, {0}};
+	matrix vars {{a}, {b}, {c}};
+	try {
+		matrix sol_gauss   = mx.solve(vars, zero, solve_algo::gauss);
+		matrix sol_divfree = mx.solve(vars, zero, solve_algo::divfree);
+		matrix sol_bareiss = mx.solve(vars, zero, solve_algo::bareiss);
+		if (sol_gauss != sol_divfree  ||  sol_gauss != sol_bareiss) {
+			clog << "different solutions while solving "
+			     << mx << " * " << vars << " == " << zero << endl
+			     << "gauss:   " << sol_gauss << endl
+			     << "divfree: " << sol_divfree << endl
+			     << "bareiss: " << sol_bareiss << endl;
+			return 1;
+		}
+	} catch (const exception & e) {
+		clog << "exception thrown while solving "
+		     << mx << " * " << vars << " == " << zero << endl;
+		return 1;
+	}
+	return 0;
+}
+
 static unsigned matrix_misc()
 {
 	unsigned result = 0;
@@ -337,6 +367,7 @@ unsigned exam_matrices()
 	result += matrix_solve2();  cout << '.' << flush;
 	result += matrix_evalm();  cout << "." << flush;
 	result += matrix_rank();  cout << "." << flush;
+	result += matrix_solve_nonnormal();  cout << "." << flush;
 	result += matrix_misc();  cout << '.' << flush;
 	
 	return result;
