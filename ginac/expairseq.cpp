@@ -888,8 +888,7 @@ void expairseq::make_flat(const epvector &v, bool do_index_renaming)
 		    this->can_make_flat(cit)) {
 			ex newrest = mf.handle_factor(cit.rest, cit.coeff);
 			const expairseq &subseqref = ex_to<expairseq>(newrest);
-			combine_overall_coeff(ex_to<numeric>(subseqref.overall_coeff),
-			                      ex_to<numeric>(cit.coeff));
+			combine_overall_coeff(subseqref.overall_coeff, cit.coeff);
 			for (auto & cit_s : subseqref.seq) {
 				seq.push_back(expair(cit_s.rest,
 				                     ex_to<numeric>(cit_s.coeff).mul_dyn(ex_to<numeric>(cit.coeff))));
