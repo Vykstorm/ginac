@@ -212,10 +212,10 @@ static void get_symbol_stats(const ex &a, const ex &b, sym_desc_vec &v)
 
 #if 0
 	std::clog << "Symbols:\n";
-	it = v.begin(); itend = v.end();
+	auto it = v.begin(), itend = v.end();
 	while (it != itend) {
-		std::clog << " " << it->sym << ": deg_a=" << it->deg_a << ", deg_b=" << it->deg_b << ", ldeg_a=" << it->ldeg_a << ", ldeg_b=" << it->ldeg_b << ", max_deg=" << it->max_deg << ", max_lcnops=" << it->max_lcnops << endl;
-		std::clog << "  lcoeff_a=" << a.lcoeff(it->sym) << ", lcoeff_b=" << b.lcoeff(it->sym) << endl;
+		std::clog << " " << it->sym << ": deg_a=" << it->deg_a << ", deg_b=" << it->deg_b << ", ldeg_a=" << it->ldeg_a << ", ldeg_b=" << it->ldeg_b << ", max_deg=" << it->max_deg << ", max_lcnops=" << it->max_lcnops << std::endl;
+		std::clog << "  lcoeff_a=" << a.lcoeff(it->sym) << ", lcoeff_b=" << b.lcoeff(it->sym) << std::endl;
 		++it;
 	}
 #endif
@@ -1564,8 +1564,7 @@ ex gcd(const ex &a, const ex &b, ex *ca, ex *cb, bool check_args, unsigned optio
 			*cb = b;
 		return _ex1;
 	}
-	// move symbols which are contained only in one of the polynomials
-	// to the end:
+	// move symbol contained only in one of the polynomials to the end:
 	rotate(sym_stats.begin(), vari, sym_stats.end());
 
 	sym_desc_vec::const_iterator var = sym_stats.begin();
@@ -1677,7 +1676,6 @@ static ex gcd_pf_pow_pow(const ex& a, const ex& b, ex* ca, ex* cb)
 			if (cb)
 				*cb = b;
 			return _ex1;
-			// XXX: do I need to check for p_gcd = -1?
 	}
 
 	// there are common factors:
