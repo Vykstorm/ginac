@@ -1953,7 +1953,7 @@ static vector<ex> multivar_diophant(const vector<ex>& a_, const ex& x, const ex&
 				delta_s[j] = delta_s[j] * modcm;
 				sigma[j] = sigma[j] + umodpoly_to_ex(delta_s[j], x);
 			}
-			if ( nterms > 1 ) {
+			if ( nterms > 1 && i+1 != nterms ) {
 				z = c.op(i+1);
 			}
 		}
