@@ -1,8 +1,10 @@
 This file records noteworthy changes.
 
-1.7.3 (dd January 2018)
+1.7.3 (dd February 2018)
 * Speed up some corner cases of polynomial factorization.
+* Speed up some corner cases of gcd computation.
 * Speed up factorization of pre-factored polynomials.
+* Make matrix::solve() work with hidden (non-normal) zeros.
 * Fix bug in evaluation of real and imaginary parts of powers.
 * Fix some LaTeX output, add new function symbol::get_TeX_name().
 

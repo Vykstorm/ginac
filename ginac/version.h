@@ -51,6 +51,7 @@
 // of leftover numbers. Not something we need to worry about yet. ;-)
 // TODO, when setting GINAC_LT_REVISION to 0:
 //  * change matrix inverse to use default argument (twice)
+//  * remove interfaces marked as deprecated
 #define GINAC_LT_CURRENT  7
 #define GINAC_LT_REVISION 3
 #define GINAC_LT_AGE      1
