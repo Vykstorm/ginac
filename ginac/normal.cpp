@@ -1470,7 +1470,7 @@ ex gcd(const ex &a, const ex &b, ex *ca, ex *cb, bool check_args, unsigned optio
 	}
 
 	// Some trivial cases
-	ex aex = a.expand(), bex = b.expand();
+	ex aex = a.expand();
 	if (aex.is_zero()) {
 		if (ca)
 			*ca = _ex0;
@@ -1478,6 +1478,7 @@ ex gcd(const ex &a, const ex &b, ex *ca, ex *cb, bool check_args, unsigned optio
 			*cb = _ex1;
 		return b;
 	}
+	ex bex = b.expand();
 	if (bex.is_zero()) {
 		if (ca)
 			*ca = _ex1;
@@ -1563,7 +1564,7 @@ ex gcd(const ex &a, const ex &b, ex *ca, ex *cb, bool check_args, unsigned optio
 			*cb = b;
 		return _ex1;
 	}
-	// move symbols which contained only in one of the polynomials
+	// move symbols which are contained only in one of the polynomials
 	// to the end:
 	rotate(sym_stats.begin(), vari, sym_stats.end());
 
@@ -1706,17 +1707,27 @@ static ex gcd_pf_pow(const ex& a, const ex& b, ex* ca, ex* cb)
 	if (p.is_equal(b)) {
 		// a = p^n, b = p, gcd = p
 		if (ca)
-			*ca = pow(p, a.op(1) - 1);
+			*ca = pow(p, exp_a - 1);
 		if (cb)
 			*cb = _ex1;
 		return p;
-	} 
+	}
+	if (is_a<symbol>(p)) {
+		// Cancel trivial common factor
+		int ldeg_a = ex_to<numeric>(exp_a).to_int();
+		int ldeg_b = b.ldegree(p);
+		int min_ldeg = std::min(ldeg_a, ldeg_b);
+		if (min_ldeg > 0) {
+			ex common = pow(p, min_ldeg);
+			return gcd(pow(p, ldeg_a - min_ldeg), (b / common).expand(), ca, cb, false) * common;
+		}
+	}
 
 	ex p_co, bpart_co;
 	ex p_gcd = gcd(p, b, &p_co, &bpart_co, false);
 
-	// a(x) = p(x)^n, gcd(p, b) = 1 ==> gcd(a, b) = 1
 	if (p_gcd.is_equal(_ex1)) {
+		// a(x) = p(x)^n, gcd(p, b) = 1 ==> gcd(a, b) = 1
 		if (ca)
 			*ca = a;
 		if (cb)
