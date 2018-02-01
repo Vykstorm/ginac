@@ -1,6 +1,6 @@
 This file records noteworthy changes.
 
-1.7.3 (dd February 2018)
+1.7.3 (1 February 2018)
 * Speed up some corner cases of polynomial factorization.
 * Speed up some corner cases of gcd computation.
 * Speed up factorization of pre-factored polynomials.
