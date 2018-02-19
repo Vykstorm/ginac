@@ -148,7 +148,7 @@ public:
 	ex determinant(unsigned algo = determinant_algo::automatic) const;
 	ex trace() const;
 	ex charpoly(const ex & lambda) const;
-	matrix inverse() const { return inverse(solve_algo::automatic); }
+	matrix inverse() const;
 	matrix inverse(unsigned algo) const;
 	matrix solve(const matrix & vars, const matrix & rhs,
 	             unsigned algo = solve_algo::automatic) const;

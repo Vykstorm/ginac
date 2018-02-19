@@ -937,6 +937,12 @@ ex matrix::charpoly(const ex & lambda) const
 }
 
 
+/** Inverse of this matrix, with automatic algorithm selection. */
+matrix matrix::inverse() const
+{
+	return inverse(solve_algo::automatic);
+}
+
 /** Inverse of this matrix.
  *
  *  @param algo selects the algorithm (one of solve_algo)
