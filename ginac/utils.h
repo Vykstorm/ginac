@@ -342,6 +342,8 @@ public:
 
 			for (unsigned i = m - mpgen.m; i < m; ++i)
 				partition[i] = mpgen.x[i - m + mpgen.m + 1];
+
+			current_updated = true;
 		}
 		return partition;
 	}
@@ -375,6 +377,8 @@ public:
 		if (!current_updated) {
 			for (unsigned i = 0; i < mpgen.m; ++i)
 				partition[i] = mpgen.x[i + 1];
+
+			current_updated = true;
 		}
 		return partition;
 	}
