@@ -33,9 +33,4 @@
 #define attribute_deprecated
 #endif
 
-#ifdef _MSC_VER
-#define __func__ __FUNCTION__
-#define __alignof__ __alignof
-#endif
-
 #endif // ndef GINAC_COMPILER_DEP_H

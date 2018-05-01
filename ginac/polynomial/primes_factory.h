@@ -47,7 +47,7 @@ private:
 	// or even numeric. Eventually this will be fixed).
 	cln::cl_I last;
 	// This ensures coefficients are immediate.
-	static const int immediate_bits = 8*sizeof(void *) - __alignof__(void *);
+	static const int immediate_bits = 8*sizeof(void *) - alignof(void *);
 	static const long opt_hint = (1L << (immediate_bits >> 1)) - 1;
 public:
 	primes_factory()
