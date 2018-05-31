@@ -1071,20 +1071,20 @@ ex lsolve(const ex &eqns, const ex &symbols, unsigned options)
 	}
 	
 	// syntax checks
-	if (!eqns.info(info_flags::list)) {
-		throw(std::invalid_argument("lsolve(): 1st argument must be a list or an equation"));
+	if (!(eqns.info(info_flags::list) || eqns.info(info_flags::exprseq))) {
+		throw(std::invalid_argument("lsolve(): 1st argument must be a list, a sequence, or an equation"));
 	}
 	for (size_t i=0; i<eqns.nops(); i++) {
 		if (!eqns.op(i).info(info_flags::relation_equal)) {
 			throw(std::invalid_argument("lsolve(): 1st argument must be a list of equations"));
 		}
 	}
-	if (!symbols.info(info_flags::list)) {
-		throw(std::invalid_argument("lsolve(): 2nd argument must be a list or a symbol"));
+	if (!(symbols.info(info_flags::list) || symbols.info(info_flags::exprseq))) {
+		throw(std::invalid_argument("lsolve(): 2nd argument must be a list, a sequence, or a symbol"));
 	}
 	for (size_t i=0; i<symbols.nops(); i++) {
 		if (!symbols.op(i).info(info_flags::symbol)) {
-			throw(std::invalid_argument("lsolve(): 2nd argument must be a list of symbols"));
+			throw(std::invalid_argument("lsolve(): 2nd argument must be a list or a sequence of symbols"));
 		}
 	}
 	
