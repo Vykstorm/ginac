@@ -118,7 +118,6 @@ static unsigned check_inifcns_lsolve(unsigned n)
 		}
 		lst eqns;  // equation list
 		lst vars;  // variable list
-		ex sol;	// solution
 		// Create a random linear system...
 		for (unsigned i=0; i<n; ++i) {
 			ex lhs = rand()%201-100;
@@ -131,32 +130,34 @@ static unsigned check_inifcns_lsolve(unsigned n)
 			eqns.append(lhs==rhs);
 			vars.append(x[i]);
 		}
-		// ...solve it...
-		sol = lsolve(eqns, vars);
-		
-		// ...and check the solution:
-		if (sol.nops() == 0) {
-			// no solution was found
-			// is the coefficient matrix really, really, really degenerate?
-			matrix coeffmat(n,n);
-			for (unsigned ro=0; ro<n; ++ro)
-				for (unsigned co=0; co<n; ++co)
-					coeffmat.set(ro,co,eqns.op(co).rhs().coeff(a[co],1));
-			if (!coeffmat.determinant().is_zero()) {
-				++result;
-				clog << "solution of the system " << eqns << " for " << vars
-					 << " was not found" << endl;
-			}
-		} else {
-			// insert the solution into rhs of out equations
-			bool errorflag = false;
-			for (unsigned i=0; i<n; ++i)
-				if (eqns.op(i).rhs().subs(sol) != eqns.op(i).lhs())
-					errorflag = true;
-			if (errorflag) {
-				++result;
-				clog << "solution of the system " << eqns << " for " << vars
-				     << " erroneously returned " << sol << endl;
+		// ...solve it with each algorithm...
+		for (int algo = solve_algo::automatic; algo <= solve_algo::markowitz; algo++) {
+			ex sol = lsolve(eqns, vars, algo);
+			// ...and check the solution:
+			if (sol.nops() == 0) {
+				// no solution was found
+				// is the coefficient matrix really, really, really degenerate?
+				matrix coeffmat(n,n);
+				for (unsigned ro=0; ro<n; ++ro)
+					for (unsigned co=0; co<n; ++co)
+						coeffmat.set(ro,co,eqns.op(co).rhs().coeff(a[co],1));
+				if (!coeffmat.determinant().is_zero()) {
+					++result;
+					clog << "solution of the system " << eqns << " for " << vars
+					     << " was not found using algorithm " << algo << endl;
+				}
+			} else {
+				// insert the solution into rhs of out equations
+				bool errorflag = false;
+				for (unsigned i=0; i<n; ++i)
+					if (eqns.op(i).rhs().subs(sol) != eqns.op(i).lhs())
+						errorflag = true;
+				if (errorflag) {
+					++result;
+					clog << "solution of the system " << eqns << " for " << vars
+					     << " erroneously returned " << sol << " using algorithm "
+					     << algo << endl;
+				}
 			}
 		}
 	}

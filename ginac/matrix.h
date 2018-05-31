@@ -159,6 +159,7 @@ protected:
 	int gauss_elimination(const bool det = false);
 	int division_free_elimination(const bool det = false);
 	int fraction_free_elimination(const bool det = false);
+	std::vector<unsigned> markowitz_elimination(unsigned n);
 	int pivot(unsigned ro, unsigned co, bool symbolic = true);
 
 	void print_elements(const print_context & c, const char *row_start, const char *row_end, const char *row_sep, const char *col_sep) const;

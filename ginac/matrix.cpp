@@ -1003,7 +1003,7 @@ matrix matrix::solve(const matrix & vars,
 	const unsigned p = rhs.cols();
 	
 	// syntax checks    
-	if ((rhs.rows() != m) || (vars.rows() != n) || (vars.col != p))
+	if ((rhs.rows() != m) || (vars.rows() != n) || (vars.cols() != p))
 		throw (std::logic_error("matrix::solve(): incompatible matrices"));
 	for (unsigned ro=0; ro<n; ++ro)
 		for (unsigned co=0; co<p; ++co)
@@ -1042,6 +1042,10 @@ matrix matrix::solve(const matrix & vars,
 	}
 	
 	// Eliminate the augmented matrix:
+	std::vector<unsigned> colid(aug.cols());
+	for (unsigned c = 0; c < aug.cols(); c++) {
+		colid[c] = c;
+	}
 	switch(algo) {
 		case solve_algo::gauss:
 			aug.gauss_elimination();
@@ -1050,8 +1054,13 @@ matrix matrix::solve(const matrix & vars,
 			aug.division_free_elimination();
 			break;
 		case solve_algo::bareiss:
-		default:
 			aug.fraction_free_elimination();
+			break;
+		case solve_algo::markowitz:
+			colid = aug.markowitz_elimination(n);
+			break;
+		default:
+			throw std::invalid_argument("matrix::solve(): 'algo' is not one of the solve_algo enum");
 	}
 	
 	// assemble the solution matrix:
@@ -1071,18 +1080,18 @@ matrix matrix::solve(const matrix & vars,
 				// assign solutions for vars between fnz+1 and
 				// last_assigned_sol-1: free parameters
 				for (unsigned c=fnz; c<last_assigned_sol-1; ++c)
-					sol(c,co) = vars.m[c*p+co];
+					sol(colid[c],co) = vars.m[colid[c]*p+co];
 				ex e = aug.m[r*(n+p)+n+co];
 				for (unsigned c=fnz; c<n; ++c)
-					e -= aug.m[r*(n+p)+c]*sol.m[c*p+co];
-				sol(fnz-1,co) = (e/(aug.m[r*(n+p)+(fnz-1)])).normal();
+					e -= aug.m[r*(n+p)+c]*sol.m[colid[c]*p+co];
+				sol(colid[fnz-1],co) = (e/(aug.m[r*(n+p)+fnz-1])).normal();
 				last_assigned_sol = fnz;
 			}
 		}
 		// assign solutions for vars between 1 and
 		// last_assigned_sol-1: free parameters
 		for (unsigned ro=0; ro<last_assigned_sol-1; ++ro)
-			sol(ro,co) = vars(ro,co);
+			sol(colid[ro],co) = vars(colid[ro],co);
 	}
 	
 	return sol;
@@ -1293,6 +1302,119 @@ int matrix::gauss_elimination(const bool det)
 	return sign;
 }
 
+/* Perform Markowitz-ordered Gaussian elimination (with full
+ * pivoting) on a matrix, constraining the choice of pivots to
+ * the first n columns (this simplifies handling of augmented
+ * matrices). Return the column id vector v, such that v[column]
+ * is the original number of the column before shuffling (v[i]==i
+ * for i >= n). */
+std::vector<unsigned>
+matrix::markowitz_elimination(unsigned n)
+{
+	GINAC_ASSERT(n <= col);
+	std::vector<int> rowcnt(row, 0);
+	std::vector<int> colcnt(col, 0);
+	// Normalize everything before start. We'll keep all the
+	// cells normalized throughout the algorithm to properly
+	// handle unnormal zeros.
+	for (unsigned r = 0; r < row; r++) {
+		for (unsigned c = 0; c < col; c++) {
+			if (!m[r*col + c].is_zero()) {
+				m[r*col + c] = m[r*col + c].normal();
+				rowcnt[r]++;
+				colcnt[c]++;
+			}
+		}
+	}
+	std::vector<unsigned> colid(col);
+	for (unsigned c = 0; c < col; c++) {
+		colid[c] = c;
+	}
+	exvector ab(row);
+	for (unsigned k = 0; (k < col) && (k < row - 1); k++) {
+		// Find the pivot that minimizes (rowcnt[r]-1)*(colcnt[c]-1).
+		unsigned pivot_r = row + 1;
+		unsigned pivot_c = col + 1;
+		int pivot_m = row*col;
+		for (unsigned r = k; r < row; r++) {
+			for (unsigned c = k; c < n; c++) {
+				const ex &mrc = m[r*col + c];
+				if (mrc.is_zero())
+					continue;
+				GINAC_ASSERT(rowcnt[r] > 0);
+				GINAC_ASSERT(colcnt[c] > 0);
+				int measure = (rowcnt[r] - 1)*(colcnt[c] - 1);
+				if (measure < pivot_m) {
+					pivot_m = measure;
+					pivot_r = r;
+					pivot_c = c;
+				}
+			}
+		}
+		if (pivot_m == row*col) {
+			// The rest of the matrix is zero.
+			break;
+		}
+		GINAC_ASSERT(k <= pivot_r && pivot_r < row);
+		GINAC_ASSERT(k <= pivot_c && pivot_c < col);
+		// Swap the pivot into (k, k).
+		if (pivot_c != k) {
+			for (unsigned r = 0; r < row; r++) {
+				m[r*col + pivot_c].swap(m[r*col + k]);
+			}
+			std::swap(colid[pivot_c], colid[k]);
+			std::swap(colcnt[pivot_c], colcnt[k]);
+		}
+		if (pivot_r != k) {
+			for (unsigned c = k; c < col; c++) {
+				m[pivot_r*col + c].swap(m[k*col + c]);
+			}
+			std::swap(rowcnt[pivot_r], rowcnt[k]);
+		}
+		// No normalization before is_zero() here, because
+		// we maintain the matrix normalized throughout the
+		// algorithm.
+		ex a = m[k*col + k];
+		GINAC_ASSERT(!a.is_zero());
+		// Subtract the pivot row KJI-style (so: loop by pivot, then
+		// column, then row) to maximally exploit pivot row zeros (at
+		// the expense of the pivot column zeros). The speedup compared
+		// to the usual KIJ order is not really significant though...
+		for (unsigned r = k + 1; r < row; r++) {
+			const ex &b = m[r*col + k];
+			if (!b.is_zero()) {
+				ab[r] = b/a;
+				rowcnt[r]--;
+			}
+		}
+		colcnt[k] = rowcnt[k] = 0;
+		for (unsigned c = k + 1; c < col; c++) {
+			const ex &mr0c = m[k*col + c];
+			if (mr0c.is_zero())
+				continue;
+			colcnt[c]--;
+			for (unsigned r = k + 1; r < row; r++) {
+				if (ab[r].is_zero())
+					continue;
+				bool waszero = m[r*col + c].is_zero();
+				m[r*col + c] = (m[r*col + c] - ab[r]*mr0c).normal();
+				bool iszero = m[r*col + c].is_zero();
+				if (waszero && !iszero) {
+					rowcnt[r]++;
+					colcnt[c]++;
+				}
+				if (!waszero && iszero) {
+					rowcnt[r]--;
+					colcnt[c]--;
+				}
+			}
+		}
+		for (unsigned r = k + 1; r < row; r++) {
+			ab[r] = m[r*col + k] = _ex0;
+		}
+	}
+	return colid;
+}
 
 /** Perform the steps of division free elimination to bring the m x n matrix
  *  into an upper echelon form.
