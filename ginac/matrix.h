@@ -153,9 +153,11 @@ public:
 	matrix solve(const matrix & vars, const matrix & rhs,
 	             unsigned algo = solve_algo::automatic) const;
 	unsigned rank() const;
+	unsigned rank(unsigned solve_algo) const;
 	bool is_zero_matrix() const;
 protected:
 	ex determinant_minor() const;
+	std::vector<unsigned> echelon_form(unsigned algo, int n);
 	int gauss_elimination(const bool det = false);
 	int division_free_elimination(const bool det = false);
 	int fraction_free_elimination(const bool det = false);
@@ -219,6 +221,8 @@ inline matrix inverse(const matrix & m, unsigned algo)
 
 inline unsigned rank(const matrix & m)
 { return m.rank(); }
+inline unsigned rank(const matrix & m, unsigned solve_algo)
+{ return m.rank(solve_algo); }
 
 // utility functions
 

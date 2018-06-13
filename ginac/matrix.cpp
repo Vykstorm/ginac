@@ -986,7 +986,7 @@ matrix matrix::inverse(unsigned algo) const
 /** Solve a linear system consisting of a m x n matrix and a m x p right hand
  *  side by applying an elimination scheme to the augmented matrix.
  *
- *  @param vars n x p matrix, all elements must be symbols 
+ *  @param vars n x p matrix, all elements must be symbols
  *  @param rhs m x p matrix
  *  @param algo selects the solving algorithm
  *  @return n x p solution matrix
@@ -1002,7 +1002,7 @@ matrix matrix::solve(const matrix & vars,
 	const unsigned n = this->cols();
 	const unsigned p = rhs.cols();
 	
-	// syntax checks    
+	// syntax checks
 	if ((rhs.rows() != m) || (vars.rows() != n) || (vars.cols() != p))
 		throw (std::logic_error("matrix::solve(): incompatible matrices"));
 	for (unsigned ro=0; ro<n; ++ro)
@@ -1018,50 +1018,9 @@ matrix matrix::solve(const matrix & vars,
 		for (unsigned c=0; c<p; ++c)
 			aug.m[r*(n+p)+c+n] = rhs.m[r*p+c];
 	}
-	
-	// Gather some statistical information about the augmented matrix:
-	bool numeric_flag = true;
-	for (auto & r : aug.m) {
-		if (!r.info(info_flags::numeric)) {
-			numeric_flag = false;
-			break;
-		}
-	}
-	
-	// Here is the heuristics in case this routine has to decide:
-	if (algo == solve_algo::automatic) {
-		// Bareiss (fraction-free) elimination is generally a good guess:
-		algo = solve_algo::bareiss;
-		// For m<3, Bareiss elimination is equivalent to division free
-		// elimination but has more logistic overhead
-		if (m<3)
-			algo = solve_algo::divfree;
-		// This overrides any prior decisions.
-		if (numeric_flag)
-			algo = solve_algo::gauss;
-	}
-	
+
 	// Eliminate the augmented matrix:
-	std::vector<unsigned> colid(aug.cols());
-	for (unsigned c = 0; c < aug.cols(); c++) {
-		colid[c] = c;
-	}
-	switch(algo) {
-		case solve_algo::gauss:
-			aug.gauss_elimination();
-			break;
-		case solve_algo::divfree:
-			aug.division_free_elimination();
-			break;
-		case solve_algo::bareiss:
-			aug.fraction_free_elimination();
-			break;
-		case solve_algo::markowitz:
-			colid = aug.markowitz_elimination(n);
-			break;
-		default:
-			throw std::invalid_argument("matrix::solve(): 'algo' is not one of the solve_algo enum");
-	}
+	auto colid = aug.echelon_form(algo, n);
 	
 	// assemble the solution matrix:
 	matrix sol(n,p);
@@ -1097,20 +1056,23 @@ matrix matrix::solve(const matrix & vars,
 	return sol;
 }
 
-
 /** Compute the rank of this matrix. */
 unsigned matrix::rank() const
+{
+	return rank(solve_algo::automatic);
+}
+
+/** Compute the rank of this matrix using the given algorithm,
+ *  which should be a member of enum solve_algo. */
+unsigned matrix::rank(unsigned solve_algo) const
 {
 	// Method:
 	// Transform this matrix into upper echelon form and then count the
 	// number of non-zero rows.
-
 	GINAC_ASSERT(row*col==m.capacity());
 
-	// Actually, any elimination scheme will do since we are only
-	// interested in the echelon matrix' zeros.
 	matrix to_eliminate = *this;
-	to_eliminate.fraction_free_elimination();
+	to_eliminate.echelon_form(solve_algo, col);
 
 	unsigned r = row*col;  // index of last non-zero element
 	while (r--) {
@@ -1242,6 +1204,52 @@ ex matrix::determinant_minor() const
 	return det;
 }
 
+std::vector<unsigned>
+matrix::echelon_form(unsigned algo, int n)
+{
+	// Here is the heuristics in case this routine has to decide:
+	if (algo == solve_algo::automatic) {
+		// Gather some statistical information about the augmented matrix:
+		bool numeric_flag = true;
+		for (auto & r : m) {
+			if (!r.info(info_flags::numeric)) {
+				numeric_flag = false;
+				break;
+			}
+		}
+		// Bareiss (fraction-free) elimination is generally a good guess:
+		algo = solve_algo::bareiss;
+		// For row<3, Bareiss elimination is equivalent to division free
+		// elimination but has more logistic overhead
+		if (row<3)
+			algo = solve_algo::divfree;
+		// This overrides any prior decisions.
+		if (numeric_flag)
+			algo = solve_algo::gauss;
+	}
+	// Eliminate the augmented matrix:
+	std::vector<unsigned> colid(col);
+	for (unsigned c = 0; c < col; c++) {
+		colid[c] = c;
+	}
+	switch(algo) {
+		case solve_algo::gauss:
+			gauss_elimination();
+			break;
+		case solve_algo::divfree:
+			division_free_elimination();
+			break;
+		case solve_algo::bareiss:
+			fraction_free_elimination();
+			break;
+		case solve_algo::markowitz:
+			colid = markowitz_elimination(n);
+			break;
+		default:
+			throw std::invalid_argument("matrix::echelon_form(): 'algo' is not one of the solve_algo enum");
+	}
+	return colid;
+}
 
 /** Perform the steps of an ordinary Gaussian elimination to bring the m x n
  *  matrix into an upper echelon form.  The algorithm is ok for matrices
