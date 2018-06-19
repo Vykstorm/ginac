@@ -1211,21 +1211,38 @@ matrix::echelon_form(unsigned algo, int n)
 	if (algo == solve_algo::automatic) {
 		// Gather some statistical information about the augmented matrix:
 		bool numeric_flag = true;
-		for (auto & r : m) {
+		for (const auto & r : m) {
 			if (!r.info(info_flags::numeric)) {
 				numeric_flag = false;
 				break;
 			}
 		}
-		// Bareiss (fraction-free) elimination is generally a good guess:
-		algo = solve_algo::bareiss;
-		// For row<3, Bareiss elimination is equivalent to division free
-		// elimination but has more logistic overhead
-		if (row<3)
-			algo = solve_algo::divfree;
-		// This overrides any prior decisions.
-		if (numeric_flag)
-			algo = solve_algo::gauss;
+		unsigned density = 0;
+		for (const auto & r : m) {
+			density += !r.is_zero();
+		}
+		unsigned ncells = col*row;
+		if (numeric_flag) {
+			// For numerical matrices Gauss is good, but Markowitz becomes
+			// better for large sparse matrices.
+			if ((ncells > 200) && (density < ncells/2)) {
+				algo = solve_algo::markowitz;
+			} else {
+				algo = solve_algo::gauss;
+			}
+		} else {
+			// For symbolic matrices Markowitz is good, but Bareiss/Divfree
+			// is better for small and dense matrices.
+			if ((ncells < 120) && (density*5 > ncells*3)) {
+				if (ncells <= 12) {
+					algo = solve_algo::divfree;
+				} else {
+					algo = solve_algo::bareiss;
+				}
+			} else {
+				algo = solve_algo::markowitz;
+			}
+		}
 	}
 	// Eliminate the augmented matrix:
 	std::vector<unsigned> colid(col);

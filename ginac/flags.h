@@ -185,9 +185,11 @@ public:
 		bareiss,
 		/** Markowitz-ordered Gaussian elimination. Same as the usual
 		 *  Gaussian elimination, but with additional effort spent on
-		 *  selection pivots that minimize fill-in. Much faster than the
-		 *  methods above for large sparse matrices, marginally slower
-		 *  than Gaussian elimination otherwise. */
+		 *  selecting pivots that minimize fill-in. Faster than the
+		 *  methods above for large sparse matrices (particularly with
+		 *  symbolic coefficients), otherwise slightly slower than
+		 *  Gaussian elimination.
+		 */
 		markowitz
 	};
 };
