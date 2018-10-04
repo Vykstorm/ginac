@@ -5499,8 +5499,11 @@ ex ex::numer_denom();
 
 These functions will first normalize the expression as described above and
 then return the numerator, denominator, or both as a list, respectively.
-If you need both numerator and denominator, calling @code{numer_denom()} is
-faster than using @code{numer()} and @code{denom()} separately.
+If you need both numerator and denominator, call @code{numer_denom()}: it
+is faster than using @code{numer()} and @code{denom()} separately. And even
+more important: a separate evaluation of @code{numer()} and @code{denom()}
+may result in a spurious sign, e.g. for $x/(x^2-1)$ @code{numer()} may
+return $x$ and @code{denom()} $1-x^2$.
 
 
 @subsection Converting to a polynomial or rational expression
