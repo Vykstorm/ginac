@@ -215,6 +215,31 @@ static unsigned matrix_solve2()
 	return result;
 }
 
+static unsigned matrix_solve3()
+{
+	unsigned result = 0;
+	symbol x("x");
+	symbol t1("t1"), t2("t2"), t3("t3");
+	matrix A = {
+		{3+6*x, 6*(x+x*x)/(2+3*x), 0},
+		{-(2+7*x+6*x*x)/x, -2-2*x, 0},
+		{-2*(2+3*x)/(1+2*x), -6*x/(1+2*x), 1+4*x}
+	};
+	matrix B = {{0}, {0}, {0}};
+	matrix X = {{t1}, {t2}, {t3}};
+	for (auto algo : vector<int>({
+		solve_algo::gauss, solve_algo::divfree, solve_algo::bareiss, solve_algo::markowitz
+	})) {
+		matrix sol(A.solve(X, B, algo));
+		if (!normal((A*sol - B).evalm()).is_zero_matrix()) {
+			clog << "Solving " << A << " * " << X << " == " << B << " with algo=" << algo << endl
+			     << "erroneously returned " << sol << endl;
+			result += 1;
+		}
+	}
+	return result;
+}
+
 static unsigned matrix_evalm()
 {
 	unsigned result = 0;
@@ -365,6 +390,7 @@ unsigned exam_matrices()
 	result += matrix_invert2();  cout << '.' << flush;
 	result += matrix_invert3();  cout << '.' << flush;
 	result += matrix_solve2();  cout << '.' << flush;
+	result += matrix_solve3();  cout << '.' << flush;
 	result += matrix_evalm();  cout << "." << flush;
 	result += matrix_rank();  cout << "." << flush;
 	result += matrix_solve_nonnormal();  cout << "." << flush;

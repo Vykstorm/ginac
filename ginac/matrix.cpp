@@ -1470,7 +1470,7 @@ int matrix::division_free_elimination(const bool det)
 				sign = -sign;
 			for (unsigned r2=r0+1; r2<m; ++r2) {
 				for (unsigned c=c0+1; c<n; ++c)
-					this->m[r2*n+c] = (this->m[r0*n+c0]*this->m[r2*n+c] - this->m[r2*n+c0]*this->m[r0*n+c]).expand();
+					this->m[r2*n+c] = (this->m[r0*n+c0]*this->m[r2*n+c] - this->m[r2*n+c0]*this->m[r0*n+c]).normal();
 				// fill up left hand side with zeros
 				for (unsigned c=r0; c<=c0; ++c)
 					this->m[r2*n+c] = _ex0;
