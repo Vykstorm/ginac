@@ -565,6 +565,11 @@ ex expairseq::recombine_pair_to_ex(const expair &p) const
 
 bool expairseq::expair_needs_further_processing(epp it)
 {
+	if (is_exactly_a<numeric>(it->rest) &&
+	    it->coeff.is_equal(_ex1)) {
+		// the pair {<n>, 1} has yet to be absorbed into overall_coeff
+		return true;
+	}
 	return false;
 }
 

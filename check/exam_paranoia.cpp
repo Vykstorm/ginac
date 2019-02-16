@@ -623,6 +623,19 @@ static unsigned exam_paranoia24()
 	return result;
 }
 
+// Bug in add ctor
+unsigned exam_paranoia25()
+{
+	symbol a("a"), b("b"), c("c");
+	ex e = -a + 2*b + c;
+
+	if (e.diff(c).nops() > 1) {
+		clog << "diff(" << e << ",c) was not fully evaluated.\n";
+		return 1;
+	}
+	return 0;
+}
+
 unsigned exam_paranoia()
 {
 	unsigned result = 0;
@@ -654,6 +667,7 @@ unsigned exam_paranoia()
 	result += exam_paranoia22();  cout << '.' << flush;
 	result += exam_paranoia23();  cout << '.' << flush;
 	result += exam_paranoia24();  cout << '.' << flush;
+	result += exam_paranoia25();  cout << '.' << flush;
 	
 	return result;
 }
