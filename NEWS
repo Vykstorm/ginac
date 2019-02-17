@@ -1,5 +1,13 @@
 This file records noteworthy changes.
 
+1.7.5 (17 February 2019)
+* Add Markowitz-ordered Gaussian eliminatin.
+* Avoid un-normal zeros in matrix::solve().
+* Accept exprseq arguments in lsolve(eqns, vars).
+* Add overload of matrix::rank(solve_algo).
+* Fix case in G_do_hoelder with real x values which are not cl_R.
+* Fix an elusive bug in expairseq/add ctor, introduced in 1.7.0.
+
 1.7.4 (19 February 2018)
 * Fix ABI compatibility with 1.7.[0-2] (broken unintentionally in 1.7.3).
 
