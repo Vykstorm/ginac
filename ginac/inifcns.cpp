@@ -1038,23 +1038,28 @@ REGISTER_FUNCTION(Order, eval_func(Order_eval).
 // Solve linear system
 //////////
 
-static void insert_symbols(exset &es, const ex &e)
-{
-	if (is_a<symbol>(e)) {
-		es.insert(e);
-	} else {
-		for (const ex &sube : e) {
-			insert_symbols(es, sube);
+class symbolset {
+	exset s;
+	void insert_symbols(const ex &e)
+	{
+		if (is_a<symbol>(e)) {
+			s.insert(e);
+		} else {
+			for (const ex &sube : e) {
+				insert_symbols(sube);
+			}
 		}
 	}
-}
-
-static exset symbolset(const ex &e)
-{
-	exset s;
-	insert_symbols(s, e);
-	return s;
-}
+public:
+	explicit symbolset(const ex &e)
+	{
+		insert_symbols(e);
+	}
+	bool has(const ex &e) const
+	{
+		return s.find(e) != s.end();
+	}
+};
 
 ex lsolve(const ex &eqns, const ex &symbols, unsigned options)
 {
@@ -1095,10 +1100,11 @@ ex lsolve(const ex &eqns, const ex &symbols, unsigned options)
 	
 	for (size_t r=0; r<eqns.nops(); r++) {
 		const ex eq = eqns.op(r).op(0)-eqns.op(r).op(1); // lhs-rhs==0
-		const exset syms = symbolset(eq);
+		const symbolset syms(eq);
 		ex linpart = eq;
 		for (size_t c=0; c<symbols.nops(); c++) {
-			if (syms.count(symbols.op(c)) == 0) continue;
+			if (!syms.has(symbols.op(c)))
+				continue;
 			const ex co = eq.coeff(ex_to<symbol>(symbols.op(c)),1);
 			linpart -= co*symbols.op(c);
 			sys(r,c) = co;
@@ -1108,13 +1114,13 @@ ex lsolve(const ex &eqns, const ex &symbols, unsigned options)
 	}
 	
 	// test if system is linear and fill vars matrix
-	const exset sys_syms = symbolset(sys);
-	const exset rhs_syms = symbolset(rhs);
+	const symbolset sys_syms(sys);
+	const symbolset rhs_syms(rhs);
 	for (size_t i=0; i<symbols.nops(); i++) {
 		vars(i,0) = symbols.op(i);
-		if (sys_syms.count(symbols.op(i)) != 0)
+		if (sys_syms.has(symbols.op(i)))
 			throw(std::logic_error("lsolve: system is not linear"));
-		if (rhs_syms.count(symbols.op(i)) != 0)
+		if (rhs_syms.has(symbols.op(i)))
 			throw(std::logic_error("lsolve: system is not linear"));
 	}
 	
