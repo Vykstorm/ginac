@@ -1097,17 +1097,8 @@ unsigned matrix::rank(unsigned solve_algo) const
  *  @see matrix::determinant() */
 ex matrix::determinant_minor() const
 {
-	// for small matrices the algorithm does not make any sense:
 	const unsigned n = this->cols();
-	if (n==1)
-		return m[0].expand();
-	if (n==2)
-		return (m[0]*m[3]-m[2]*m[1]).expand();
-	if (n==3)
-		return (m[0]*m[4]*m[8]-m[0]*m[5]*m[7]-
-		        m[1]*m[3]*m[8]+m[2]*m[3]*m[7]+
-		        m[1]*m[5]*m[6]-m[2]*m[4]*m[6]).expand();
-	
+
 	// This algorithm can best be understood by looking at a naive
 	// implementation of Laplace-expansion, like this one:
 	// ex det;
@@ -1140,65 +1131,65 @@ ex matrix::determinant_minor() const
 	// calculated in step c-1.  We therefore only have to store at most 
 	// 2*binomial(n,n/2) minors.
 	
-	// Unique flipper counter for partitioning into minors
-	std::vector<unsigned> Pkey;
-	Pkey.reserve(n);
-	// key for minor determinant (a subpartition of Pkey)
-	std::vector<unsigned> Mkey;
+	// we store the minors in maps, keyed by the rows they arise from
+	typedef std::vector<unsigned> keyseq;
+	typedef std::map<keyseq, ex> Rmap;
+
+	Rmap M, N;  // minors used in current and next column, respectively
+	// populate M with dummy unit, to be used as factor in rightmost column
+	M[keyseq{}] = _ex1;
+
+	// keys to identify minor of M and N (Mkey is a subsequence of Nkey)
+	keyseq Mkey, Nkey;
 	Mkey.reserve(n-1);
-	// we store our subminors in maps, keys being the rows they arise from
-	typedef std::map<std::vector<unsigned>,class ex> Rmap;
-	typedef std::map<std::vector<unsigned>,class ex>::value_type Rmap_value;
-	Rmap A;
-	Rmap B;
+	Nkey.reserve(n);
+
 	ex det;
-	// initialize A with last column:
-	for (unsigned r=0; r<n; ++r) {
-		Pkey.erase(Pkey.begin(),Pkey.end());
-		Pkey.push_back(r);
-		A.insert(Rmap_value(Pkey,m[n*(r+1)-1]));
-	}
 	// proceed from right to left through matrix
-	for (int c=n-2; c>=0; --c) {
-		Pkey.erase(Pkey.begin(),Pkey.end());  // don't change capacity
-		Mkey.erase(Mkey.begin(),Mkey.end());
+	for (int c=n-1; c>=0; --c) {
+		Nkey.clear();
+		Mkey.clear();
 		for (unsigned i=0; i<n-c; ++i)
-			Pkey.push_back(i);
-		unsigned fc = 0;  // controls logic for our strange flipper counter
+			Nkey.push_back(i);
+		unsigned fc = 0;  // controls logic for minor key generator
 		do {
 			det = _ex0;
 			for (unsigned r=0; r<n-c; ++r) {
 				// maybe there is nothing to do?
-				if (m[Pkey[r]*n+c].is_zero())
+				if (m[Nkey[r]*n+c].is_zero())
 					continue;
-				// create the sorted key for all possible minors
-				Mkey.erase(Mkey.begin(),Mkey.end());
-				for (unsigned i=0; i<n-c; ++i)
-					if (i!=r)
-						Mkey.push_back(Pkey[i]);
-				// Fetch the minors and compute the new determinant
+				// Mkey is same as Nkey, but with element r removed
+				Mkey.clear();
+				Mkey.insert(Mkey.begin(), Nkey.begin(), Nkey.begin() + r);
+				Mkey.insert(Mkey.end(), Nkey.begin() + r + 1, Nkey.end());
+				// add product of matrix element and minor M to determinant
 				if (r%2)
-					det -= m[Pkey[r]*n+c]*A[Mkey];
+					det -= m[Nkey[r]*n+c]*M[Mkey];
 				else
-					det += m[Pkey[r]*n+c]*A[Mkey];
+					det += m[Nkey[r]*n+c]*M[Mkey];
 			}
-			// prevent build-up of deep nesting of expressions saves time:
+			// prevent nested expressions to save time
 			det = det.expand();
-			// store the new determinant at its place in B:
+			// if the next computed minor is zero, don't store it in N:
+			// (if key is not found, operator[] will just return a zero ex)
 			if (!det.is_zero())
-				B.insert(Rmap_value(Pkey,det));
-			// increment our strange flipper counter
+				N[Nkey] = det;
+			// compute next minor key
 			for (fc=n-c; fc>0; --fc) {
-				++Pkey[fc-1];
-				if (Pkey[fc-1]<fc+c)
+				++Nkey[fc-1];
+				if (Nkey[fc-1]<fc+c)
 					break;
 			}
 			if (fc<n-c && fc>0)
 				for (unsigned j=fc; j<n-c; ++j)
-					Pkey[j] = Pkey[j-1]+1;
+					Nkey[j] = Nkey[j-1]+1;
 		} while(fc);
-		// next column, clear B and change the role of A and B:
-		A = std::move(B);
+		// if N contains no minors, then they all vanished
+		if (N.empty())
+			return _ex0;
+
+		// proceed to next column: switch roles of M and N, clear N
+		M = std::move(N);
 	}
 	
 	return det;
