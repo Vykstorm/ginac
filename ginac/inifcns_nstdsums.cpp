@@ -605,6 +605,27 @@ ex G_eval(const Gparameter& a, int scale, const exvector& gsyms)
 	return pow(-1, x.nops()) * Li(m, x);
 }
 
+// convert back to standard G-function, keep information on small imaginary parts
+ex G_eval_to_G(const Gparameter& a, int scale, const exvector& gsyms)
+{
+	lst z;
+	lst s;
+	for (const auto & it : a) {
+		if (it != 0) {
+                        z.append(gsyms[std::abs(it)]);
+			if ( it<0 ) {
+			  s.append(-1);
+			} else {
+			  s.append(1);
+			}
+		} else {
+		        z.append(0);
+			s.append(1);
+		}
+	}
+	return G(z,s,gsyms[std::abs(scale)]);
+}
+
 
 // converts data for G: pending_integrals -> a
 Gparameter convert_pending_integrals_G(const Gparameter& pending_integrals)
@@ -844,8 +865,12 @@ ex G_transform(const Gparameter& pendint, const Gparameter& a, int scale,
 		return result / trailing_zeros;
 	}
 
-	// convergence case or flag_trailing_zeros_only
-	if (convergent || flag_trailing_zeros_only) {
+	// flag_trailing_zeros_only: in this case we don't have pending integrals
+	if (flag_trailing_zeros_only)
+		return G_eval_to_G(a, scale, gsyms);
+
+	// convergence case
+	if (convergent) {
 		if (pendint.size() > 0) {
 			return G_eval(convert_pending_integrals_G(pendint),
 			              pendint.front(), gsyms) *
