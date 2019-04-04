@@ -506,7 +506,7 @@ static void print_real_cl_N(const print_context & c, const cln::cl_R & x)
 		if (coerce(dst, cln::the<cln::cl_I>(x))) {
 			// can be converted to native int
 			if (dst < 0)
-				c.s << "(-" << dst << ")";
+				c.s << '(' << dst << ')';
 			else
 				c.s << dst;
 		} else {
