@@ -141,6 +141,10 @@ static unsigned exam_series1()
 	d = pow(a, b) + (pow(a, b)*b/a)*x + (pow(a, b)*b*b/a/a/2 - pow(a, b)*b/a/a/2)*pow(x, 2) + Order(pow(x, 3));
 	result += check_series(e, 0, d, 3);
 
+	e = a * (1 / (x * sin(x)) - sin(x) / x);
+	d = a * pow(x, -2) + Order(pow(x, -1));
+	result += check_series(e, 0, d, -1);
+
 	return result;
 }
 

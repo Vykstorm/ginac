@@ -959,9 +959,8 @@ ex mul::series(const relational & r, int order, unsigned options) const
 
 	int degsum = std::accumulate(ldegrees.begin(), ldegrees.end(), 0);
 
-	if (degsum >= order) {
-		epvector epv { expair(Order(_ex1), order) };
-		return dynallocate<pseries>(r, std::move(epv));
+	if (degsum > order) {
+		return dynallocate<pseries>(r, epvector{{Order(_ex1), order}});
 	}
 
 	// Multiply with remaining terms
