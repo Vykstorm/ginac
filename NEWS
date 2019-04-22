@@ -1,5 +1,12 @@
 This file records noteworthy changes.
 
+1.7.6 (22 April 2019)
+* Fix a bug in mul::series() about asymptotic order term.
+* Fix cl_N code generation for small negative integers.
+* Fix multiple polylog computation related to trailing zeros and user-specified
+  signs for small imaginary parts.
+* Fix CMake build with Python3.
+
 1.7.5 (17 February 2019)
 * Add Markowitz-ordered Gaussian eliminatin.
 * Avoid un-normal zeros in matrix::solve().
