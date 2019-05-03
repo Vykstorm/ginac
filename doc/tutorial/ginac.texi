@@ -201,7 +201,7 @@ Assuming the file is called @file{hello.cc}, on our system we can compile
 and run it like this:
 
 @example
-$ c++ hello.cc -o hello -lcln -lginac
+$ c++ hello.cc -o hello -lginac -lcln
 $ ./hello
 355687428096000*x*y+20922789888000*y^2+6402373705728000*x^2
 @end example
