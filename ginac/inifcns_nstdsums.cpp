@@ -3882,23 +3882,31 @@ static ex zeta1_evalf(const ex& x)
 		const int count = x.nops();
 		const lst& xlst = ex_to<lst>(x);
 		std::vector<int> r(count);
+		std::vector<int> si(count);
 
 		// check parameters and convert them
 		auto it1 = xlst.begin();
 		auto it2 = r.begin();
+		auto it_swrite = si.begin();
 		do {
 			if (!(*it1).info(info_flags::posint)) {
 				return zeta(x).hold();
 			}
 			*it2 = ex_to<numeric>(*it1).to_int();
+			*it_swrite = 1;
 			it1++;
 			it2++;
+			it_swrite++;
 		} while (it2 != r.end());
 
 		// check for divergence
 		if (r[0] == 1) {
 			return zeta(x).hold();
 		}
+
+		// use Hoelder convolution if Digits is large
+		if (Digits>50)
+			return numeric(zeta_do_Hoelder_convolution(r, si));
 
 		// decide on summation algorithm
 		// this is still a bit clumsy
