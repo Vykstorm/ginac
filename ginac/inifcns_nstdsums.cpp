@@ -83,6 +83,7 @@
 #include <sstream>
 #include <stdexcept>
 #include <vector>
+#include <cmath>
 
 namespace GiNaC {
 
@@ -3592,7 +3593,7 @@ static cln::cl_N crandall_Y_loop(const cln::cl_N& Sqk,
 		factor = factor * lambda;
 		N++;
 		res = res + crX[N] * factor / (N+Sqk);
-	} while ((res != resbuf) || cln::zerop(crX[N]));
+	} while (((res != resbuf) || cln::zerop(crX[N])) && (N+1 < crX.size()));
 	return res;
 }
 
@@ -3639,7 +3640,7 @@ static cln::cl_N crandall_Z(const std::vector<int>& s,
 			t0buf = t0;
 			q++;
 			t0 = t0 + f_kj[q+j-2][s[0]-1];
-		} while (t0 != t0buf);
+		} while ((t0 != t0buf) && (q+j-1 < f_kj.size()));
 		
 		return t0 / cln::factorial(s[0]-1);
 	}
@@ -3656,7 +3657,7 @@ static cln::cl_N crandall_Z(const std::vector<int>& s,
 			t[k] = t[k] + t[k+1] / cln::expt(cln::cl_I(q+j-1-k), s[k]);
 		}
 		t[0] = t[0] + t[1] * f_kj[q+j-2][s[0]-1];
-	} while (t[0] != t0buf);
+	} while ((t[0] != t0buf) && (q+j-1 < f_kj.size()));
 	
 	return t[0] / cln::factorial(s[0]-1);
 }
@@ -3689,8 +3690,11 @@ cln::cl_N zeta_do_sum_Crandall(const std::vector<int>& s)
 		L2 = 511;
 	} else if (Digits < 808) {
 		L2 = 1023;
-	} else {
+	} else if (Digits < 1636) {
 		L2 = 2047;
+	} else {
+	        // [Cra] section 6, log10(lambda/2/Pi) approx -0.79 for lambda=319/320, add some extra digits
+		L2 = std::pow(2, ceil( std::log2((long(Digits))/0.79 + 40 )) ) - 1;
 	}
 
 	cln::cl_N res;
