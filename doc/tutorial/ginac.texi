@@ -1533,6 +1533,15 @@ rational number will return a floating-point approximation. Both
 @code{to_int()/to_long()} and @code{to_double()} discard the imaginary
 part of complex numbers.
 
+Note the signature of the above methods, you may need to apply a type
+conversion and call @code{evalf()} as shown in the following example:
+@example
+    ...
+    ex e1 = 1, e2 = sin(Pi/5);
+    cout << ex_to<numeric>(e1).to_int() << endl
+         << ex_to<numeric>(e2.evalf()).to_double() << endl;
+    ...
+@end example
 
 @node Constants, Fundamental containers, Numbers, Basic concepts
 @c    node-name, next, previous, up
