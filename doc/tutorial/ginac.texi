@@ -6743,14 +6743,16 @@ The archive can then be written to a file:
 
 @example
     // ...
-    ofstream out("foobar.gar");
+    ofstream out("foobar.gar", ios::binary);
     out << a;
     out.close();
     // ...
 @end example
 
 The file @file{foobar.gar} contains all information that is needed to
-reconstruct the expressions @code{foo} and @code{bar}.
+reconstruct the expressions @code{foo} and @code{bar}. The flag
+@code{ios::binary} prevents locales setting of your OS tampers the
+archive file structure.
 
 @cindex @command{viewgar}
 The tool @command{viewgar} that comes with GiNaC can be used to view
@@ -6768,7 +6770,7 @@ read in again:
 @example
     // ...
     archive a2;
-    ifstream in("foobar.gar");
+    ifstream in("foobar.gar", ios::binary);
     in >> a2;
     // ...
 @end example
