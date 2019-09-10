@@ -4,7 +4,7 @@ PREREQUISITES
 1. A decent ISO C++-11 compiler. GCC (version >= 4.9) is recommended.
 2. CLN library (http://www.ginac.de/CLN), version >= 1.2.2
 3. CMake, version >= 2.8 (version 2.6.x might work too).
-4. Python, version >= 2.6
+4. Python 3
 5. (optional) pkg-config utility (http://pkg-config.freedesktop.org)
 6. (optional) bison (>= 2.3), flex (2.5.33), GNU readline (>= 4.3). These
    are necessary to build ginsh, the GiNaC interactive shell, and can be
