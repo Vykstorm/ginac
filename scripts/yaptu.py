@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """
 Yet Another Python Templating Utility, Version 1.2, by Alex Martelli.
 Distributed under PSF license (http://docs.python.org/license.html).
@@ -33,7 +33,7 @@ class copier:
         def repl(match, self=self):
             "return the eval of a found expression, for replacement"
             # uncomment for debug:
-            # print '!!! replacing',match.group(1)
+            # print('!!! replacing',match.group(1))
             expr = self.preproc(match.group(1), 'eval')
             try: return str(eval(expr, self.globals, self.locals))
             except: return str(self.handle(expr))
@@ -65,7 +65,7 @@ class copier:
                 stat = self.preproc(stat, 'exec')
                 stat = '%s _cb(%s,%s)' % (stat,i+1,j)
                 # for debugging, uncomment...:
-                # print "-> Executing: {"+stat+"}"
+                # print("-> Executing: {"+stat+"}")
                 exec(stat, self.globals, self.locals)
                 i=j+1
             else:       # normal line, just copy with substitution

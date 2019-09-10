@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # encoding: utf-8
 # TeX Live 2012 seems to dislike files produces by doxygen (1.8.x.y)
 # In particular, makeindex(1) program creates invalid index entries like
