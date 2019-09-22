@@ -29,7 +29,6 @@ set(ginac_tests
 	exam_clifford
 	exam_archive
 	exam_structure
-	exam_hashmap
 	exam_misc
 	exam_mod_gcd
 	exam_cra
@@ -44,7 +43,6 @@ set(ginac_timings
 	time_gammaseries
 	time_vandermonde
 	time_toeplitz
-	time_hashmap
 	time_lw_A
 	time_lw_B
 	time_lw_C

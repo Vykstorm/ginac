@@ -26,7 +26,6 @@ EXAMS = exam_paranoia \
 	exam_clifford  \
 	exam_archive  \
 	exam_structure  \
-	exam_hashmap  \
 	exam_misc \
 	exam_mod_gcd \
 	check_mul_info \
@@ -41,7 +40,6 @@ TIMES = time_dennyfliegner \
 	time_gammaseries \
 	time_vandermonde \
 	time_toeplitz \
-	time_hashmap \
 	time_lw_A \
 	time_lw_B \
 	time_lw_C \
@@ -146,9 +144,6 @@ exam_archive_LDADD = ../ginac/libginac.la
 exam_structure_SOURCES = exam_structure.cpp
 exam_structure_LDADD = ../ginac/libginac.la
 
-exam_hashmap_SOURCES = exam_hashmap.cpp
-exam_hashmap_LDADD = ../ginac/libginac.la
-
 exam_misc_SOURCES = exam_misc.cpp
 exam_misc_LDADD = ../ginac/libginac.la
 
@@ -176,9 +171,6 @@ time_vandermonde_LDADD = ../ginac/libginac.la
 time_toeplitz_SOURCES = time_toeplitz.cpp \
 			randomize_serials.cpp timer.cpp timer.h
 time_toeplitz_LDADD = ../ginac/libginac.la
-time_hashmap_SOURCES = time_hashmap.cpp \
-		       randomize_serials.cpp timer.cpp timer.h
-time_hashmap_LDADD = ../ginac/libginac.la
 
 time_lw_A_SOURCES = time_lw_A.cpp \
 		    randomize_serials.cpp timer.cpp timer.h

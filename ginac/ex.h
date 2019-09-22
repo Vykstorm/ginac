@@ -962,6 +962,26 @@ inline void swap(GiNaC::ex &a, GiNaC::ex &b)
 	a.swap(b);
 }
 
+/** Specialization of std::hash() for ex objects. */
+template<>
+struct hash<GiNaC::ex>
+{
+	std::size_t operator()(const GiNaC::ex & e) const noexcept
+	{
+		return e.gethash();
+	}
+};
+
+/** Specialization of std::equal_to() for ex objects. */
+template<>
+struct equal_to<GiNaC::ex>
+{
+	bool operator()(const GiNaC::ex &e1, const GiNaC::ex &e2) const noexcept
+	{
+		return e1.is_equal(e2);
+	}
+};
+
 } // namespace std
 
 #endif // ndef GINAC_EX_H
