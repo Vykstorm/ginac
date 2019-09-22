@@ -1,5 +1,10 @@
 This file records noteworthy changes.
 
+1.7.7 (dd September 2019)
+* Fix unarchiving empty containers.
+* Remove obsolete exhashmap implementation.
+* Fix issues with zeta computation.
+
 1.7.6 (22 April 2019)
 * Fix a bug in mul::series() about asymptotic order term.
 * Fix cl_N code generation for small negative integers.
