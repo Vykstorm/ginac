@@ -357,17 +357,17 @@ bool archive_node::has_same_ex_as(const archive_node &other) const
 }
 
 archive_node::archive_node_cit
-		archive_node::find_first(const std::string &name) const
-{	
+archive_node::find_first(const std::string &name) const
+{
 	archive_atom name_atom = a.atomize(name);
 	for (auto i=props.begin(); i!=props.end(); ++i)
 		if (i->name == name_atom)
 			return i;
-	return props.end();;
+	return props.end();
 }
 
 archive_node::archive_node_cit
-		archive_node::find_last(const std::string &name) const
+archive_node::find_last(const std::string &name) const
 {
 	archive_atom name_atom = a.atomize(name);
 	for (auto i=props.end(); i!=props.begin();) {
@@ -376,6 +376,23 @@ archive_node::archive_node_cit
 			return i;
 	}
 	return props.end();
+}
+
+archive_node::archive_node_cit_range
+archive_node::find_property_range(const std::string &name1, const std::string &name2) const
+{
+	archive_atom name1_atom = a.atomize(name1),
+	             name2_atom = a.atomize(name2);
+	archive_node_cit_range range = {props.end(), props.end()};
+	for (auto i=props.begin(); i!=props.end(); ++i) {
+		if (i->name == name1_atom && range.begin == props.end()) {
+			range.begin = i;
+		}
+		if (i->name == name2_atom && range.begin != props.end()) {
+			range.end = i + 1;
+		}
+	}
+	return range;
 }
 
 void archive_node::add_bool(const std::string &name, bool value)
@@ -455,8 +472,7 @@ bool archive_node::find_string(const std::string &name, std::string &ret, unsign
 	return false;
 }
 
-void archive_node::find_ex_by_loc(archive_node_cit loc, ex &ret, lst &sym_lst)
-		const
+void archive_node::find_ex_by_loc(archive_node_cit loc, ex &ret, lst &sym_lst) const
 {
 	ret = a.get_node(loc->value).unarchive(sym_lst);
 }
@@ -517,7 +533,7 @@ void archive_node::get_properties(propinfovector &v) const
 		if (!found)
 			v.push_back(property_info(type, name));
 		i++;
-	}	
+	}
 }
 
 static synthesize_func find_factory_fcn(const std::string& name)

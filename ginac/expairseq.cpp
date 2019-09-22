@@ -112,17 +112,15 @@ expairseq::expairseq(epvector && vp, const ex &oc, bool do_index_renaming)
 void expairseq::read_archive(const archive_node &n, lst &sym_lst) 
 {
 	inherited::read_archive(n, sym_lst);
-	auto first = n.find_first("rest");
-	auto last = n.find_last("coeff");
-	++last;
-	seq.reserve((last-first)/2);
+	auto range = n.find_property_range("rest", "coeff");
+	seq.reserve((range.end-range.begin)/2);
 
-	for (auto loc = first; loc < last;) {
+	for (auto loc = range.begin; loc < range.end;) {
 		ex rest;
 		ex coeff;
 		n.find_ex_by_loc(loc++, rest, sym_lst);
 		n.find_ex_by_loc(loc++, coeff, sym_lst);
-		seq.push_back(expair(rest, coeff));
+		seq.emplace_back(expair(rest, coeff));
 	}
 
 	n.find_ex("overall_coeff", overall_coeff, sym_lst);

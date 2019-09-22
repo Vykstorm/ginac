@@ -140,13 +140,11 @@ void matrix::read_archive(const archive_node &n, lst &sym_lst)
 	m.reserve(row * col);
 	// XXX: default ctor inserts a zero element, we need to erase it here.
 	m.pop_back();
-	auto first = n.find_first("m");
-	auto last = n.find_last("m");
-	++last;
-	for (auto i=first; i != last; ++i) {
+	auto range = n.find_property_range("m", "m");
+	for (auto i=range.begin; i != range.end; ++i) {
 		ex e;
 		n.find_ex_by_loc(i, e, sym_lst);
-		m.push_back(e);
+		m.emplace_back(e);
 	}
 }
 GINAC_BIND_UNARCHIVER(matrix);

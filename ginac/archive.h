@@ -82,6 +82,9 @@ public:
 		unsigned value;     /**< Stored value. */
 	};
 	typedef std::vector<property>::const_iterator archive_node_cit;
+	struct archive_node_cit_range {
+		archive_node_cit begin, end;
+	};
 
 	archive_node(archive &ar) : a(ar), has_expression(false) {}
 	archive_node(archive &ar, const ex &expr);
@@ -113,17 +116,22 @@ public:
 	bool find_string(const std::string &name, std::string &ret, unsigned index = 0) const;
 
 	/** Find the location in the vector of properties of the first/last
-    *  property with a given name. */
+	 *  property with a given name. */
 	archive_node_cit find_first(const std::string &name) const;
 	archive_node_cit find_last(const std::string &name) const;
+
+	/** Find a range of locations in the vector of properties. The result
+	 *  begins at the first property with name1 and ends one past the last
+	 *  property with name2. */
+	archive_node_cit_range find_property_range(const std::string &name1, const std::string &name2) const;
 
 	/** Retrieve property of type "ex" from node.
 	 *  @return "true" if property was found, "false" otherwise */
 	bool find_ex(const std::string &name, ex &ret, lst &sym_lst, unsigned index = 0) const;
 
 	/** Retrieve property of type "ex" from the node if it is known
-    *  that this node in fact contains such a property at the given
-    *  location. This is much more efficient than the preceding function. */
+	 *  that this node in fact contains such a property at the given
+	 *  location. This is much more efficient than the preceding function. */
 	void find_ex_by_loc(archive_node_cit loc, ex &ret, lst &sym_lst) const;
 
 	/** Retrieve property of type "ex" from node, returning the node of
@@ -271,14 +279,14 @@ public:
 	/** Retrieve expression from archive by index.
 	 *  @param sym_lst list of pre-defined symbols
 	 *  @param index index of expression
-     *  @see count_expressions */
+	 *  @see count_expressions */
 	ex unarchive_ex(const lst &sym_lst, unsigned index = 0) const;
 
 	/** Retrieve expression and its name from archive by index.
 	 *  @param sym_lst list of pre-defined symbols
 	 *  @param name receives the name of the expression
 	 *  @param index index of expression
-     *  @see count_expressions */
+	 *  @see count_expressions */
 	ex unarchive_ex(const lst &sym_lst, std::string &name, unsigned index = 0) const;
 
 	/** Return number of archived expressions. */

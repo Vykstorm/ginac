@@ -212,14 +212,12 @@ public:
 		inherited::read_archive(n, sym_lst);
 		setflag(get_default_flags());
 
-		archive_node::archive_node_cit first = n.find_first("seq");
-		archive_node::archive_node_cit last = n.find_last("seq");
-		++last;
-		this->reserve(this->seq, last - first);
-		for (archive_node::archive_node_cit i=first; i<last; ++i) {
+		auto range =  n.find_property_range("seq", "seq");
+		this->reserve(this->seq, range.end - range.begin);
+		for (archive_node::archive_node_cit i=range.begin; i<range.end; ++i) {
 			ex e;
 			n.find_ex_by_loc(i, e, sym_lst);
-			this->seq.push_back(e);
+			this->seq.emplace_back(e);
 		}
 	}
 
