@@ -402,7 +402,7 @@ ex pseries::eval() const
 	epvector new_seq;
 	new_seq.reserve(seq.size());
 	for (auto & it : seq)
-		new_seq.push_back(expair(it.rest, it.coeff));
+		new_seq.emplace_back(expair(it.rest, it.coeff));
 
 	return dynallocate<pseries>(relational(var,point), std::move(new_seq)).setflag(status_flags::evaluated);
 }
@@ -414,7 +414,7 @@ ex pseries::evalf() const
 	epvector new_seq;
 	new_seq.reserve(seq.size());
 	for (auto & it : seq)
-		new_seq.push_back(expair(it.rest, it.coeff));
+		new_seq.emplace_back(expair(it.rest, it.coeff));
 
 	return dynallocate<pseries>(relational(var,point), std::move(new_seq)).setflag(status_flags::evaluated);
 }
@@ -445,7 +445,7 @@ ex pseries::real_part() const
 	epvector v;
 	v.reserve(seq.size());
 	for (auto & it : seq)
-		v.push_back(expair((it.rest).real_part(), it.coeff));
+		v.emplace_back(expair(it.rest.real_part(), it.coeff));
 	return dynallocate<pseries>(var==point, std::move(v));
 }
 
@@ -460,7 +460,7 @@ ex pseries::imag_part() const
 	epvector v;
 	v.reserve(seq.size());
 	for (auto & it : seq)
-		v.push_back(expair((it.rest).imag_part(), it.coeff));
+		v.emplace_back(expair(it.rest.imag_part(), it.coeff));
 	return dynallocate<pseries>(var==point, std::move(v));
 }
 
@@ -469,7 +469,7 @@ ex pseries::eval_integ() const
 	std::unique_ptr<epvector> newseq(nullptr);
 	for (auto i=seq.begin(); i!=seq.end(); ++i) {
 		if (newseq) {
-			newseq->push_back(expair(i->rest.eval_integ(), i->coeff));
+			newseq->emplace_back(expair(i->rest.eval_integ(), i->coeff));
 			continue;
 		}
 		ex newterm = i->rest.eval_integ();
@@ -478,7 +478,7 @@ ex pseries::eval_integ() const
 			newseq->reserve(seq.size());
 			for (auto j=seq.begin(); j!=i; ++j)
 				newseq->push_back(*j);
-			newseq->push_back(expair(newterm, i->coeff));
+			newseq->emplace_back(expair(newterm, i->coeff));
 		}
 	}
 
@@ -497,7 +497,7 @@ ex pseries::evalm() const
 		if (something_changed) {
 			ex newcoeff = i->rest.evalm();
 			if (!newcoeff.is_zero())
-				newseq.push_back(expair(newcoeff, i->coeff));
+				newseq.emplace_back(expair(newcoeff, i->coeff));
 		} else {
 			ex newcoeff = i->rest.evalm();
 			if (!are_ex_trivially_equal(newcoeff, i->rest)) {
@@ -505,7 +505,7 @@ ex pseries::evalm() const
 				newseq.reserve(seq.size());
 				std::copy(seq.begin(), i, std::back_inserter<epvector>(newseq));
 				if (!newcoeff.is_zero())
-					newseq.push_back(expair(newcoeff, i->coeff));
+					newseq.emplace_back(expair(newcoeff, i->coeff));
 			}
 		}
 	}
@@ -528,7 +528,7 @@ ex pseries::subs(const exmap & m, unsigned options) const
 	epvector newseq;
 	newseq.reserve(seq.size());
 	for (auto & it : seq)
-		newseq.push_back(expair(it.rest.subs(m, options), it.coeff));
+		newseq.emplace_back(expair(it.rest.subs(m, options), it.coeff));
 	return dynallocate<pseries>(relational(var,point.subs(m, options)), std::move(newseq));
 }
 
@@ -540,7 +540,7 @@ ex pseries::expand(unsigned options) const
 	for (auto & it : seq) {
 		ex restexp = it.rest.expand();
 		if (!restexp.is_zero())
-			newseq.push_back(expair(restexp, it.coeff));
+			newseq.emplace_back(expair(restexp, it.coeff));
 	}
 	return dynallocate<pseries>(relational(var,point), std::move(newseq)).setflag(options == 0 ? status_flags::expanded : 0);
 }
@@ -556,11 +556,11 @@ ex pseries::derivative(const symbol & s) const
 		// FIXME: coeff might depend on var
 		for (auto & it : seq) {
 			if (is_order_function(it.rest)) {
-				new_seq.push_back(expair(it.rest, it.coeff - 1));
+				new_seq.emplace_back(expair(it.rest, it.coeff - 1));
 			} else {
 				ex c = it.rest * it.coeff;
 				if (!c.is_zero())
-					new_seq.push_back(expair(c, it.coeff - 1));
+					new_seq.emplace_back(expair(c, it.coeff - 1));
 			}
 		}
 
@@ -572,7 +572,7 @@ ex pseries::derivative(const symbol & s) const
 			} else {
 				ex c = it.rest.diff(s);
 				if (!c.is_zero())
-					new_seq.push_back(expair(c, it.coeff));
+					new_seq.emplace_back(expair(c, it.coeff));
 			}
 		}
 	}
@@ -626,7 +626,7 @@ ex basic::series(const relational & r, int order, unsigned options) const
 
 	// default for order-values that make no sense for Taylor expansion
 	if ((order <= 0) && this->has(s)) {
-		seq.push_back(expair(Order(_ex1), order));
+		seq.emplace_back(expair(Order(_ex1), order));
 		return pseries(r, std::move(seq));
 	}
 
@@ -636,7 +636,7 @@ ex basic::series(const relational & r, int order, unsigned options) const
 	ex coeff = deriv.subs(r, subs_options::no_pattern);
 
 	if (!coeff.is_zero()) {
-		seq.push_back(expair(coeff, _ex0));
+		seq.emplace_back(expair(coeff, _ex0));
 	}
 
 	int n;
@@ -651,13 +651,13 @@ ex basic::series(const relational & r, int order, unsigned options) const
 
 		coeff = deriv.subs(r, subs_options::no_pattern);
 		if (!coeff.is_zero())
-			seq.push_back(expair(fac * coeff, n));
+			seq.emplace_back(expair(fac * coeff, n));
 	}
 	
 	// Higher-order terms, if present
 	deriv = deriv.diff(s);
 	if (!deriv.expand().is_zero())
-		seq.push_back(expair(Order(_ex1), n));
+		seq.emplace_back(expair(Order(_ex1), n));
 	return pseries(r, std::move(seq));
 }
 
@@ -672,13 +672,13 @@ ex symbol::series(const relational & r, int order, unsigned options) const
 
 	if (this->is_equal_same_type(ex_to<symbol>(r.lhs()))) {
 		if (order > 0 && !point.is_zero())
-			seq.push_back(expair(point, _ex0));
+			seq.emplace_back(expair(point, _ex0));
 		if (order > 1)
-			seq.push_back(expair(_ex1, _ex1));
+			seq.emplace_back(expair(_ex1, _ex1));
 		else
-			seq.push_back(expair(Order(_ex1), numeric(order)));
+			seq.emplace_back(expair(Order(_ex1), numeric(order)));
 	} else
-		seq.push_back(expair(*this, _ex0));
+		seq.emplace_back(expair(*this, _ex0));
 	return pseries(r, std::move(seq));
 }
 
@@ -739,12 +739,12 @@ ex pseries::add_series(const pseries &other) const
 		} else {
 			// Add coefficient of a and b
 			if (is_order_function((*a).rest) || is_order_function((*b).rest)) {
-				new_seq.push_back(expair(Order(_ex1), (*a).coeff));
+				new_seq.emplace_back(expair(Order(_ex1), (*a).coeff));
 				break;  // Order term ends the sequence
 			} else {
 				ex sum = (*a).rest + (*b).rest;
 				if (!(sum.is_zero()))
-					new_seq.push_back(expair(sum, numeric(pow_a)));
+					new_seq.emplace_back(expair(sum, numeric(pow_a)));
 				++a;
 				++b;
 			}
@@ -793,7 +793,7 @@ ex pseries::mul_const(const numeric &other) const
 	
 	for (auto & it : seq) {
 		if (!is_order_function(it.rest))
-			new_seq.push_back(expair(it.rest * other, it.coeff));
+			new_seq.emplace_back(expair(it.rest * other, it.coeff));
 		else
 			new_seq.push_back(it);
 	}
@@ -860,10 +860,10 @@ ex pseries::mul_series(const pseries &other) const
 				co += ita->second * itb->second;
 		}
 		if (!co.is_zero())
-			new_seq.push_back(expair(co, numeric(cdeg)));
+			new_seq.emplace_back(expair(co, numeric(cdeg)));
 	}
 	if (higher_order_c < std::numeric_limits<int>::max())
-		new_seq.push_back(expair(Order(_ex1), numeric(higher_order_c)));
+		new_seq.emplace_back(expair(Order(_ex1), numeric(higher_order_c)));
 	return pseries(relational(var, point), std::move(new_seq));
 }
 
@@ -1054,14 +1054,14 @@ ex pseries::power_const(const numeric &p, int deg) const
 	bool higher_order = false;
 	for (int i=0; i<numcoeff; ++i) {
 		if (!co[i].is_zero())
-			new_seq.push_back(expair(co[i], p * ldeg + i));
+			new_seq.emplace_back(expair(co[i], p * ldeg + i));
 		if (is_order_function(co[i])) {
 			higher_order = true;
 			break;
 		}
 	}
 	if (!higher_order)
-		new_seq.push_back(expair(Order(_ex1), p * ldeg + numcoeff));
+		new_seq.emplace_back(expair(Order(_ex1), p * ldeg + numcoeff));
 
 	return pseries(relational(var,point), std::move(new_seq));
 }
@@ -1131,9 +1131,9 @@ ex power::series(const relational & r, int order, unsigned options) const
 	if (basis.is_equal(r.lhs() - r.rhs())) {
 		epvector new_seq;
 		if (ex_to<numeric>(exponent).to_int() < order)
-			new_seq.push_back(expair(_ex1, exponent));
+			new_seq.emplace_back(expair(_ex1, exponent));
 		else
-			new_seq.push_back(expair(Order(_ex1), exponent));
+			new_seq.emplace_back(expair(Order(_ex1), exponent));
 		return pseries(r, std::move(new_seq));
 	}
 
@@ -1190,7 +1190,7 @@ ex pseries::series(const relational & r, int order, unsigned options) const
 			for (auto & it : seq) {
 				int o = ex_to<numeric>(it.coeff).to_int();
 				if (o >= order) {
-					new_seq.push_back(expair(Order(_ex1), o));
+					new_seq.emplace_back(expair(Order(_ex1), o));
 					break;
 				}
 				new_seq.push_back(it);
@@ -1216,7 +1216,7 @@ ex integral::series(const relational & r, int order, unsigned options) const
 			? currcoeff
 			: integral(x, a.subs(r), b.subs(r), currcoeff);
 		if (currcoeff != 0)
-			fexpansion.push_back(
+			fexpansion.emplace_back(
 				expair(currcoeff, ex_to<pseries>(fseries).exponop(i)));
 	}
 

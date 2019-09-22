@@ -43,7 +43,7 @@ void archive::archive_ex(const ex &e, const char *name)
 
 	// Add root node ID to list of archived expressions
 	archived_ex ae = archived_ex(atomize(name), id);
-	exprs.push_back(ae);
+	exprs.emplace_back(ae);
 }
 
 
@@ -397,24 +397,24 @@ archive_node::find_property_range(const std::string &name1, const std::string &n
 
 void archive_node::add_bool(const std::string &name, bool value)
 {
-	props.push_back(property(a.atomize(name), PTYPE_BOOL, value));
+	props.emplace_back(property(a.atomize(name), PTYPE_BOOL, value));
 }
 
 void archive_node::add_unsigned(const std::string &name, unsigned value)
 {
-	props.push_back(property(a.atomize(name), PTYPE_UNSIGNED, value));
+	props.emplace_back(property(a.atomize(name), PTYPE_UNSIGNED, value));
 }
 
 void archive_node::add_string(const std::string &name, const std::string &value)
 {
-	props.push_back(property(a.atomize(name), PTYPE_STRING, a.atomize(value)));
+	props.emplace_back(property(a.atomize(name), PTYPE_STRING, a.atomize(value)));
 }
 
 void archive_node::add_ex(const std::string &name, const ex &value)
 {
 	// Recursively create an archive_node and add its ID to the properties of this node
 	archive_node_id id = a.add_node(archive_node(a, value));
-	props.push_back(property(a.atomize(name), PTYPE_NODE, id));
+	props.emplace_back(property(a.atomize(name), PTYPE_NODE, id));
 }
 
 
@@ -531,7 +531,7 @@ void archive_node::get_properties(propinfovector &v) const
 			++a;
 		}
 		if (!found)
-			v.push_back(property_info(type, name));
+			v.emplace_back(property_info(type, name));
 		i++;
 	}
 }

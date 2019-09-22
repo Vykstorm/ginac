@@ -1010,16 +1010,16 @@ ex power::expand_add(const add & a, long n, unsigned options)
 						// optimize away
 					} else if (exponent[i] == 1) {
 						// optimized
-						monomial.push_back(expair(r, _ex1));
+						monomial.emplace_back(expair(r, _ex1));
 						if (c != *_num1_p)
 							factor = factor.mul(c);
 					} else { // general case exponent[i] > 1
-						monomial.push_back(expair(r, exponent[i]));
+						monomial.emplace_back(expair(r, exponent[i]));
 						if (c != *_num1_p)
 							factor = factor.mul(c.power(exponent[i]));
 					}
 				}
-				result.push_back(expair(mul(std::move(monomial)).expand(options), factor));
+				result.emplace_back(expair(mul(std::move(monomial)).expand(options), factor));
 			} while (compositions.next());
 		} while (partitions.next());
 	}
@@ -1063,27 +1063,27 @@ ex power::expand_add_2(const add & a, unsigned options)
 		
 		if (c.is_equal(_ex1)) {
 			if (is_exactly_a<mul>(r)) {
-				result.push_back(expair(expand_mul(ex_to<mul>(r), *_num2_p, options, true),
-				                        _ex1));
+				result.emplace_back(expair(expand_mul(ex_to<mul>(r), *_num2_p, options, true),
+				                           _ex1));
 			} else {
-				result.push_back(expair(dynallocate<power>(r, _ex2),
-				                        _ex1));
+				result.emplace_back(expair(dynallocate<power>(r, _ex2),
+				                           _ex1));
 			}
 		} else {
 			if (is_exactly_a<mul>(r)) {
-				result.push_back(expair(expand_mul(ex_to<mul>(r), *_num2_p, options, true),
-				                        ex_to<numeric>(c).power_dyn(*_num2_p)));
+				result.emplace_back(expair(expand_mul(ex_to<mul>(r), *_num2_p, options, true),
+				                           ex_to<numeric>(c).power_dyn(*_num2_p)));
 			} else {
-				result.push_back(expair(dynallocate<power>(r, _ex2),
-				                        ex_to<numeric>(c).power_dyn(*_num2_p)));
+				result.emplace_back(expair(dynallocate<power>(r, _ex2),
+				                           ex_to<numeric>(c).power_dyn(*_num2_p)));
 			}
 		}
 
 		for (auto cit1=cit0+1; cit1!=last; ++cit1) {
 			const ex & r1 = cit1->rest;
 			const ex & c1 = cit1->coeff;
-			result.push_back(expair(mul(r,r1).expand(options),
-			                        _num2_p->mul(ex_to<numeric>(c)).mul_dyn(ex_to<numeric>(c1))));
+			result.emplace_back(expair(mul(r,r1).expand(options),
+			                           _num2_p->mul(ex_to<numeric>(c)).mul_dyn(ex_to<numeric>(c1))));
 		}
 	}
 	
